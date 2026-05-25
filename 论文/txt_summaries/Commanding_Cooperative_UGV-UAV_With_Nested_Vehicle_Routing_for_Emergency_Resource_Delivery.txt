@@ -1,0 +1,268 @@
+Received November 15, 2020, accepted November 23, 2020, date of publication November 26, 2020,
+date of current version December 11, 2020.
+Digital Object Identifier 10.1109/ACCESS.2020.3040790
+
+Commanding Cooperative UGV-UAV With Nested
+Vehicle Routing for Emergency Resource Delivery
+WEI GAO , JUNREN LUO , WANPENG ZHANG, WEILIN YUAN, AND ZHIYONG LIAO
+College of Intelligence Science and Technology, National University of Defense Technology, Changsha 410073, China
+
+Corresponding author: Wanpeng Zhang (wpzhang@nudt.edu.cn)
+This work was supported by the National Natural Science Foundation of China under Grant 61702528.
+
+ABSTRACT Unmanned ground vehicles (UGVs) and unmanned aerial vehicles (UAVs) have been widely
+used in delivery. In the context of the COVID-2019, in order to control the development of the epidemic, many
+places have adopted measures to isolate and close the area once a confirmed case is found. While reducing
+the contact between people, it also blocks the normal driving of vehicles. Only by changing the traditional
+logistics and distribution methods can customers who have been in a closed and isolated area for a long time
+be served. Therefore, we use the Cooperative UGV-UAV to achieve it. In this article, when commanding
+cooperative UGV and UAV for emergency resource delivery, we mainly focus on two questions: how to
+accept the operation order (OPORD) from the commander, how to generate a nested vehicle routing planning.
+We first employ one intelligent task understanding module to drive the intelligent unmanned vehicles to
+accept and process the C-BML (Coalition Battle Management Language) formatted OPORD with 5W (what,
+who, where, why, when) elements. Then, we slove the nested vehicle routing planning problem as a mixed
+integer linear program (MILP) with the outputs of what is the UGV route, what is the UGV sortie, and how
+to control the customers’ distribution between the UGV and the UAV.
+Experimental results of random instances and case study show that using the iterative improvement algorithm
+increase the speed rate of solving more than 10%.
+INDEX TERMS UGV, UAV, C-BML, MILP, delivery.
+I. INTRODUCTION
+
+With the rapid development of e-commerce, express delivery, and industry intelligent unmanned system technology, the cooperation of unmanned ground vehicles (UGVs)
+and unmanned aerial vehicles (UAVs) has long been used
+for some harshest military tasks, such as monitoring and
+inspection in contested urban environments and border
+patrolling [1], border intelligence,surveillance, reconnaissance (ISR) missions [2]–[4], and post-disaster relief [5]. It is
+also used in many domain, such as cellular communications,
+data gathering [6], urban illegal building detection [7] and
+map building [8]. During the epidemic diseases spreading
+such as COVID-19, package delivery becomes a key means of
+emergency resource transmission. In such situations, to prevent infectious diseases from becoming more serious, contactless delivery becomes a hot choice. However, how can we
+get a package and ensure personal safety? Cooperative UGV
+and UAV may be one applicable way to make it possible.
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Ahmed Mohamed Ahmed Almradi
+
+VOLUME 8, 2020
+
+.
+
+The contactless delivery of emergency resources is of great
+significance to the completion of various post-disaster operations and military missions. However, due to the complex
+and harsh environment in the delivery process, as well as the
+uncertainty of organization and command, delivery vehicles,
+transportation networks, the delivery of materials may not
+achieve the desired effect.
+Emergency resource becomes scarce after disaster. The
+main reasons for the scarcity of resource are as follows.
+On the one hand, the time and scale of the disaster are difficult
+to predict, and it is uneconomical and unrealistic to maintain
+a large reserve of emergency resource. Therefore, it is often
+difficult to store resource to meet all the needs of disaster
+area. On the other hand, although resource can be mobilized
+through various social channels after a disaster, the suddenness of disaster and the effectiveness of the mobilization of
+resource are conflicts that are difficult to reconcile. Leading
+to a large and concentrated demand for food, medicine, tents
+and other materials. The existing resource of various channels may not fully cover the needs of disaster area. After
+large-scale natural disasters occur, it is often necessary to
+
+This work is licensed under a Creative Commons Attribution 4.0 License. For more information, see https://creativecommons.org/licenses/by/4.0/
+
+215691
+
+W. Gao et al.: Commanding Cooperative UGV-UAV With Nested Vehicle Routing for Emergency Resource Delivery
+
+FIGURE 1. A UGV-UAV delivery system.
+
+mobilize rescue equipment, tents, and bedding within the first
+time. There are a large number of emergency resource of
+various types, including food, medicine, tent, and so on. The
+demand for supplies in the disaster area has the characteristics
+of heterogeneity. According to the analysis of the actual needs
+for post-disaster rescue, how to quickly rationalize the limited
+heterogeneous supplies after the disaster occurs. Contactless
+delivery to disaster areas is a problem worthy of study. Since
+disasters often cause damage to the original roads, and large
+vehicles cannot pass, it is necessary to use a cooperative
+UGV-UAV system.
+In this article, we comprehensively consider the above
+points to study how to allocate customers and plan the route
+of UGV and UAV to minimize the total service time when a
+UGV is equipped with a UAV to deliver to multiple customers
+in a certain area by a UGV-UAV delivery system as shown
+in Figure 1. The solution to this problem can not only meet the
+population isolation requirements when major public health
+emergencies such as COVID-19 and earthquake occur, reduce
+contact between people, but also increases the flexibility
+of traditional truck delivery of goods and improves overall
+delivery effectiveness.
+The transparent environment makes it difficult to conceal
+the delivery activities, and the fire threat caused by high-tech
+weapon strikes reduces the safety factor of material delivery
+operations, resulting in poor reliability of emergency resource
+delivery and causing significant losses of the front requirements. Therefore, it is a very important task for unmanned
+systems to correctly accept the OPORD from the commander,
+choose a reliable delivery method, and designing an optimal route.
+Recently, many scholars have conducted in-depth research
+on the cooperation of UGV and UAV for delivery. Although
+the use of UAVs in the logistics field is in its infancy,
+commercial practices have already begun. Amazon was the
+first company to propose the concept of drone delivery [9].
+In 2013, Amazon proposed a drone express delivery plan
+called Prime Air. The goal is to provide services to customers
+215692
+
+within 16km of the warehouse. The 8-axis UAV of different models with a maximum load of 2kg can be delivered
+within 30 minutes as fast as possible and automatically return
+home. UAV owns the advantages of fast speed and low cost.
+In 2016, the first delivery test was completed in England.
+SF Express began researching drone delivery as early as
+2012 and has obtained hundreds of patents. In June 2016,
+JD Logistics Laboratory also started drone testing. As the JD
+Smart Logistics National Operation-Dispatching Center and
+JD National UAV Operation-Dispatching Center, the UAVs
+delivery to some villages around was achieved during the
+‘‘618’’ period in 2017. The Chinese logistics ‘‘three giants’’
+JD, SF Express, and Alibaba are competing with companies
+from all over the world to develop UAVs with performance,
+endurance and reliability to deliver goods on a large scale and
+solve the high cost of express companies confronting the ‘‘last
+one-mile’’ puzzle.
+Although UAV delivery has been practiced in enterprises,
+academic research on the optimization of the UAV delivery system is relatively rare. In recent years, many scholars have conducted research in this area. As a traveling
+salesman problem (TSP) with drone, Murray and Chu [10]
+first proposed the flying sidekick traveling salesman problem
+(FSTSP), which provided a simple mathematical formulation
+and heuristic solution methodology for the problem of cooperation between only one traditional transportation truck and
+one UAV. Dorling et al. [11] established a model with the
+consideration of the relationship between the flight distance
+and load of the UAV. This study found that energy consumption and delivery time cannot be optimized at the same time.
+Therefore, it is necessary to balance these two objects and
+choose actual scenarios. Song et al. [12] integrated the UAV
+logistics system’s limited flight time and the large impact of
+cargo on performance, and proposed a UAV transportation
+path model based on the programming model, and designed
+a heuristic algorithm to solve the path. Rabta et al. [5] considered the application of UAVs in humanitarian logistics
+and proposed a model that minimizes the total cost of UAV
+transportation items under the constraints of load and energy
+consumption. Sundar and Rathinam [13] proposed a mathematical model for a UAV flight control system that considers
+refuelling in a distribution center. In the study, a drone visits
+the distribution center to refuel and continues to perform its
+mission. However, this method can only generate a flight
+path for a UAV, which limits its potential applicability to
+real-world problems.
+In this article, we address the problem of cooperative
+UGV-UAV for emergency resource delivery with two modules. One for the commanding of cooperative UGV-UAV
+from the operation order (OPORD) from the commander,
+which outputs the 5W (What, Who, Where, Why, and When)
+element from the C-BML formatted OPORD as follows: what
+is the task, who to perform the task, where the task should
+be executed, why they should be performed and when to act.
+Another for the nested vehicle routing, which attempts to
+answer the following questions: what is the UGV route, what
+VOLUME 8, 2020
+
+W. Gao et al.: Commanding Cooperative UGV-UAV With Nested Vehicle Routing for Emergency Resource Delivery
+
+are the UAV sorties, and how can we split the customers for
+the UGV and UAV?
+Our contributions can be concluded as follows:
+(1)We formulate the model of cooperative UGV-UAV for
+emergency resource delivery.
+(2)We design the intelligent task understanding module for
+the OPORD from the commander.
+(3)We propose one three-stage method for the nested vehicle routing problem, in which we use the saving and improvement heuristics based on the ‘‘UGV First, and UAV Second’’
+idea.
+The rest of this article is organized as follows. In Section II,
+some related work is presented. In Section III, we provide a
+formal problem definition, design the intelligent task understanding module, and propose on three-stage heuristic solution methodology. In Section IV, we conducted a numerical
+analysis to emphasize the benefits and limitations of cooperative UGV and multiple deploying UAVs. And supplementary
+analysis explored the size of the area, speed and range of UAV,
+and energy limitation. In Section V, we summarize this article
+and point out further research topics.
+
+II. LITERATURE REVIEW
+A. COALITION BATTLE MANAGEMENT LANGUAGE
+
+The design goals of Coalition Battle Management Language
+(C-BML) are: (1) an unambiguous command; (2) a protocol to modularize the robot. For these two goals, the first
+solve the problem of ambiguity, select a context-free grammar, specify its production, and then It can disambiguate
+grammatically. At the grammatical level of C-BML, Thomas
+Remmersmann et al. [14] believe that C-BML must be clear
+and unambiguous. In order to be clear and correct, C-BML
+must be designed as a formal language. A collection of
+sentences generated by a formal grammar [15]. In C-BML,
+the grammar is a command and control vocabulary grammar [16], and contains the concept of 5W. The core grammar
+rule is to combine tasks assigned to the unit. These rules are
+collectively expressed on ‘‘What’’. When constructing a task,
+at least one ‘‘What’’ needs to be included. ‘‘Who’’ represents
+the task assignment object and performer, and ‘‘Where’’ and
+‘‘When’’ represent the space and time constraints of the task.
+Thomas Remmersmann et al. [17] designed a control system for real robots to execute C-BML commands in 2010,
+and proposed a decomposition and planning system for
+C-BML tasks. Langerwisch et al. [18] developed a C-BML
+command-based control system for UAV and UGV with
+the Robot Operating System (ROS). In a heterogeneous
+cluster, UAV and UGV share information through C-BML
+and completed the corresponding tasks. The architecture of
+their system basically similar to Thomas Remmersmann,
+they combine ROS and C-BML using the BML Connector
+based on ROS, when distributing C-BML instructions from
+a high-level system. Schade et al. [19]have further discussed
+the grammar of C-BML. They believe that C-BML grammar
+should be: (1) context-free; (2) its vocabulary terms should
+VOLUME 8, 2020
+
+be taken from Joint Consultation, Command and Control
+Information Exchange Data Model (JC3IEDM) [19]; (3) its
+non-terminal symbols should represent semantic roles; (4) it
+should be possible to repair the order of the components,
+making the clause semantically disambiguating.
+
+B. NESTED VEHICLE ROUTING
+
+In the cooperative setting, the UGV can serve as mobile base
+stations for the UAV, which will expand the effective flying
+distance for the UAV, and greatly improve mission efficiency.
+At present, there have been some related researches on cooperative vehicle routing. The earliest introduction by Murray
+and Chu [10] established a MILP model for the FSTSP. Since
+then, many variants with different objectives of this problem
+have been proposed: (1) Minimize the total delivery time [10],
+[20]–[22], and (2) Minimize the costs [23], [24]. In terms
+of the solution methods for FSTSP, some simple heuristic
+algorithms are designed based on the idea of saving swap and
+neighborhood search. In order to better solve this problem,
+people began to design improvement and perturbation operators with problem characteristics for such a UGV-UAV system, forming some algorithms with faster solution efficiency
+and better solution quality [25], [26].
+Agatz [20] proposed the ‘‘Traveling Salesman Problem with Drone’’ (TSP-D) problem and the road network of
+drones and vehicles are the same, which is slightly different
+from FSTSP. This problem is also modelled as a mixed integer linear programming model, and a local search is used by
+the construction heuristic algorithm to improve the solution
+quality. Ha et al. [27] introduced the limitation of waiting
+time in this problem, that is, assuming that the drone and
+the vehicle will wait for each other within a long time limit.
+In terms of the solution methods for TSP-D, two heuristic
+algorithms, ‘‘UAV First UGV Second’’ and ‘‘UGV First UAV
+Second’’, are designed. At present, scholars have further
+study the iterative algorithm with better solution quality [28],
+and give an accurate solution of a branch and bound based on
+theoretical analysis [29].
+In addition, such nested vehicle routing planning (NVRP)
+problem has been expanded from the initial one-truck
+one-drone distribution [10], [20], [30]–[32] to the one-truck
+multi-drones delivery problem, the one-truck multi-drones
+delivery and pickup problem [33]–[36], and multiple trucks
+multiple drones problem [21], [22], [24], [35]. In recent
+years, several solution methodologies have been proposed
+to address the conundrum of nested vehicle routing through
+planning the paths of the UGV and UAVs to enable
+all customers to get packages, while ensuring that the
+time and energy consumed are minimized. A survey of
+UGV-UAV cooperation delivery [37] summarizes forty-eight
+paper, shows the percentage of common methods such as
+MILP, binary programming (BP), constraint programming
+(CP),dynamic programming (DP), non-linear programming
+(NLP), branch-and-bound algorithm (B&B), robust optimization (RO), quadratic programming (QP) and so on.
+215693
+
+

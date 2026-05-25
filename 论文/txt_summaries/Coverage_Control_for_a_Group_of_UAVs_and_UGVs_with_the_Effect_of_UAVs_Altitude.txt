@@ -1,0 +1,500 @@
+Proceedings of the 9th RSI International Conference on Robotics and Mechatronics (ICRoM 2021), Nov. 17-19, 2021, Tehran, Iran
+
+2021 9th RSI International Conference on Robotics and Mechatronics (ICRoM) | 978-1-6654-2094-5/21/$31.00 ©2021 IEEE | DOI: 10.1109/ICRoM54204.2021.9663435
+
+Coverage Control for a Group of UAVs and UGVs
+with the Effect of UAVs Altitude
+Arezoo Ansari
+
+Farzaneh Abdollahi
+
+Department of Electrical Engineering
+Amirkabir University of Technology
+Tehran, Iran
+ansariarezoo3@gmail.com
+
+Department of Electrical Engineering
+Amirkabir University of Technology
+Tehran, Iran
+f abdollahi@aut.ac.ir
+
+Abstract—This paper investigates coverage control for a group
+of aerial and ground robots. Our analysis reveals a novel
+cost function for placing the UAVs at the optimal height by
+considering a realistic model for the robots. This function
+provides a trade-off between the increasing coverage and reduction in quality of sensors which leads to a gradient-based
+distributed controller. This controller makes the robots move
+toward the optimal positions where they encode optimal coverage
+and minimizes the overlap of the sensor ﬁeld of view (FoV).
+Local optimal coverage is shown using the Lyapunov stability
+theorem. Simulation results are also provided to demonstrate
+the effectiveness of the deployment schemes.
+Index Terms—Multi-agent systems, Coverage control, Voronoi
+diagram, Quadrotor helicopter, UAVs, UGVs
+
+I. I NTRODUCTION
+A multi-agent system includes several agents interacting
+with each other to accomplish a unique goal. Cooperative
+control of multi-agent systems has numerous applications, one
+of which is coverage control that allocates robots to provide
+optimal solutions for monitoring based on a deﬁned objective
+function. Applications of coverage control includes border
+surveillance, identifying and exploring an unknown hazardous
+environment, and search and recovery operations [1].
+In [2], a coverage control using the Voronoi algorithm is
+proposed. A similar method is used in [3] considering a real
+model for robots with limited sensing range. The author in
+[4] uses a distributed algorithm for coverage using robots with
+different dynamics and capabilities. Using the multiplicatively
+weighted Voronoi diagram, the robots minimize the introduced
+cost function. Coverage in an unknown environment with barriers has been investigated in [5]. The robots avoid collisions
+with existing obstacles by a propsed virtual density function.
+In [6], two different robots, aerial and ground ones, cover
+an unknown area. The ground robots are serving agents
+responsible for coverage, and the aerial ones are explorer
+robots that identify, explore, and detect the targets. [7] and [8]
+utilize aerial robots equipped with cameras to monitor a twodimensional area. In [9], a multi-UAV system address coverage
+in precision agriculture. The same problem is investigated in
+[10], where the authors apply Deep Learning to control the
+UAVs. The author in [11] covers an environment by a group of
+quadrotors using locational optimization techniques. However,
+it does not addresses the effect of UAVs’ altitude in coverage.
+
+978-1-6654-2094-5/21/$31.00 ©2021 IEEE
+
+Deployment of multiple UAVs is of great importance in wireless networks. In this ﬁeld, UAVs act as aerial base stations
+which feature desirable characteristics for rapid, on-demand,
+or emergency communications. Authors in [12] address the
+UAV deployment problem by analyzing the trade-offs between
+crucial system parameters such as height, antenna beamwidth, and number of UAVs. In [13] and [14], UAVs emerge
+with the internet of things (IoT) technology and wireless
+sensor networks to collect data from devices that have limited
+transmit power.
+In this article, a heterogeneous multi-agent system is introduced in which robots have different nonholonomic dynamics. Several previous articles considered cooperation between
+aerial and ground robots. The collaboration of a UAV and a
+UGV, which have comparable motion patterns, but different
+velocity constraints, is addressed in [15]. The authors propose
+a novel moving center trajectory for the UAV with the help of
+the UGV, which determines the center of trajectory. In [16],
+a robotic system consisting of an aerial and ground robot is
+investigated. The UAV acts as a leader, and the UGV follows
+it to accomplish the search operations. In [17] and [18], the
+UAVs are equipped with cameras that ﬂy above the UGVs
+to inform the position, obstacles, and any possible danger.
+In [19], the collaboration of UAVs and UGVs is applied for
+information gathering and control in urban surveillance.
+In this article, the aerial robot is a quadrotor helicopter, while
+the wheeled robot has second-order differential dynamics with
+omnidirectional sensors. With the mixture of these two types
+of robots, we can take advantage of the aerial robot, which has
+a higher speed and sensing range and the higher accuracy of
+the ground robot to optimize the coverage. As the aerial robot
+moves in three dimensions, the change in its altitude causes
+different FoV. This fact can play an essential role in the quality
+and scale of coverage. Section II reviews the mathematical
+deﬁnition of the coverage problem and the solution, which is
+based on the centroidal Voronoi partitions. Section III provides
+the robots’ dynamics and their controllers. The coverage is
+investigated in Section IV. A novel speciﬁc cost function is
+derived in section V to ﬁnd the optimal altitude for each UAV.
+The effectiveness of the proposed method is then evaluated
+through numerical simulations shown in sub-section D.
+
+112
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:42 UTC from IEEE Xplore. Restrictions apply.
+
+II. COVERAGE CONTROL PROBLEM
+A. Problem Statement
+To achieve optimum coverage, the problem is deﬁned in
+mathematical models. In [2], the coverage is modeled as a
+locational optimization function. Then, the controllers are
+calculated to minimize the function. Using [2], we deﬁne the
+cost ﬁnction as (1).
+H(Pi ) =
+
+n 
+
+i=1
+
+f (d)φ(q)dq
+
+(1)
+
+Vi
+
+d is the distance between point (q) and the position of sensor i
+(Pi ). f (d) is Euclidean distance, with φ(q) being the density
+function of the environment representing the importance of
+each point. The Centroidal Voronoi diagram is used in which
+a Voronoi cell is assigned to each robot, and they are steered
+toward their corresponding center of gravity [2].
+III. ROBOT MODELS AND THE CONTROLLERS
+A. The Aerial Robot
+The aerial robot dynamics is shown in (2), [20].
+Iy − Iz
+L
+φ̈ = (
+)θ̇ψ̇ − kf ax φ̇2 − Jr Ωr θ̇ + U2
+Ix
+Ix
+I z − Ix
+L
+)φ̇ψ̇ − kf ay θ̇2 − Jr Ωr φ̇ + U3
+θ̈ = (
+Iy
+Iy
+Ix − Iy
+kd
+Ψ̈ = (
+)φ̇θ̇ − kf az Ψ̇2 + U4
+Iz
+Iz
+1
+ẍ = {(cosφsinθcosψ + sinφsinψ)U1 − kf tx ẋ}
+m
+1
+ÿ = {(cosφsinθsinψ − sinφcosψ)U1 − kf ty ẏ}
+m
+1
+(2)
+z̈ = {(cosφcosθ)U1 − kf tz ż} − g
+m
+By deﬁning the state variables x1 to x12 , the state equation of
+the robot dynamics is written as follows.
+⎡
+⎤
+x2
+⎢
+⎥
+a1 x6 x4 − Kf ax x22 − Jr Ωr X4 + b1 U2
+⎢
+⎥
+⎢
+⎥
+x4
+⎢
+⎥
+2
+⎢
+⎥
+a2 x2 x6 − Kf ay x4 − Jr Ωr X2 + b2 U3 x6
+⎢
+⎥
+⎢
+⎥
+a3 x2 x4 − Kf az x6 + b3 U4
+⎢
+⎥
+⎢
+⎥ (3)
+x8
+Ẋ = ⎢
+⎥
+1
+⎢
+⎥
+m {(cosφcosθ)U1 − kf tz x8 } − g
+⎢
+⎥
+⎢
+⎥
+x
+10
+⎢1
+⎥
+⎢ {(cosφsinθcosψ + sinφsinψ)U1 − kf tx x10 }⎥
+⎢m
+⎥
+⎣
+⎦
+x11
+1
+{(cosφsinθsinψ
+−
+sinφcosψ)U
+−
+k
+x
+}
+1
+f ty 12
+m
+
+TABLE I
+DEFINITION OF SYMBOLS
+symbols
+x, y, z
+φ, θ, Ψ
+kf ax , kf ay , kf az
+U1 , U2 , U3 , U4
+g
+
+deﬁnition
+the position of the quadrotor
+roll, pitch and yaw angle
+fraction coefﬁcient
+controllers input
+gravity acceleration
+
+symbols
+Ix,y,z
+Jr
+Ωr
+m, L
+kd
+
+deﬁnition
+body inertia
+rotor inertia
+rotor speed
+Mass, lever
+drag coefﬁcient
+
+B. The Control Strategy of the Aerial Robot
+The back-stepping approach proposed in [21] is utilized.
+C. The Control of the UAV
+According to (3), the subsystems of angles and altitude (z)
+are in the appropriate formats to use the back-stepping method.
+Thus, the following controllers are introduced [21].
+1
+U2 = (z1 − c2 z2 − a1 x4 x6 + a2 x4 Ωr + ẍ1d − c1 ż1 )
+b1
+1
+U3 = (z3 − c4 z4 − a3 x2 x6 + a4 x4 Ωr + ẍ3d − c3 ż3 )
+b2
+1
+U4 = (z5 − c6 z6 − a5 x2 x4 + ẍ5d − c5 ż5 )
+b3
+m
+U1 =
+(4)
+(Z7 − z8 + kf tz x8 + g)
+cosφcosθ
+where xid is the desired value of the state xi , with zi being
+its corresponding error. By assuming small values for roll and
+pitch and considering zero as the desired value for yaw, the
+equations of the position are simpliﬁed to the following form.
+U1
+θd − kf ty ẋ
+ẍ =
+m
+U1
+ÿ = − φd − kf ty ẏ
+(5)
+m
+By selecting the angle of θd and φd as virtual controllers,
+the position can be controlled by a PID controller as follows.
+
+m
+(kp (xd − x) + kd (ẋd − ẋ) + ki (xd − x))
+Ux =
+U1
+
+m
+Uy = − (kp (yd − y) + kd (ẏd − ẏ) + ki (yd − y))
+U1
+where xd and yd are the desired position of the robot.
+
+D. Ground Robot and its Controller
+The UGV is a two-wheeled differential robot. The kinematic
+and dynamic equations of the robot are as follows [22]:
+ẋ = vcosθ
+ẏ = vsinθ
+θ̇ = ω
+
+x1 = φ, x2 = φ̇, x3 = θ, x4 = θ̇, x5 = ψ, x6 = ψ̇
+x7 = z, x8 = ż, x9 = x, x10 = ẋ, x11 = y, x12 = ẏ
+
+(6)
+
+(7)
+
+(x, y) is the position of robots, θ is the angle between robot
+and x-axis, with v and ω being the speed and the angular
+acceleration. The controller is introduced in (8) using [22].
+
+where
+Iy − Iz
+L
+Iz − Ix
+) b1 = ( ) a 2 = (
+)
+Ix
+Ix
+Iy
+L
+Ix − Iy
+Kd
+) b3 = (
+)
+b2 = ( ) a 3 = (
+Iy
+Iz
+Iz
+a1 = (
+
+v = −kv ex
+ω = kω arctan(
+
+ex
+)
+ey
+
+113
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:42 UTC from IEEE Xplore. Restrictions apply.
+
+(8)
+
+where Kv and Kω are positive gains and ex and ey are errors
+with respect to the desired position.
+IV. COVERAGE OF HETEROGENEOUS ROBOTS
+
+system, and the LaSalle principle can be used to prove the
+stability.
+V̇ = 0 =⇒
+
+In section A, it is assumed that the height of quadrotors does
+not change. Using the Voronoi diagram introduced in [2], the
+positions of both types of robots are controlled to move toward
+the center of their corresponding Voronoi partitions.
+A. Coverage by wheeled robots and quadrotors
+It is assumed that n1 UGVs and n2 UAVs are randomly
+spread in an area. The aim is to ﬁnd a distributed controller
+so that the coverage will be done most effectively. The control
+law for ith wheeled robots and jth quadrotors are selected
+based on (8) and (4-6), respectively, with the desired position
+being the central point of their Voronoi partitions as follows.
+m
+(Mvi (CviX − xi ) − kx ẋi
+U xi =
+U1
+m
+U yi =
+(Mvi (CviY − yi ) − ky ẏi
+(9)
+U1
+exi
+cosθi sinθi
+(pi − Cvi )T
+=
+e yi
+−sinθi cosθ
+
+ẋ ≡ 0 =⇒ ẍ ≡ 0
+ẏ ≡ 0 =⇒ ÿ ≡ 0
+
+ẍj = Um1 Uxj − kf ax ẋ = 0
+ÿj = Um1 Uxj − kf ax ẏ = 0
+
+,
+
+(14)
+
+=⇒
+
+Uxj = 0 =⇒ xj = Cvjx
+=⇒ pj = Cvj
+Uxj = 0 =⇒ yj = Cvjy
+
+V̇ = 0 =⇒ Pi − Cvi 2 = 0 =⇒ Pi = Cvi
+Therefore, the system is asymptotically stable, and the position
+of robots converges to their locally optimum coordinates.
+B. Simulations
+Four UAVs, each at a unique height, and four UGVs start
+moving from the lower-left corner. Fig. 1 and Fig. 2 show the
+path of the robots. The robots cover the area inside the convex
+area, with sensors being deﬁned in a circle. Since robots must
+move only within their deﬁned range, they are assumed to be
+fully aware of the geography of the environment. The graph
+
+Theorem: By selecting the controllers (9), the multi-agent
+system described above is asymptotically stable, and robots’
+positions converge to the locally optimum coordinates.
+Proof: The following Lyapunov function is considered.
+V =
+
+1 n1
+2
+2
+Hj + Σnj=1
+ṗTj ṗj )
+(Σ Hi + Σnj=1
+2 i=1
+
+(10)
+
+where Hi is the cost function of agent i deﬁning as (11)
+[2].
+
+pi − q2 ϕ(q)dq
+(11)
+Hi =
+vi
+
+The derivative of the Lyapunov function with respect to the
+angles and the height is zero. Thus, we will have
+∂Hj
+1 n1 ∂Hi
+2
+2
+ṗ + Σnj=1
+ṗj + Σnj=1
+ṗTj p̈j )
+(12)
+(Σ
+2 i=1 ∂pi
+∂pj
+1
+2
+ṗi Mvi (Pi − Cvi ) + Σnj=1
+p̈j (Mvj (Pj − Cvj ) + p̈j )
+= Σni=1
+
+V̇ =
+
+Where M and C are deﬁned by interpreting the Voronoi
+partition as a physical object as follows [2] .
+
+qϕ(q)dq
+ϕ(q) , Cvi = vi
+Mv i =
+Mv i
+vi
+By selecting the controllers (9) and replacing them in (8), the
+following expression is obtained:
+
+Fig. 1. simulation results by two UGVs and UAVs.
+
+of the robots’ position versus time is shown in Fig. 3 and
+Fig. 4. The positions of the robots remain constant after 30s.
+This indicates the stability of the proposed method.
+The graph of UAVs’ orientation and altitudes is illustrated in
+Fig. 5 to Fig. 8. Although roll and yaw are not controlled
+independently, they are stable and converge to zero. High
+peaks in curves are due to the high error in the ﬁrst moment.
+
+1
+2
+V̇ = −kvi Mvi Σni=1
+pi − Cvi 2 − Σnj=1
+(k1 ẋ2j + k2 ẏj2 ) (13)
+
+K1 , K2 and Kvi are positive constants.
+The derivative of the Lyapunov function (14) is negative
+semideﬁnite. Suppose M is the set of points where (14) equals
+zero. Since the area is convex, this set of points is inside
+Q. Thus, M is a positively invariant set for the closed-loop
+
+V. COVERAGE CONTROL OF UAVS BY CHANGING
+THEIR ALTITUDES
+None of the previous research investigated the impact of
+changes in UAVs height. However, coverage zone (FoV) and
+the accuracy and performance of sensors alter according to
+
+114
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:42 UTC from IEEE Xplore. Restrictions apply.
+
+

@@ -1,0 +1,304 @@
+IEEE TRANSACTIONS ON GREEN COMMUNICATIONS AND NETWORKING, VOL. 6, NO. 1, MARCH 2022
+
+69
+
+Energy-Efficient Ground Traversability Mapping
+Based on UAV-UGV Collaborative System
+Jianqiang Li , Member, IEEE, Yanyan Cheng, Jin Zhou , Jie Chen , Zun Liu, Shuqing Hu,
+and Victor C. M. Leung , Life Fellow, IEEE
+
+Abstract—With the development of science and technology,
+robots have been widely used in smart cities. The traversability
+mapping of environment perception is the prerequisite for robots
+to perform tasks. To save the energy consumption of traversability mapping for unmanned ground vehicle (UGV), we fusion a
+wide range of aerial images and a small amount of ground images
+to provide vision for UGV. Current map fusion methods are usually constrained by homogeneous model of robotic systems and
+lack of diverse sensors. As a result, they cannot work well in
+heterogeneous collaborative robotic systems that consist of aerial
+and ground robots. In this paper, we use heterogeneous robot
+systems, including UGV and unmanned aerial vehicles (UAV) to
+build an occupancy grid map that can be used for navigation. To
+fuse sensor data of different types, we propose a Collaborative
+Map Fusion algorithm based on Multi-task Gaussian Process
+Classification (MTGPC) using heterogeneous robotic systems.
+Besides, probabilistic model is exploited in traversability mapping, so the active perception can be used to build the map
+efficiently. Our system is tested in real scenes and can achieve
+an accuracy of more than 70%. The map fusion using active
+perception is better than map fusion using random strategy in
+terms of speed and accuracy. To our knowledge, this is the first
+work that can build the occupancy grid map using sparse data
+points sampled from aerial images and ground lidar map.
+Index Terms—Map fusion, multi-task Gaussian process classification, heterogeneous robotic system.
+
+I. I NTRODUCTION
+N MAP-BASED navigation, UGV can quickly determine
+the current location and navigate to the target location.
+The demand for autonomous mobile robots such as UGVs
+and UAVs has greatly increased in recent years, however,
+it has been proved to be a challenging work for UGVs to
+
+I
+
+Manuscript received March 14, 2021; revised July 21, 2021; accepted
+August 14, 2021. Date of publication August 24, 2021; date of current version February 16, 2022. This work was supported in part by
+the National Nature Science Foundation of China under Grant U1713212,
+Grant 62072315, Grant 61836005, Grant 61806130, Grant 62073225,
+and Grant 62006157; in part by the National Key R&D Program of
+China under Grant 2020YFA0908700; in part by the Natural Science
+Foundation of Guangdong Province-Outstanding Youth Program under
+Grant 2019B151502018; and in part by Public Technology Platform of
+Shenzhen City under Grant GGFW2018021118145859. (Corresponding
+authors: Jie Chen; Victor C. M. Leung.)
+Jianqiang Li, Yanyan Cheng, Jin Zhou, Jie Chen, Zun Liu, and Shuqing Hu
+are with the College of Computer Science and Software Engineering,
+Shenzhen University, Shenzhen 518060, China (e-mail: chenjie@szu.edu.cn).
+Victor C. M. Leung is with the College of Computer Science and Software
+Engineering, Shenzhen University, Shenzhen 518060, China, and also with
+the Department of Electrical and Computer Engineering, University of British
+Columbia, Vancouver, BC V6T 1Z4, Canada (e-mail: vleung@ieee.org).
+Digital Object Identifier 10.1109/TGCN.2021.3107291
+
+navigate in unknown areas due to the uncertainty of the
+environment [1]. Recently, these robots are deployed to perform various dangerous or repetitive tasks. The robots need
+information about their surrounding environment to complete
+the assigned task, which is usually encoded as a traversability
+map [2]. There are two approaches for the robot to navigate. The first approach assumes that the robot knows nothing
+about the environment such as the Simultaneous Localization
+And Mapping (SLAM) [3]–[5] which allows robots to gradually build a complete traversability map while moving in an
+unknown environment. Generally, exploring an unknown environment will encounter many problems. For example, UGVs
+could fall into dead ends and need to avoid obstacles, but cameras or lidar detectors cannot detect low-lying lands or stairs
+in time due to the blind areas. The second approach assumes
+that the robot performs tasks in a given traversability map [6],
+this map-based navigation is natural for humans. More specifically, when visiting unknown cities, we only need an existing
+navigation traversability map in a standard format.
+There are many traversability mapping methods in the
+field of robotics research, and most existing path planning
+approaches are based on occupancy grid maps which are good
+choices for ground navigation [7], [8]. Occupancy grids, as
+they were introduced by Moravec and Elfes(1985), are based
+upon a regular tessellation of the space into a number of
+rectangular cells. They store in each cell c of this grid the
+probability p(c) that the corresponding area in the environment is occupied by an obstacle. The occupancy grid maps
+include deterministic and probabilistic. The former is to indicate whether there are obstacles at each location, the latter is
+to indicate the probability of an obstacle at each location and
+can provide users with better judgment based on probabilistic
+value. Some studies use node information to construct a topological map for navigation [9]. The topology map contains
+two basic elements: 1) the convex free space clusters (vertices) and 2) the topological edges connecting adjacent vertices
+which indicates that a robot can pass between the corresponding vertices. But it is not good at expressing complex structural
+areas and the shape of obstacles. The 3D texture mapping in
+Visual Simultaneous Localization And Mapping (VSLAM) is
+used for UAV applications [10]. It provides a powerful tool for
+abundant environmental information for navigation and visualization. The precise 3D model allows researchers to interact
+with the data acquired during the mission and understand the
+characteristics of the spatial distribution and environmental
+structure to guide the flight of the UAV. But it cannot be
+
+c 2021 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+2473-2400 
+See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:43 UTC from IEEE Xplore. Restrictions apply.
+
+70
+
+IEEE TRANSACTIONS ON GREEN COMMUNICATIONS AND NETWORKING, VOL. 6, NO. 1, MARCH 2022
+
+used directly for navigation and requires further processing.
+The data of these traversability maps is a deterministic value,
+which will cause a problem. When the system does not have
+enough data to predict the traversability map at a certain place,
+its predicted value at this place will be extremely uncertain.
+Therefore, the data is very inaccurate. However, users do not
+know this situation when using the traversability map but have
+very high trust in it, which will cause inestimable losses. In this
+paper, we build a probabilistic traversability map for UGV navigation. They divide the two-dimensional environment space
+into same-sized grids. Each grid represents a two-dimensional
+space region in the real environment and the states of grids
+are occupied or unoccupied.
+The world we live in is full of change and unpredictability, so it is difficult to design an autonomous robot that can
+effectively adapt to all situations. There are many robots of
+various shapes, sizes and functions, such as UAVs, dual-arm
+robots [11] and exoskeleton robots [12], [13]. Since different sensors have different advantages and limitations, each
+robot can carry heterogeneous sensors such as laser scanners, cameras. Although three-dimensional (3-D) lidars have
+a field of view of 360◦ , the quality of the maps they generate is not satisfactory due to the sparsity of their physical
+properties. RGB-D cameras produce denser, more detailed 3-D
+maps, but their fields of view are limited, and as the sensing
+range increases, the observation error increases exponentially. Therefore, using homogeneous sensors in multi-robot
+systems is far from enough in terms of mapping accuracy
+and robustness [14]. However, employing heterogeneous sensors on multiple robots can make full use of their advantages
+and provide a more accurate description of the environment.
+Therefore, multiple robots equipped with different sensors are
+designed to cooperate with each other to successfully complete
+complex tasks [15] such as assisting people in environmental monitoring tasks [16], search and rescue tasks [17] and
+medical care [18]. The air-ground robotic system has the
+potential to outperform uni-modal robotic systems. We use
+an air-ground cooperative robot system to combine and take
+advantage of the aerial and ground robots to generate an occupancy grid map that can be used for navigation of UGVs. The
+reasons we use an air-ground map fusion are two folds: 1) The
+lidar maps of the UGVs are accurate, but the observable range
+of lidar sensors are limited. The UGVs are prone to fall into
+the low-lying land and dead corners, which leads to low efficiency of traversability mapping [3], [4]. 2) The image maps
+of UAVs have a wide perspective and low mapping cost, but
+the accuracy of traversability mapping is low and the two view
+is easily effected by light or obstacles, such as branches [10].
+The proposed method aims to combine the best of two worlds.
+The motivation for this paper is that the research of exploiting a multi-robot map fusion framework using Multi-task
+Gaussian Process(MTGP) has not been studied extensively. In
+general, the map fusion problem is composed of the estimation
+of relative transformations and the integration of partial map
+information, which is usually tackled separately [19]. Existing
+approaches usually employ point set registration algorithms
+to achieve map matching [20], [21], where the hard one-toone correspondence relationship is assigned. Since the intrinsic
+
+characteristics (i.e., density. range, field-of-view) of the map
+vary from different sensors, accurate estimation of the relative transformation is a challenging problem. In this paper, we
+use a probabilistic model called Multi-task Gaussian Process
+(MTGP) to solve map fusion of heterogeneous robots (airground collaborative robots) and generate an occupied grid
+map. Firstly, we use the idea of Gaussian process (GP) [22],
+the predicted value is expressed as a probability value that
+follows the Gaussian distribution (GD) so that people can
+be on target when using the traversability map. Then, map
+fusion using heterogeneous robot teams will dynamically solve
+complex tasks by effectively combining their complementary
+functions [23]. However, because the data comes from different perspectives and scopes, how to effectively coordinate
+heterogeneous teams has been an ongoing challenge in multirobot research [24], [25]. Multi-task learning is usually used to
+train prediction models by building correlations between data
+of different tasks. The occupancy states from air and ground
+are expressed in discrete binary values, respectively. Based on
+the data of the UGV and UAV sensors corresponding to the
+known area, the occupancy probability of the unknown area
+is predicted. The system can fuse aerial and ground data and
+can display the results in the form of probability.
+The main contributions of this paper are as follows:
+1) We propose a Multi-task Gaussian Process Map Fusion
+(MGPMF) system of heterogeneous robots to fuse aerial
+and ground data and generate an traversability map. The
+system can predict occupied probability of unknown
+areas by establishing the relationship between the image
+map and the lidar map corresponding to each coordinate
+in the known areas.
+2) We use the MGPMF system based on GP for data fusion
+to get a probabilistic traversability map. So we can use
+active perception to guide UGV and UAV to perform
+path planning and map fusion in the traversability map
+with high uncertainty, which improves the efficiency of
+mapping task.
+3) Our proposed system has been verified in a real scenario and can achieve an accuracy of more than 70%.
+The efficiency and accuracy of using active perception
+mapping are higher than random mapping.
+II. R ELATED W ORK
+An accurate traversability map is a prerequisite for the robot
+to precisely navigate and can ensure that the vehicle can be
+safely guided without a driver. Among the existing methods
+of map fusion, some use homogenous data for map fusion,
+that is, data fusion of multiple UGV sensors or UAV sensors
+(i.e., multiple cameras) [19], [26]. A global occupancy map
+is built in real time by incrementally fusing local overlapping
+Hilbert maps [27]. It uses scans data from multiple UAVs without considering the aerial perspective. Reference [28] consider
+evidence integration from potentially dependent observation
+processes under varying spatio-temporal sampling resolutions
+and noise levels. However, these methods cannot fuse heterogeneous data and take advantage of air-ground collaborative
+robot systems. The Deep Gaussian Processes(DGP) has a two
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:43 UTC from IEEE Xplore. Restrictions apply.
+
+LI et al.: ENERGY-EFFICIENT GROUND TRAVERSABILITY MAPPING BASED ON UAV-UGV COLLABORATIVE SYSTEM
+
+layer structure that the first layer is responsible for extracting shared and task specific features, while the second layer
+transforms the features into task specific outputs [29]. It can
+capture non-linear relationship between the tasks, but the time
+consumption greatly increased. This paper provides an abstract
+description of the environment through hand-drawn sketch so
+that the robot can perform autonomous navigation and exploration when the complete environmental metric description is
+not available in advance [30]. But it requires a lot of artificial
+information which is costly. Similarly, a Bayesian framework
+is proposed that fuses robot motion and visual features for
+regular 3-D mapping [31]. Besides, a novel idea is proposed
+for depth estimation from multi-view image-pose pairs [32].
+The depth maps can accurately encode the surrounding environmental information, but they cannot be used directly for the
+navigation of UGVs. The MGPMF system we proposed can
+fuse air and ground information and generate an occupancy
+grid map.
+Multi-Task Learning (MTL) improves generalization by
+leveraging the domain-specific information contained in the
+training signals of related tasks [33]. While the Single-Task
+GP models the covariance between the values of the same
+task at different positions, the MTGP allows one to perform simultaneous learning of multiple tasks by modelling
+the covariance between different tasks at their respective positions [34]. MTGPs perform significantly better than individual
+GPs at the modeling problem as they effectively integrate
+heterogeneous sources of information (concentrations of individual elements) to improve the individual predictions of each
+of them [35]. MTL effectively increases the sample size that
+we are using for training our model. Regarding air-ground
+map fusion, the image information captured by the UGVs
+is easily available. We use MTL for multi-task classification
+by sharing information between related tasks. The earliest
+is to use the k-nearest neighbor task clustering algorithm
+to do multi-task classification [36]. Xue et al. derived the
+distribution from the Dirichlet process and proposed a symmetric multitask learning (SMTL) and asymmetric multitask
+learning (AMTL) formula to enable the model to learn the similarity between different tasks [37]. A generalized sequential
+minimal optimization (SMO) algorithm is also used for multitask classification. Compared with the typical SVM + MTL
+problem, the proposed SMO can achieve more than 100 times
+speedup [38]. A deep relationship network is proposed to learn
+the relationship between tasks [39]. Because the classification
+category we expect is a probability value, we use the MTGP
+model to do multi-task classification, which is conducive to
+active perception in Section III-C.
+In addition to air-ground map fusion, another of our
+improvements is to use active perception to efficiently build
+maps. A decentralized active sensing algorithm is devised to
+address the problem of active sensing: How can autonomous
+robotic vehicles actively cruise a road network to gather
+and assimilate the most informative data for predicting a
+spatiotemporally varying traffic phenomenon [40] The sensory system uses a new active phase unwrapping method to
+effectively determine both 2-D and 3-D sensory information
+of scenes consisting of multiple objects [41]. However, in
+
+71
+
+existing mapping, Gregorio and Stefano [42] extract elevation
+maps from laser sensor data and use these maps for navigating an all-terrain vehicle. The elevation map consists of
+a two-dimensional grid, which stores the height of the surface in the corresponding area in each cell of the discrete
+grid. Triebel et al. [43] introduced multilevel surface maps
+which is an extension of elevation maps. Compared to elevation maps, multi-level surface maps store in each cell of
+a discrete grid a list of surfaces and allow mobile robots to
+operate in environments with multiple levels. Furthermore,
+Ryde and Hu [44] proposed the volumetric representation
+with multi-resolution occupied voxel lists. There is an explicit
+merge or rasterization step to generate a global occupancy
+map based on the optimized pose [45]. However, as unoccupied areas and unknown areas are not represented, all of the
+above approaches [42]–[45] cannot update the maps in a probabilistic form. The maps generated by the MGPMF system are
+probabilistic traversability maps. If the probability of a point
+is close to 0, the point will be considered unoccupied; if the
+probability is close to 1, the point will be considered occupied; if the probability is near 0.5, it will be considered an
+uncertain point.
+III. M ETHODOLOGY
+The ground traversability mapping proposed can be defined
+as (1):
+MP = MGPMF (A1 , A2 , A3 , . . . , G)
+
+(1)
+
+where MP represents the fusion map of UAVs and UGV, Ai
+represents the image data of the ith UAV and G represents
+the lidar maps of the UGV, MGPMF is the system we propose. The MGPMF system is divided into three parts, image
+matching, map fusion, and active perception. First, the relationship between the coordinate system of the lidar maps and
+the image maps is constructed to obtain the initial training
+data set. Then, the MTGP is used to fuse the heterogeneous
+image maps and the lidar maps to generate probability occupied grid maps. Finally, based on the generated probabilistic
+traversability maps, active perception is used to guide UGVs
+and UAVs for path planning, which improves the efficiency of
+map fusion. As shown in Fig. 1, the data collection and data
+processing will be described in detail in Section IV-A.
+A. Image Matching
+In order to obtain training data, we match the lidar map
+and the semantic map to obtain the labels for both of them
+in the same position, as shown in Fig. 1. Image matching needs to consider the scale, translation, and rotation of
+the two pictures. Regular image matching algorithms include
+gray-based matching algorithms and feature-based matching
+algorithms. Perform block matching based on known template images to find similar sub-images in another image.
+The gray-based matching algorithm is also called the correlation matching algorithm, which uses a two-dimensional
+spatial sliding template for matching such as Mean Absolute
+Differences (MAD) [46]. The feature-based matching algorithm first extracts the features of the image, then generates
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:43 UTC from IEEE Xplore. Restrictions apply.
+
+

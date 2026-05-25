@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+    <!-- 设置launch文件的参数 -->
+    <arg name="world_name" value="$(find pkg)/worlds/empty_world.world"/>
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+    <!-- 运行gazebo仿真环境 -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)" />
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+
+    <!-- 加载机器人模型描述参数 -->
+    <group ns="car1">
+    <param name="robot_description" command="$(find xacro)/xacro '$(find pkg)/urdf/car.xacro' bodyframe:=car1 ns:=car1"/> 
+    	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    	</node> 
+   	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+         <param name="publish_frequency" type="double" value="30.0" />
+         <param name="tf_prefix" value="car1" />
+	</node>
+	 
+    	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model car1 -param robot_description -x 0"/>   
+    </group>
+    
+    <group ns="car2">
+    <param name="robot_description" command="$(find xacro)/xacro '$(find pkg)/urdf/car.xacro' bodyframe:=car2  ns:=car2"/> 
+    	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    	</node> 
+   	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+         <param name="publish_frequency" type="double" value="30.0" />
+         <param name="tf_prefix" value="car2" />
+	</node>
+    	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model car2 -param robot_description -y -1"/>   
+    </group>
+    
+     <group ns="car3">
+    <param name="robot_description" command="$(find xacro)/xacro '$(find pkg)/urdf/car.xacro' bodyframe:=car3 ns:=car3"/> 
+    	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    	</node> 
+   	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+         <param name="publish_frequency" type="double" value="30.0" />
+         <param name="tf_prefix" value="car3" />
+	</node>
+    	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model car3 -param robot_description -y -2"/>   
+    </group>
+    
+    <group ns="car4">
+    <param name="robot_description" command="$(find xacro)/xacro '$(find pkg)/urdf/car.xacro' bodyframe:=car4 ns:=car4"/> 
+    	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    	</node> 
+   	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+         <param name="publish_frequency" type="double" value="30.0" />
+         <param name="tf_prefix" value="car4" />
+	</node>
+    	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model car4 -param robot_description -y -3"/>   
+    </group>
+    
+    <group ns="car5">
+    <param name="robot_description" command="$(find xacro)/xacro '$(find pkg)/urdf/car.xacro' bodyframe:=car5 ns:=car5"/> 
+    	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    	</node> 
+   	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"  output="screen" >
+         <param name="publish_frequency" type="double" value="30.0" />
+         <param name="tf_prefix" value="car5" />
+	</node>
+    	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model car5 -param robot_description -y -4"/>   
+    </group>
+</launch>

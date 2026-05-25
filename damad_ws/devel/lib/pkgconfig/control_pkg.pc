@@ -1,0 +1,8 @@
+prefix=/home/ecs-user/damad_ws/devel
+
+Name: control_pkg
+Description: Description of control_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

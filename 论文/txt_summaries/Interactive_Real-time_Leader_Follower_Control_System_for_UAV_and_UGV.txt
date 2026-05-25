@@ -1,0 +1,448 @@
+Proc. of the International Conference on Electrical, Computer, Communications and Mechatronics Engineering (ICECCME)
+
+2022 International Conference on Electrical, Computer, Communications and Mechatronics Engineering (ICECCME) | 978-1-6654-7095-7/22/$31.00 ©2022 IEEE | DOI: 10.1109/ICECCME55909.2022.9988707
+
+16-18 November 2022, Maldives
+
+Interactive Real-time Leader Follower Control
+System for UAV and UGV
+Aidana Tassanbi
+School of Engineering and Digital Science
+Nazarbayev University
+Nur-Sultan, Kazakhstan
+aidana.tassanbi@nu.edu.kz
+
+Aziz Iskakov
+School of Engineering and Digital Science
+Nazarbayev University
+Nur-Sultan, Kazakhstan
+aziz.iskakov@nu.edu.kz
+
+Ton Duc Do
+School of Engineering and Digital Science
+Nazarbayev University
+Nur-Sultan, Kazakhstan
+doduc.ton@nu.edu.kz
+
+Md. Hazrat Ali*
+School of Engineering and Digital Science
+Nazarbayev University
+Nur-Sultan, Kazakhstan
+*md.ali@nu.edu.kz
+
+Abstract — This article is aimed at creating a leader-follower
+system for Unmanned Aerial vehicles (UAV) and Unmanned
+Ground vehicles (UGV) with obstacle avoidance. In this system,
+the UAV acts as a leader, which is given the coordinates of a
+predetermined path, along which it must follow according to its
+algorithm. While the UGV is a follower, that needs to follow the
+leader by avoiding obstacles. QDrone and QBot from QUANSER
+were used as vehicles, and the OptitTack tracking system was
+applied for determining their locations. The article presents
+simple algorithms created for both vehicles and the results of the
+experiment. The experiment showed that all algorithms work
+flawlessly. However, problems arose with the accuracy of placing
+obstacles due to the limited power of the follower's onboard
+computer.
+
+reaching a consensus between the agents through
+communication. Other studies considered the loss of one of
+the agents (followers) and the ability of them to re-form into
+another formation during the mission [5-7]. Research has
+also been carried out to create a leader-follower system
+consisting of several 2WMRs that are able to bypass
+obstacles. In this case, the obstacle is detected by the leader,
+that re-computes the route, while the followers simply follow
+the leader [8]. In this study, the authors use the potential field
+method, the main idea of which is to determine the range of
+obstacles for different orientations of the sensors and to
+determine the polar density of the obstacle. After that, the
+path with the lowest density is determined, which the vehicle
+must follow in order to avoid the obstacle and reach the
+target point [8]. Apart from that, a system was created where
+the UAV follows the landing station in the form of a UGV to
+be able to land on it at any time [9]. This article aims to create
+a controller for a leader-follower system for a quadcopter and
+a two-wheeled mobile robot with obstacle avoidance. This
+system is different in that the leader is a drone that has no
+obstacles in the air. Whereas the robot must follow the drone
+while creating its way through obstacles. This system can be
+used in many areas. For example, in delivery services, in the
+study of hard-to-reach places and objects, military purposes,
+and rescue works. Indeed, in most cases, there are fewer
+obstacles in the air than on the ground, which creates the
+need to create such a system.
+
+Keywords — Leader-Follower system, UAV, UGV, QUARC,
+OptiTrack, obstacle avoidance.
+
+I.
+
+INTRODUCTION
+
+Today, process automation is an integral part of any
+advanced system. Automated auxiliary robots are popular
+not only in production but also in everyday life, for example,
+vacuum cleaner robots, waiter robots, etc. The demand for
+unmanned vehicles and other modes of transport is growing
+every year. Moreover, more and more research has recently
+been carried out aimed at creating leader-follower algorithms
+for multi-vehicle systems. These systems can be used in a
+wide range of applications, from military applications to
+delivery services.
+A.
+
+Related work
+
+The leader-follower system for unmanned vehicles may be
+in high demand. There are many studies that consider
+systems consisting of several Unmanned Ground Vehicles
+(UGVs) and Unmanned Aerial Vehicles (UAVs) which form
+a formation when following the leader [1-3]. Gopakumar
+and Shihabudheen considered the system with 1 leader and 6
+followers, three of which are quadrotors, while the other 4
+vehicles are two-wheeled mobile robots (2WMRs) [4]. This
+study aimed to develop a cooperative control algorithm for
+
+II.
+A.
+
+METHODS
+
+Dynamic modeling
+
+Using Newton's laws and the Euler-Lagrange method, you
+can create a dynamic model of a quadcopter. The motion of
+the UAV can be described using a system consisting of six
+non-linear differential equations:
+
+⎧ẍ = (sin +
+⎪
+ӱ = (sin
+⎨
+⎪
+⎩ # = −g + (
+
+−
+
+) ,
+
+) ,
+
+) ,
+
+=
+
+=
+
+=
+
+!
+
+""
+%
+
+978-1-6654-7095-7/22/$31.00 ©2022 IEEE
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:29 UTC from IEEE Xplore. Restrictions apply.
+
+(1)
+
+F
+
+where x, y, and z are the Cartesian coordinates of the
+quadcopter (Fig. 1); φ, θ, ψ are the Euler angles (φ is the yaw,
+θ is the pitch, and ψ is the roll angle); Jxx, Jyy, and Jzz are
+diagonal elements of UAV’s inertia tensor; m is the mass of
+the quadcopter; g is the acceleration due to gravity; F = (Fz,
+Fφ, Fθ, Fψ) – virtual control forces, which can be described
+by the motor control forces as:
+&' = () + (* + (+ + (,
+&- = .((+ − (, )
+&/ = .(() − (* )
+&0 = 12 (() + (* − (+ − (, )
+
+@C = H
+G
+
+C
+G
+C
+
+@I = J
+
+(5)
+
+(2)
+
+where L is the distance between UAV’s center and its motor,
+Cy is a constant obtained experimentally, that depends on the
+relationship between thrust and yawing moment; T- thrust
+force generated by the rotation of propellers.
+
+Fig. 2.
+
+Schematic diagram for UGV.
+
+B.
+
+Communication and Localization
+
+Communication between the vehicles and the computer is
+provided through a router and a wireless Wi-Fi connection,
+which assigns an individual IP address to the computer,
+drone, and robot. By setting up hardware settings in
+MATLAB Simulink and using QUARC blocks that can
+transmit information to the carrier of the specified IP
+address, control and command of vehicles were provided.
+Fig. 1.
+
+Schematic diagram for UAV.
+
+In this experiment UGV (QBot 2e) has only two wheels that
+are connected to the motor, that can rotate and act
+independently from each other. This allows QBot to drive
+and make a U-turn right on the spot around its axis. From
+Fig. 1 it can be seen that point C is set in the center of the
+wheel axis and this point can be counted as the current
+position of the robot with (x, y) coordinates and orientation
+angle φ that was taken with respect to the x-axis.
+Since the floor surface is a rough, dense rubber with an
+abrasive pattern, a lot of friction is established between the
+QBot 's wheels and the floor, allowing the robot to move and
+turn with negligible slip. It is also worth considering that the
+weight of the robot is not sufficient to deform the wheels.
+Considering all this, the non-linear cinematic equation for
+the Robot will be the following:
+53
+cos
+13 = 4 63 7 = 8sin
+3
+0
+
+0 ?
+0= >@A
+1
+
+(3)
+
+where ν and ω are linear and angular velocities of QBot,
+respectively. Since Qbot’s wheels are driven separately, we
+will have two equations for them, that are:
+? = ? + D@
+B C
+?E = ? − D@
+
+To determine the location of vehicles in space, the OptiTrack
+system was used. For this, 6 cameras were installed at the
+corners and sides of the workspace and connected to the
+ground station (PC) by wires. The cameras record the
+location of special markers that have been attached to
+vehicles and determine the location and orientation of an
+object. For each vehicle for identification, 5 such markers
+were attached according to a certain scheme. This system is
+quite accurate and, according to the manufacturer, allows
+determining the location of an object with an accuracy of 2
+mm [10].
+C.
+
+Leader-Follower algorithm
+
+Communication with the drone and robot is first established
+when starting the system. As soon as the connection has been
+confirmed and all three Simulink models have been launched
+without problems, the "Mission server" receives, processes,
+and sends data from OptiTrack to the leader and follower.
+This data contains information about the location and
+orientation of the vehicles. If OptiTrack receives incorrect
+data or does not recognize the vehicles at all, the QDrone
+Commander model is immediately terminated. To run the
+algorithm, it is necessary for QDrone to take off to a height
+of at least 0.5 m, this is done using the joystick by giving the
+drone the “Arm” and “Takeoff” commands. As soon as both
+switches have been activated, QBot starts its algorithm
+which is provided in Fig. 3.
+
+(4)
+
+where l is the distance from the center of the wheels’ axis to
+each wheel. With simple manipulation, the equation for the
+angular velocity of each wheel can be calculated as shown
+below, where R corresponds to the radius of the wheels.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:29 UTC from IEEE Xplore. Restrictions apply.
+
+Recieve positions of
+follower and leader
+
+Read positions
+of leader and
+follower
+
+Generate new
+follower
+trajectory
+
+Is
+start/stop
+toggle on?
+
+Are the Arm
+and Takeoff
+switches on?
+
+Stop
+following
+
+Send current
+location of the
+Leader
+
+No
+Yes
+Is the follower
+Yes
+within 0.25 m of
+the leader?
+
+No
+Yes
+Read sensors.
+Obstacle
+detected?
+
+No
+
+Send current
+waypoint
+
+Yes
+Record the Yes
+location of the
+obstacle
+
+No
+
+Was it the last
+waypoint?
+Yes
+
+No
+
+Send home
+position: [0 0 1 0]
+
+Yes
+
+No
+
+Send the next
+waypoint
+
+OptiTrack is
+tracking?
+
+Yes
+Fig. 4.
+Is the
+Emergency stop
+switch off?
+
+Stop model
+
+Fig. 3.
+
+No
+
+Yes
+
+Follow
+generated
+trajectory
+
+Mission server algorithm.
+
+With regard to UAV, its algorithm consists of checking the
+system for battery level, flight altitude, communication or
+localization problems, and receiving commands to land or
+follow to a new position. This algorithm is shown in Fig. 3.
+In addition, the QDrone, as the leader, constantly sends its
+location to the follower.
+
+Algorithm for the follower.
+
+As soon as the QBot Commander receives the coordinates of
+the leader and follower, it generates the follower Trajectory.
+This data is transformed into angular and linear speed, which
+are given to the QBot. If an obstacle is detected by sensors,
+the robot will recalculate its trajectory using the obstacle
+avoidance algorithm described below. As can be seen from
+Fig. 3, the algorithm continues to run until a tracking issue
+occurs or the "Stop" button on the joystick is triggered. If the
+"Arm" or "Take off/Landing" switches are turned off, the
+robot will stop following the leader, but will continue to
+calculate the trajectory.
+
+Recieve measured and
+desired positions of
+Leader
+
+No
+
+Are Arm and
+Takeoff
+switches on?
+
+Yes
+Yes
+
+Low
+battery
+?
+
+No
+Is the
+Leader at
+the desired
+height?
+
+When the system is started, the QDrone hovers over the
+takeoff point, and the QBot approaches it until the distance
+between them is less than 0.25 m. As soon as the
+"Start/Stop" button is triggered in "Mission Server", the
+algorithm starts, according to which the QDrone flies to
+predetermined points. As can be seen from Fig. 4, the
+"Mission Server" constantly compares the coordinates of the
+leader and follower. As soon as the follower approaches the
+leader, the algorithm sends the next waypoint to the leader.
+When the system reaches the last waypoint, the "Mission
+Server" sends the coordinates of the center of the work area
+so that the drone will land in the center.
+
+No
+
+Yes
+Yes
+
+Communic
+ation
+issue?
+
+No
+Optitrack
+is
+tracking?
+
+Stop model
+
+Fig. 5.
+
+No
+
+Yes Go to the desired
+position
+
+Algorithm for the leader.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:29 UTC from IEEE Xplore. Restrictions apply.
+
+

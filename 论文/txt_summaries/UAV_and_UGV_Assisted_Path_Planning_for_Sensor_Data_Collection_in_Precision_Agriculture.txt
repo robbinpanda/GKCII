@@ -1,0 +1,442 @@
+2023 11th International Symposium on Electronic Systems Devices and Computing (ESDC) | 978-1-6654-5572-5/23/$31.00 ©2023 IEEE | DOI: 10.1109/ESDC56251.2023.10149861
+
+UAV and UGV Assisted Path Planning for Sensor
+Data Collection in Precision Agriculture
+Himanshu Singh
+
+Moirangthem Biken Singh
+
+Department of Computer Science and Engineering
+Indian Institute of Technology (BHU)
+Varanasi, India
+himanshusingh.rs.cse21@iitbhu.ac.in
+
+Department of Computer Science and Engineering
+Indian Institute of Technology (BHU)
+Varanasi, India
+moirangthembsingh.rs.cse21@iitbhu.ac.in
+
+Harsh Pratik
+
+Ajay Pratap
+
+Department of Computer Science and Engineering
+Indian Institute of Technology (BHU)
+Varanasi, India
+harsh.pratik.cse20@iitbhu.ac.in
+
+Department of Computer Science and Engineering
+Indian Institute of Technology (BHU)
+Varanasi, India
+ajay.cse@iitbhu.ac.in
+
+Abstract—In recent years, automated (Intelligent) decision
+support systems have become prevalent in various smart city
+applications such as healthcare, transportation, energy management, and environmental monitoring. Internet of Things (IoT)
+and Unmanned Aerial Vehicle (UAV)-based smart sensing and
+actuation devices in agricultural events can change the sector
+from static and manual to dynamic and intelligent, resulting in
+increased production with minimal human efforts. In addition,
+soil measurements that are time-consuming can be collected using
+Unmanned Ground Vehicles (UGVs). However, to collect data
+efficiently from wireless sensors in agricultural fields, UAV and
+UGV need to follow an optimal path. Thus, in this paper, we
+formulate utility maximization problem using UAV and UGV by
+simultaneously minimizing energy consumption and maximizing
+data collection. To solve the formulated problem, we propose
+a modified Greedy Randomised Adaptive Search Procedure
+(GRASP) algorithm to predict an efficient path for UAV and
+UGV to collect data from the agricultural field. Moreover, the
+efficacy of the proposed algorithm is showcased theoretically
+and experimentally on real-world data and compared with other
+state-of-the-art methods.
+Index Terms—UAV, UGV, Data collection, Agriculture, Sensors.
+
+I. I NTRODUCTION
+Unmanned Aerial Vehicles (UAVs) and Unmanned Ground
+Vehicles (UGVs) can play a significant role in smart agriculture. By combining the two, farmers can benefit from increased
+efficiency, reduced labor costs, and improved crop yields [1]–
+[3]. UAVs can be used to gather data on crop health and
+growth by using the Agricultural Internet of Things (AIoT)
+sensors and cameras to capture images and other data. This
+information can then be processed to create maps of the fields,
+which can help farmers to identify areas of the crops that are
+not growing well, allowing for targeted interventions. UAVs
+can also be used to spray pesticides or fertilizers, reducing
+the need for manual labor and increasing the precision of the
+application. UGVs can be used to collect soil samples and
+978-1-6654-5572-5/23/$31.00 © 2023 IEEE
+
+perform other tasks such as irrigation and weed removal. By
+using UGVs, farmers can reduce the time and effort required to
+carry out these tasks and improve the accuracy and efficiency
+of their operations. Together, UAVs and UGVs can provide
+a comprehensive solution for smart agriculture. By collecting
+data on crop health and soil conditions, farmers can make
+informed decisions on using fertilizers, pesticides, and other
+interventions. This can help to reduce costs, increase crop
+yields, and improve the overall sustainability of agricultural
+practices.
+A UAV or UGV (or a group of them) needs to visit various
+locations in the agricultural field to collect data from agricultural sensors [4]. Due to the limited storage capacity and data
+overwriting problem, the data from the sensors should be collected after a certain time interval [5]–[11]. However, efficient
+path prediction is required to minimize energy consumption
+during flight and hovering while collecting data from the
+sensors. Furthermore, certain parameters of soil measurements
+require significant amounts of time during their collection.
+Employing UGVs to cover these sensor areas is more efficient
+than using UAVs. Furthermore, after data collection, UAV and
+UGV return to the data center residing in the middle of the
+agricultural field for further processing.
+To tackle the above-mentioned problem, we propose UAV
+and UGV-based data collection as utility maximization problems by minimizing the energy consumption of UAV and UGV
+as given in Fig. 1. Moreover, we show that the formulated
+problem is similar to the well-known NP-hard Orienteering
+Problem (OP). To solve the formulated problem in an efficient
+way, we propose a modified Greedy Randomised Adaptive
+Search Procedure (GRASP) [12] algorithm to predict the path
+for both UAV and UGV. The primary contributions of this
+paper are summarized in the following:
+1) Formulate the problem of collecting data from agricultural field sensors using UAVs and UGVs as a utility
+maximization problem by minimizing energy consump-
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:41 UTC from IEEE Xplore. Restrictions apply.
+
+tion while collecting data, as an NP-hard problem.
+2) Solve the formulated problem efficiently using a modified GRASP algorithm by finding an efficient path for
+both UAV and UGV and maximizing the amount of data
+collection.
+3) Through simulation study on real-world data, we have
+demonstrated that the proposed approach outperforms
+the state-of-the-art schemes.
+The rest of the paper is organized as follows: Section II
+reviews relevant works. The system model and the problem
+formulation are introduced in Section III. The proposed solution and performance study are discussed in Sections IV
+and V, respectively. Section VI offers conclusions and future
+works.
+
+TABLE I: Summary of related works
+Problem
+Focus
+
+Path
+Prediction
+
+Utility
+Maximization
+
+UAV
++
+UGV
+
+LoRa
+
+Utility Maximization [4]
+
+✓
+
+✓
+
+×
+
+×
+
+GRASP [12]
+
+✓
+
+×
+
+×
+
+×
+
+Sensor Planning [13]
+
+✓
+
+×
+
+✓
+
+×
+
+Precision Agriculture [14]
+
+×
+
+×
+
+×
+
+✓
+
+VNS [15]
+
+✓
+
+✓
+
+×
+
+×
+
+Proposed approach
+
+✓
+
+✓
+
+✓
+
+✓
+
+II. R ELATED W ORKS
+This section provides a comparison of closely related works
+in the literature, as shown in Table I. Authors of [4], proposed
+a utility maximization problem to maximize data collection
+by optimizing UAV’s path. The authors introduced a utility
+function and maximized the utility through various potential
+hovering locations to get an optimized trajectory for the
+UAV. However, they did not consider the deployment of
+UGV, focusing solely on the UAV’s trajectory. The authors
+of [12] discussed Close Enough OP (CEOP), which focused
+on finding the most rewarding route visiting different regions
+based on the given travel budget using the GRASP algorithm.
+However, they did not take into account utility maximization
+for UAV and UGV models. The authors of [13], described
+a sensor planning scheme based on the path of the UGV by
+minimizing a cost function. The authors showed that UGV
+carries UAV to different points, and then UAV collects data.
+However, the authors did not consider the utility maximization
+problem for the trajectory. The authors of [14], conducted
+an analytical study that examined the proximity at which a
+drone equipped with a LoRa radio had to fly over sensors in
+order to achieve a specific level of data collection quality.
+However, the authors did not consider path prediction and
+utility maximization in their proposed model. The authors of
+[15], formulated OP for curvature-constrained vehicles. They
+proposed the Variable Neighborhood Search (VNS) technique
+and attempted to maximize rewards while ensuring the tour
+length adhered to a specified travel budget restriction.
+III. S YSTEM M ODEL AND P ROBLEM F ORMULATION
+We consider a combined UAV and UGV model with MEC
+server as a data center for agricultural data collection, as shown
+in Fig. 1. The data transmission from AIoT sensors to UAV
+or UGV uses LoRa transceivers. Let = {1, · · · , s, · · · , S},
+= {1, · · · , g, · · · , G} and
+= {1, · · · , a, · · · , A} be the
+sets of all AIoT sensors in the field, AIoT sensors to be
+covered by the UGV, and the AIoT sensors to be covered
+by the UAV, respectively. UAV and UGV cover different parts
+of the agricultural field to collect data from AIoT sensors by
+finding near-optimal paths. Both UAV and UGV start from the
+data center located in the middle of the field. After collecting
+
+G
+
+A
+
+S
+
+UAV
+
+Data center
+
+UGV
+
+AIoT sensors to be covered by UAV
+AIoT sensors to be covered by UGV
+Fig. 1: System model.
+
+data, UAV and UGV return to the data center on each tour.
+A closed data collection tour of the UAV starts and ends at
+the data center, consisting of a sequence of hovering locations
+at altitude h, visited by the UAV to collect agricultural data.
+However, it is not feasible to collect all the data in a single tour
+due to energy constraints. Thus, multiple tours are conducted
+by the UAV and UGV to gather data from the AIoT sensors
+located throughout the fields1 .
+A. Path Planning
+Assuming that the data center is situated at the center of
+the agricultural field, the data collection process is done by
+deploying UAV and UGV for collecting data from the sensors,
+which can be described as follows:
+1) We assume a random path as the initial path.
+2) Other hovering locations are injected into the path until
+the cost is under the budget.
+1 As the quantity of orchards requiring data management expands, there is
+a proportional increase in both the number of data centers needed to handle
+the workload and the frequency of UAV and UGV tours.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:41 UTC from IEEE Xplore. Restrictions apply.
+
+3) Once a tour is found, a local search algorithm gets
+initiated to ensure a near-optimal tour.
+4) Once a near-optimal tour has been obtained, all the
+locations in the set of hovering locations that are not
+part of this tour are removed.
+B. Data Collection Tour Model
+In the proposed model, UAV and UGV start from the data
+center and return to the data center after collecting data from
+AIoT sensors in each tour.
+1) UAV: A tour of the UAV consists of a sequence of
+hovering locations at an altitude of h above the ground. Let
+be the set of H hovering locations as given by:
+
+H
+
+H = {(x1, y1, h), · · · , (xa, ya, h), · · · , (xH, yH, h)},
+
+(1)
+
+where (xa , ya , h) is the hovering coordinate for the UAV to
+collect data from AIoT sensor a. Then, the total flight distance
+fd for the UAV with total flight duration Γ, travelling with the
+speed of vU AV in a tour is given as follows:
+fd = vU AV × Γ.
+
+(2)
+
+Thus, the UAV can travel to a hovering location (xa , ya , h)
+and back to the data center only if x2a + ya2 + h2 ≤ R2 , where
+R = f2d . Let td = DBa be the time taken by the UAV to collect
+data from ath sensor, where Da is the data size at sensor a,
+and B is the channel bandwidth [14]. Then, the hovering time
+Ψa for each hovering location is given below:
+Ψa = min(td , tDC ),
+
+(3)
+
+where tDC is the duty cycle of LoRa trans-receiver [14].
+The distance that the UAV travels from its current location
+to the next hovering location is given as follows:
+p
+da′ ,a = (xa − xa′ )2 + (ya − ya′ )2 ,
+(4)
+where (xa , ya ) and (xa′ , ya′ ) are the next and the current
+hovering coordinates for UAV. The time required for the UAV
+to travel and collect data from sensor a is calculated as follows:
+da′ ,a
+Ta =
++ Ψa .
+(5)
+vU AV
+However, due to energy constraints, UAV cannot collect data
+from all sensors during a single tour. Therefore, the UAV
+should prioritize more important hovering locations over others.
+2) UGV: A UGV tour consists of a series of locations
+where transmissions occur. The set
+contains coordinates
+of UGV for collecting data from sensors in , as follows:
+
+N
+
+G
+
+N = {(x1, y1), · · · , (xg , yg ), · · · , (xN , yN )},
+
+(6)
+
+where (xg , yg ) is the coordinate corresponds to AIoT sensor
+g.
+Assuming vU GV is the velocity of the UGV, the distance
+between the current location (xg′ , yg′ ) and the next location
+(xg , yg ) is calculated as follows:
+dg′ ,g = |(xg − xg′ )| + |(yg − yg′ )|.
+
+(7)
+
+Suppose Ψsamp
+represents the time needed to sample the data
+g
+at (xg , yg ). Then, Ψsamp
+is calculated as [14]:
+g
+Dg
+,
+B
+where Dg denotes the data size collected by sensor g.
+Ψsamp
+=
+g
+
+(8)
+
+C. Data Collection Utility Model
+The quantity of data gathered by a sensor on a UAV
+or UGV is directly linked to the duration of the hovering
+or transmission associated with the sensor. We express the
+amount of data collected from sensor s during a period of
+time t using a function Fs (t) as follows [4]:
+1) Fs (t) = 0 if t = 0; Fs (t) > 0 if 0 < t ≤ Ψ; otherwise
+Fs (t) = Fs (Ψ) if t > Ψ.
+2) Function Fs (t) is non-decreasing, i.e. Fs (t1 ) ≤ Fs (t2 )
+for 0 ≤ t1 < t2 .
+3) Fs (t) is a sub modular function, where Fs (t1 + ∆) −
+Fs (t1 ) > Fs (t2 + ∆) − Fs (t2 ) for 0 ≤ t1 < t2 ≤ Ψ
+and Fs (t1 + ∆) − Fs (t1 ) = Fs (t2 + ∆) − Fs (t2 ) for
+Ψ ≤ t1 < t2 .
+where Ψ = Ψa when UAV is considered and Ψ = Ψsamp
+g
+while assuming UGV.
+1) UAV: Let the priority of all hovering locations in
+is
+given by the set U AV = {P1 , · · · , Pa , · · · , PH }, where Pa
+is the priority of the hovering location (xa , ya , h). Next, we
+define utility ua of the UAV at hovering location (xa , ya , h)
+as follows:
+ua = Fa (Ψa ) × Pa .
+(9)
+
+H
+
+P
+
+Hence, the overall utility of the UAV is expressed as follows:
+X
+UU AV =
+ua .
+(10)
+(xa ,ya ,h)∈
+
+H
+
+Let the set of potential UAV tours is denoted by τ =
+{τ0 , · · · , τm , · · · , τM }, and the energy consumption of the
+UAV per unit time during tour τm be ∆EUmAV . The cost of
+collecting data from sensor a on tour τm by UAV is given as
+follows:
+ca,m = ∆EUmAV × Ta .
+
+(11)
+
+Thus, the total cost of UAV for travelling to each hovering
+location in the tour is defined as follows:
+X
+CU AV =
+ca,m .
+(12)
+
+P
+
+(xa ,ya ,h)∈τm ,τm ∈τ
+
+2) UGV: Let U GV = {P0 , · · · , Pg , · · · , PH }, where Pg
+is the priority of transmission location at (xg , yg ). We define
+the utility of the UGV at transmission location (xg , yg ) as
+follows:
+ug = Fg (Ψg ) × Pg .
+(13)
+Thus, the total utility of UGV is calculated as follows:
+X
+UU GV =
+ug .
+(14)
+(xg ,yg )∈
+
+N
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:41 UTC from IEEE Xplore. Restrictions apply.
+
+

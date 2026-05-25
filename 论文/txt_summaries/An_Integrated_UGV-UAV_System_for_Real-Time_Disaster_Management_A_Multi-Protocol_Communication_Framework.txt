@@ -1,0 +1,257 @@
+2025 8th International Conference on Enterprise Systems (ES) | 979-8-3315-8890-8/25/$31.00 ©2025 IEEE | DOI: 10.1109/ES64449.2025.11136250
+
+An Integrated UGV-UAV System for Real-Time
+Disaster Management: A Multi-Protocol
+Communication Framework
+1st Reem Hejazi
+
+2nd Muddesar Iqbal
+
+College of Computer and Information Sciences
+Prince Sultan University
+Riyadh, Saudi Arabia
+219410002@psu.edu.sa
+
+College of Communications and Networks Engineering
+Prince Sultan University
+Riyadh, Saudi Arabia
+miqbal@psu.edu.sa
+
+3rd Anees Ara
+
+4th Dhafer Jaber
+
+College of Computer and Information Sciences
+Prince Sultan University
+Riyadh, Saudi Arabia
+aara@psu.edu.sa
+
+College of Communications and Networks Engineering
+Prince Sultan University
+Riyadh, Saudi Arabia
+dalmakhles@psu.edu.sa
+
+Abstract—In response to the increasing frequency and severity of natural disasters, the need for efficient and reliable
+disaster management systems has become more critical than
+ever. This paper presents the design and implementation of
+an integrated disaster management framework that leverages
+Unmanned Ground Vehicles (UGVs) and Unmanned Aerial
+Vehicles (UAVs) for real-time environmental assessment and
+search operations. The proposed system employs a multi-protocol
+communication architecture to enhance data transmission reliability, utilizing the MQTT protocol for lightweight and efficient
+messaging and RTMP for live video streaming. Additionally,
+the system incorporates AI-driven face detection and recognition capabilities to improve personnel identification in disaster
+zones, achieving a mean Average Precision (mAP) of 45.63%.
+Experimental evaluations demonstrate the effectiveness of the
+proposed system in maintaining low-latency communication and
+high-accuracy AI-based recognition, underscoring its potential to
+enhance disaster response efficiency and decision-making. This
+research contributes to the advancement of resilient and intelligent disaster management solutions, paving the way for future
+improvements in autonomous search and rescue operations.
+Index Terms—Disaster Management, Unmanned Ground Vehicles (UGVs), Unmanned Aerial Vehicles (UAVs), Real-time Video
+Streaming, MQTT Protocol, RTMP Protocol, Face Detection
+and Recognition, Communication Protocols, IoT (Internet of
+Things), Flask Web Server, MongoDB, Nginx, Real-time Data
+Communication
+
+I. I NTRODUCTION
+As the frequency and severity of natural disasters continue
+to increase, the need for efficient disaster management systems
+becomes increasingly critical [1]. Recent advances in disaster
+management have focused on using unmanned vehicle teams
+to quickly and safely assess disaster-affected areas. These
+vehicles collaborate with human operators to collect critical
+environmental data through multiple sensor measurements [2].
+In disaster management, unmanned ground vehicles (UGVs)
+
+navigate on the ground, exploring hazardous areas, while
+unmanned aerial vehicles (UAVs) maintain a fixed position
+above it [3]. This collaborative robot team enables efficient
+search and mapping of dangerous environments, with a remote
+operator monitoring the operation from a safe distance [3].
+Despite the significant potential of disaster management
+systems, there are very few fully integrated solutions available
+today and none have been widely adopted [4]. This paper
+presents the design and implementation of a comprehensive
+disaster management system that integrates multiple communication protocols, middleware, and back-end servers to support
+UGVs and UAVs. This paper introduces several key contributions to enhance disaster management system capabilities:
+Multi-protocol Communication for reliable data transmission and backup in challenging environments.
+• Message Queuing Telemetry Transport (MQTT) for
+fast and reliable communication, utilizing a hierarchical
+network design.
+• Live video streaming via the Real-Time Messaging
+Protocol (RTMP).
+• Flexible state machine for UGVs to handle sensor
+inputs, control motor movements, and communicate with
+back-end servers.
+• Face detection and recognition to enable robots to identify individuals, distinguishing between team members
+and unidentified persons.
+•
+
+The remainder of this paper is structured as follows: Section 2 reviews related work. Section 3 presents the overall
+system architecture, including its layers and communication
+design. Section 4 details the back-end components and their
+functionalities. Section 5 focuses on real-time data processing
+and AI technologies. Section 6 discusses the experimental
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:43 UTC from IEEE Xplore. Restrictions apply.
+
+setup for system evaluation and presents the results. Finally,
+Section 7 concludes the paper and explores potential future
+enhancements.
+II. R ELATED W ORK
+Girma et al. [2] propose a framework designed to improve
+coordination between UAVs, UGVs, and first responders,
+aiming to enhance the speed and safety of search and rescue
+operations in disaster environments. The system incorporates
+autonomous ground-based sensing and navigation using both
+custom-built and commercial Jackal UGVs, while UAVs, developed with a quadcopter architecture, support aerial sensing,
+communication, and UGV coordination. A cloud-based remote
+control station (RCS) is utilized for data collection, real-time
+visualization, and remote operation, with an antenna tracker
+extending network coverage. The framework relies on the
+MQTT protocol for machine-to-machine (M2M) communication.
+Hood et al. [3] propose a solution for cooperative exploration in search and rescue operations, utilizing both
+UGVs and UAVs within a damaged building. The UGV autonomously navigates the environment, while the UAV follows
+the UGV using vision-based techniques. The system involves
+a network connecting the UGV, UAV, and Ground Control
+Station (GCS). Communication between the components is
+established through an Ethernet connection between the UGV
+and a portable router, with WiFi used for wireless communication between the GCS and the router.
+Surmann et al. [5] analyze the insights gained from the
+deployment of ground and aerial robots in disaster response
+scenarios under the German Rescue Robotics Center (DRZ)
+task force. The system includes a specialized emergency vehicle designed to transport multiple UAVs and a mid-sized UGV
+while establishing a mobile communication hub. It houses two
+operator workstations embedded within its own network and
+server infrastructure, providing centralized robot control and
+data management. The DRZ task force also develops SKATES,
+a resilient communication platform that integrates multiple
+network technologies such as WiFi, 4G, 5G, and IP-Mesh to
+ensure uninterrupted connectivity for robot operations and data
+transmission even in challenging environments.
+Aretoulaki et al. [6] introduce a drone-enabled humanitarian
+logistics platform called ”AIRDROP,” designed to assist first
+responders and decision-makers throughout the various stages
+of a disaster. The platform leverages unmanned vehicles,
+including UAVs, UGVs, and USVs, to provide a diverse
+array of logistics services. The system architecture consists
+of several key components, including a Command Center
+Web Application (CCWA) for mission management, a First
+Responder Mobile Application (FRMA) for field operations,
+a Mission Planning System (MPS) for trajectory deconfliction,
+and a Decision Support System (DSS) for integrating and
+exchanging data between all components. The communication
+network relies on UAVs acting as relays to extend coverage,
+using Wi-Fi, Bluetooth, and cloud connectivity for seamless
+data sharing.
+
+Despite advances, common challenges persist, including
+network reliability, data integration, and seamless operations.
+Our work addresses these gaps by improving the reliability,
+efficiency of communication, and real-time capabilities of the
+system. We employ a multi-protocol framework with backup
+strategies, a scalable hierarchical MQTT network for data
+integrity, and AI-driven face detection to improve decisionmaking.
+III. S YSTEM A RCHITECTURE
+A. Layered System Design
+The system is structured into four primary layers:
+Hardware Layer: Comprises various robotic units, including UGVs (e.g., Smart Tank Robot, Jetbot AI Robot
+Car), and UAVs (drones). Additional equipment includes
+charging stations and signal extenders.
+• Middleware Layer: Facilitates communication using local MQTT brokers within each robot team for real-time
+data exchange and offline operation. A LoRa gateway enables UAV communication and an access point connects
+UGVs at the gateway station.
+• Cloud Layer: Hosts essential back-end components for
+system operations, ensuring data storage, processing, and
+accessibility.
+• Application Layer: Provides a mobile app interface for
+users to monitor and control robots remotely.
+•
+
+B. Multi-protocol Communication Framework
+To ensure robust and adaptable communication, our framework integrates multiple protocols across different network
+layers, as illustrated in Fig. 1. All physical-layer robots communicate with the cloud back-end through the local MQTT
+broker. The mobile app can control UGVs via the cloud,
+while UAVs are controlled through a drone controller. The
+system leverages three data link layer protocols that are used
+across all robots: WiFi, LoRa, and 5G. WiFi is the primary
+protocol due to its speed and reliability, while LoRa serves
+as a secondary option when WiFi is unavailable. Both WiFi
+and LoRa are used to communicate with the local broker. 5G
+is the backup protocol that allows the robot to communicate
+directly with the cloud. All robots are also equipped with
+GPS modules for location tracking. For application protocols,
+MQTT, HTTP, RTMP, and MAVLink are employed. Robots
+communicate with the broker using MQTT and the broker
+communicates with the cloud using the same protocol. For
+specific RESTful APIs, robots communicate directly with
+the cloud via HTTP, and for live video streaming, RTMP
+is used. The mobile app utilizes all three protocols (HTTP,
+MQTT, RTMP) to interact with the cloud. Lastly, MAVLink,
+a specialized protocol for drone communication, is used in the
+drone controller. By integrating multiple protocols, our framework improves network resilience, scalability, and operational
+flexibility, allowing robots to maintain connectivity and adapt
+to changing network conditions in dynamic environments.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:43 UTC from IEEE Xplore. Restrictions apply.
+
+Fig. 3. Database Design
+
+Fig. 1. Middleware Design
+
+Model-View-Controller (MVC) architecture, a design pattern
+that separates concerns: models manage data, views handle
+user interactions (in this case, mobile app interfaces), and
+controllers process logic and coordinate between models and
+views. The server returns JSON-based responses and implements token-based authentication for regular and admin users.
+A validation class ensures input integrity, and an MQTT
+interface manages admin-specific messages.
+B. Database Server
+MongoDB [8], a scalable NoSQL database, is used for
+efficient IoT data storage. The database consists of three
+collections as shown in Fig. 3: Users collection stores profile
+details, including credentials (ID, username, email, password),
+status, type (regular/admin), and an MQTT account flag.
+Missions associated with a specific user are embedded within
+the user document for quick access, with only ID, name, and
+status. Devices collection maintains records of devices, including credentials, MAC address, status, type (UGVs, UAVs,
+Brokers), and local broker ID. Missions collection tracks taskspecific user and device assignments, with fields such as ID,
+name, status, start/end dates, local broker ID, and participating
+robot/user IDs.
+C. Nginx
+An open-source web server software that also functions as
+a reverse proxy server, load balancer, and HTTP cache [9]. In
+our case, it works as a reverse proxy for the web server.
+
+Fig. 2. System Design
+
+IV. P ROPOSED BACKEND D ESIGN
+In the proposed system illustrated in Fig.2, all UGVs and
+UAVs communicate with the back-end in the cloud through
+the gateway station, which contains an access point for WiFi connection, an MQTT broker for MQTT messages, and a
+LoRa gateway for UAV communication. Then, mobile users
+can communicate with the cloud to access the system’s capabilities. The backend consists of six components:
+
+D. RTMP Server
+This server enables live video streaming, and all robots
+can connect to it using frameworks such as FFmpeg [10].
+The mobile app accesses the streams via an RTMP player by
+connecting to the same RTMP link. For the deployment of the
+RTMP server, Nginx [9] is used, as it includes a module for the
+streaming of RTMP. Nginx [9] is configured to function as an
+RTMP server with optimized parameters to minimize latency,
+ensuring real-time video streaming for efficient monitoring
+through the mobile app.
+E. Decision Support System (DSS)
+
+A. Web Server
+The Flask [7] server facilitates communication between
+the mobile app and robots via RESTful APIs. It follows the
+
+An information system that supports decision-making activities for robots. It has functionalities like predicting disasters,
+suggesting recommendations, deciding the best actions for
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:43 UTC from IEEE Xplore. Restrictions apply.
+
+

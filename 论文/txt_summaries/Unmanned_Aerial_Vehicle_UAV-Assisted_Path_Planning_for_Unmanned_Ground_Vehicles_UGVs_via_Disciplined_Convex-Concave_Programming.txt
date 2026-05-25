@@ -1,0 +1,275 @@
+6996
+
+IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, VOL. 71, NO. 7, JULY 2022
+
+Unmanned Aerial Vehicle (UAV)-Assisted Path
+Planning for Unmanned Ground Vehicles (UGVs) via
+Disciplined Convex-Concave Programming
+Guanchong Niu , Lan Wu, Yunfan Gao , and Man-On Pun , Senior Member, IEEE
+
+Abstract—The last decade has witnessed growing research interests in the path-planning problem for unmanned ground vehicles
+(UGVs) equipped with RGB-D cameras or LiDARs. However, apart
+from their extremely high cost, these sensors may be obscured
+by obstacles, which makes them impractical for many complex
+scenarios. Besides, most of the existing works for path planning
+have not considered energy efficiency for UGVs that are usually
+constrained by limited on-board batteries. Distinct from existing
+methods, this work presents a vision-based unmanned aerial vehicle (UAV)-assisted cooperative system for multiple UGVs. The
+proposed system harnesses the broad vision of UAV and operates in
+both general outdoor and global positioning system (GPS)-denied
+indoor environments. In sharp contrast to the conventional heuristic algorithms such as the rapidly exploring random tree (RRT)
+algorithm and the Dijkstra methods, the proposed energy-efficient
+path planning for UGVs is formulated as a non-convex optimization
+problem by considering the collision-aware obstacle-avoidance.
+More specifically, the proposed path-planning scheme contains two
+stages, namely the semantic segmentation that localizes UGVs and
+obstacles in the environment by exploiting the wide-angle camera
+mounted on the UAV, followed by the trajectory generation in which
+a disciplined convex and concave programming (DCCP) algorithm
+is devised for the non-convex energy-minimization problem. Extensive experiments validate the effectiveness of the UAV-UGV
+cooperative system and the proposed DCCP-based path-planning
+scheme.
+Index Terms—Disciplined convex-concave programming, path
+planning, semantic segmentation, UAV-UGV cooperative system.
+
+I. INTRODUCTION
+
+P
+
+ATH planning, as a critical component for intelligent
+mobile robots and automatic pilots, is expected to identify
+
+Manuscript received October 14, 2021; revised February 26, 2022; accepted
+April 13, 2022. Date of publication April 19, 2022; date of current version
+July 18, 2022. This work was supported in part by the Shenzhen Science
+and Technology Innovation Committee under Grant JCYJ20190813170803617,
+and in part by the National Natural Science Foundation of China under Grant
+61731018. The review of this article was coordinated by Dr. Hamid Taghavifar.
+(Corresponding author: Man-On Pun.)
+Guanchong Niu and Man-On Pun are with the School of Science, Engineering, The Chinese University of Hong Kong, Shenzhen 518172, China, and
+with the Shenzhen Research Institute of Big Data, Shenzhen 518172, China,
+and also with the Pengcheng Laboratory, Shenzhen 518055, China (e-mail:
+216019007@link.cuhk.edu.cn; SimonPun@cuhk.edu.cn).
+Lan Wu is with the School of Science, Engineering, The Chinese University
+of Hong Kong, Shenzhen 518172, China (e-mail: lanwu1@link.cuhk.edu.cn).
+Yunfan Gao is with the School of Science, Engineering, The Chinese
+University of Hong Kong, Shenzhen 518172, China, and also with the
+Shenzhen Research Institute of Big Data, Shenzhen 518172, China (e-mail:
+yg2744@columbia.edu).
+Digital Object Identifier 10.1109/TVT.2022.3168574
+
+the possible collisions before generating energy-efficient
+trajectories to avoid obstacles for unmanned ground vehicles
+(UGVs). For instance, UGVs serving as a community policing
+should have the capability of recognizing stochastic obstacles
+scattered on the road. Besides, meticulous path planning for
+collision avoidance among multiple UGVs is also highly
+demanded. For a UGV to detect obstacles and the other UGVs,
+range- and appearance-based methods are the two major
+solutions by applying LiDAR [1] and RGB-D camera [2],
+respectively. Unfortunately, the performance of these two
+solutions is not always satisfactory. First, both RGB-D and
+LiDAR sensors are expensive, which incurs high costs if they are
+equipped on each UGV individually. Second but importantly,
+RGB-D and LiDAR sensors suffer from a limited view angle
+when applied to scenarios of large-scale obstacles [3], [4].
+To cope with these challenges aforementioned, unmanned
+aerial vehicles (UAVs) have been recently proposed as an
+efficient solution to this problem [5]. This UAV-assisted
+approach outperforms existing methods in the following
+aspects:
+r Low Cost: A typical commercial UAV of less than
+US$3000 is capable of serving multiple UGVs
+simultaneously;1
+r Long-range Detection: A UAV with a wide-angle camera
+can detect objects from a far distance. For instance, the DJI
+MAVIC2 can achieve the furthest detection range of 180
+meters using its built-in camera;2
+r Real-time Communications: The video stream and photos
+taken by a UAV can be transmitted back in real-time, which
+supports latency-sensitive applications such as automatic
+piloting;
+r Line-of-sight (LoS) Transmissions: The wireless channel
+between the UAV and UGVs under coverage is LoS
+at most time, which enables efficient wireless data
+communications.
+Motivated by the advantages above, this work proposes an efficient UAV-UGV cooperative system for path planning available
+in both indoor and outdoor environments. With the assistance of
+one UAV, a path-planning algorithm is developed for multiple
+1 [Online]: Available. https://store.dji.com/shop/mavic-series?from=menu_
+icon
+2 [Online]: Available. https://www.dji.com/products/compare-consumerdrones
+
+0018-9545 © 2022 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See https://www.ieee.org/publications/rights/index.html for more information.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:45 UTC from IEEE Xplore. Restrictions apply.
+
+NIU et al.: UAV-ASSISTED PATH LEARNING FOR UGVS VIA DISCIPLINED C-C PROGRAMMING
+
+6997
+
+Fig. 1. Illustration of the proposed UAV-UGV cooperative system for indoor and outdoor scenarios. (a) Obstacle-avoidance system for a single UGV. (b)
+Collision-aware obstacle-avoidance system for multiple UGVs.
+
+UGVs in this work. Unlike [6], this work takes into account
+the detection of UGVs as well as collision avoidance among
+UGVs. More specifically, the proposed algorithm is divided into
+two stages, namely the semantic segmentation and the trajectory
+generation. In the first stage, obstacles and UGVs can be identified and localized using semantic segmentation techniques by
+exploiting the wide-view camera mounted on the UAV. For the
+second stage of trajectory generation, the path-planning problem is mathematically formulated as a non-convex optimization
+problem before the disciplined convex and concave programming (DCCP) technique is applied to solve the problem [7].
+In sharp contrast to the conventional heuristic algorithms such
+as machine learning (ML)-based methods, the proposed path
+planning algorithm aims to develop a non-convex optimization
+problem in which the potential collisions among obstacles and
+UGVs are explicitly modeled and resolved. In particular, the
+proposed algorithm does not require a training procedure. As
+a result, this low-cost and robust algorithm can be practically
+implemented in real-life applications such as post-earthquake
+rescues in indoor environment [8].
+Fig. 1 illustrates the proposed UAV-UGV cooperative system in which multiple UGVs (cars or robots) are served by
+one UAV in indoor and outdoor scenarios. The UAV equipped
+with a camera takes photos and videos to capture the ground
+UGVs and obstacles. For the outdoor scenarios, the global
+position can be directly acquired by the GPS equipped on
+the UAV. In contrast, additional sensors such as TFmini Plus
+can be equipped on the UAV to obtain the height information in the GPS-denied indoor scenarios. Furthermore, collision
+and obstacle avoidance are considered in generating the UGV
+trajectories as shown in Fig. 2. More specifically, given an
+input image captured by the UAV, the objects are first extracted using semantic segmentation. After that, the detected
+objects are represented by circular approximation, which enables the path-planning optimization problem to be mathematically formulated as a convex-concave optimization problem.
+Finally, the energy-efficient trajectory is generated using a
+DCCP-based algorithm by solving the non-convex optimization
+problem.
+
+Fig. 2. Flowchart of the proposed algorithm. In the first step, the objects are
+detected and segmented. Next, the problem is mathematically formulated and
+solved using DCCP-based algorithm.
+
+In summary, the main contributions of this paper are summarized as follows:
+r A UAV-UGV cooperative system consisted of one UAV
+and multiple UGVs is constructed, operating under the
+indoor and outdoor environments. In contrast to RGB-D
+and LiDAR-based systems, fewer sensors are required for
+UGVs in the proposed system. One UAV is sufficient to
+serve multiple UGVs at the same time.
+r A novel shape representation scheme for detected objects
+is proposed to mathematically formulate the obstacles and
+UGVs using multiple uniform circles. These representations are then converted into convex-concave constraints.
+After that, the collision-aware obstacle-avoidance problem
+is formulated as a classical energy minimization problem
+that can be efficiently solved via a proposed DCCP-based
+algorithm.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:45 UTC from IEEE Xplore. Restrictions apply.
+
+6998
+
+IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, VOL. 71, NO. 7, JULY 2022
+
+r Both computer simulation and experiment results confirm
+the effectiveness of the proposed path planning algorithm
+as compared to the conventional heuristic algorithms such
+as the Rapidly Exploring Random Tree (RRT) algorithm
+and Dijkstra methods.
+The remainder of this paper is organized as follows. In
+Section II, the related literature on semantic segmentation and
+path planning is reviewed. Then, the UAV-assisted semantic
+segmentation is presented in Section III. After that, the
+energy-minimization problem is formulated as a non-convex
+optimization problem before a DCCP-based solution is
+proposed in Section IV. Finally, extensive computer simulation
+and experiment results are presented in Section VI before
+conclusion is given in Section VII.
+II. RELATED WORKS
+A. UAV-Assisted Semantic Segmentation
+The goal of semantic segmentation is to segment the image
+taken by the UAV before recognizing its content. Driven by the
+rapid advances of the deep learning technology, especially the
+convolutional neural network (CNN), the semantic segmentation
+technology based on deep learning has made great progress.
+Many pioneering works have been proposed in the literature
+to solve the problem of semantic segmentation [9]. However,
+such deep learning-based methods require prohibitively expensive computational complexity. As a result, it is impossible to
+practically implement these algorithms for real-time semantic
+segmentation.
+In the meantime, it has been recently demonstrated that UAVs
+possess many unique merits such as flexible mobility, low cost,
+and high portability, which makes UAVs a promising solution
+to large-area ground survivance [10]. For instance, commercial
+UAVs have been used to investigate the rice lodging in paddies
+over a large area by exploiting FCN-AlexNet for semantic
+segmentation [11]. Compared to the remote sensing images from
+satellites [12], more detailed information of a higher spatial
+resolution can be collected by UAVs.
+Recently, [13] presents a segmentation model called
+YOLACT3 that excels in both accuracy and frames per second
+(FPS) using a single GPU. Furthermore, an improved version
+of YOLACT called YOLACT++ is developed in [14] to devise
+a more accurate segmentation model by adding a new mask
+re-scoring branch and deformable solutions to the backbone
+network. As YOLACT++ can achieve the highest accuracy at
+33.5 FPS in real-time, it has been envisioned as a promising
+solution to object segmentation operated on UAVs.
+B. Collision-Aware Obstacle-Avoidance Path Planning
+Generally speaking, the path-planning algorithms for UGVs
+can be categorized into two groups, namely the graph-based and
+the ML-based approaches. For the graph-based approach, the
+geometry-based and the probability-oriented methods have been
+extensively investigated in the literature. For instance, the most
+3 You Only Look At CoefficienTs
+
+representative geometry-based methods include the Dijkstra
+method, the RoadMap-based visibility graph [15], the Voronoi
+diagram [16], and the exact cell decomposition (ECD) [17].
+Furthermore, the most celebrated probability-oriented methods
+are the probabilistic RoadMap (PRM) [18] and RRT [19]. On
+the other hand, the ML-based methods, including the genetic
+algorithm (GA) [20], particle swarm optimization (PSO) [21]
+and deep learning (DL)-based algorithms, attract more and more
+attention in recent years. In general, a training procedure is
+demanded with the assistance of the existing dataset for these
+ML-based methods.
+Extending to the multi-UGV path planning system, collision
+avoidance among multiple UGVs requires closer examination
+related to a more complex constraint description. The authors
+in [22] adopt the wait-strategy, where the UGV of lower priority
+is ordered to wait temporarily if two UGVs are collision-prone.
+Similarly, the path of the lower-priority UGV is planned to
+bypass the other UGVs, avoiding potential collisions. Despite
+that a predictive perception model is proposed in [23], the system
+can only predict possible future lane changes of the competing vehicles. In [24], a mixed-integer programming approach
+is developed by specifically taking into account the real-time
+collision problem while modeling the trajectory-generation process as constraints. However, due to the restriction of linear
+programming, these constraints are usually limited by a convex
+feasible set.
+III. UAV-ASSISTED INDOOR AND OUTDOOR SEMANTIC
+SEGMENTATION
+Empowered with the wide-view superiority, UAVs can be
+effectively employed to control the UGVs on the ground. In
+the proposed UAV-UGV cooperative system, YOLACT++ is
+adopted on a UAV to detect and segment ground objects for
+both indoor and outdoor scenarios.
+A. Semantic Segmentation by YOLACT++
+1) Dataset for UAV Imagery: At present, several public semantic segmentation data sets are available online. However,
+most of them only focus on the common objects captured from
+the ground, such as Ms-COCO [25] and Pascal VOC [26]. There
+are very few high-resolution semantic segmentation datasets
+based on UAV imagery. To cope with this problem, a dataset
+has been developed from a vertical view of UAV for semantic
+segmentation. In the dataset, 100 high-resolution images are
+labeled with five object classes, namely Turtlebots, Cars, Pedestrians, Suitcases (acting as obstacles) and Roads. The scenes
+mainly focus on outdoor highways and indoor corridors, which
+is suitable for the automatic piloting of UGVs.
+2) Real-Time Semantic Segmentation: Despite the great success of utilizing LiDAR and RGB-D cameras in object detection
+and segmentation, their high cost makes them prohibitively
+unaffordable to be equipped on each UGV on the ground.
+To circumvent this obstacle, a UAV-assisted cooperative system is proposed with one regular UAV being used to realize
+collision-aware obstacle-avoidance path planning for multiple
+UGVs. Particularly, YOLACT++ is used to identify objects and
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:45 UTC from IEEE Xplore. Restrictions apply.
+
+

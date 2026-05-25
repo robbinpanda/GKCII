@@ -1,0 +1,342 @@
+IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, VOL. 74, NO. 10, OCTOBER 2025
+
+15619
+
+Robust Distributed Formation Control for
+Heterogeneous UAVs–UGVs Systems: An
+Adaptive Asymptotic Funnel
+Control Approach
+Yancheng Yan , Hongjing Liang , Member, IEEE, Yuhua Cheng , Senior Member, IEEE,
+and Tieshan Li , Senior Member, IEEE
+
+Abstract—This paper is concerned with the distributed formation control problem of heterogeneous uncrewed aerial vehiclesuncrewed ground vehicles (UAVs-UGVs) systems, in the presence
+of practical factors such as parametric and dynamics uncertainties, external disturbances, coupled dynamics, and communication noises. First, we establish a model for the heterogeneous
+UAVs-UGVs system with such practical factors. Subsequently, a
+new robust distributed formation control strategy is developed.
+To be specific, by implementing a delicate transformation with a
+special funnel function, together with fusing an adaptive asymptotic funnel control approach, a funnel-based formation control
+strategy is constructed. In comparison to the current outcomes,
+this strategy demonstrates the subsequent salient characteristics:
+1) enhancing the robustness of the considered system subject to such
+practical factors; 2) achieving the asymptotic formation control
+with predefined global funnel performance constraints; 3) lowering computational and structural complexity without function
+approximation, switching of the controller structure, and complex
+nonlinear terms. Ultimately, the theoretical assertions are validated
+via the simulation paradigm.
+Index Terms—Asymptotic stability, distributed formation
+control, funnel control, heterogeneous UAVs-UGVs systems, robust
+adaptive control.
+
+I. INTRODUCTION
+
+D
+
+ISTRIBUTED formation control of heterogeneous multiagent systems (MASs) has attracted significant attention
+
+Received 16 April 2025; accepted 21 May 2025. Date of publication 23 May
+2025; date of current version 17 October 2025. This work was supported in part
+by the National Natural Science Foundation of China under Grant 62322307,
+and Grant 52471376, in part by the Fundamental Research Funds for the Central
+Universities under Grant ZYGX2024Z018, and in part by the Sichuan Science
+and Technology Program under Grant 2023NSFSC1968. The review of this
+article was coordinated by Prof. Zhu Han. (Corresponding author: Hongjing
+Liang.)
+Yancheng Yan, Hongjing Liang, and Yuhua Cheng are with the School
+of Automation Engineering, University of Electronic Science and Technology of China, Chengdu 611731, China (e-mail: yanchyan@126.com;
+lianghongjing@uestc.edu.cn; yhcheng@uestc.edu.cn).
+Tieshan Li is with the School of Automation Engineering, University of
+Electronic Science and Technology of China, Chengdu 611731, China, also with
+the Laboratory of Electromagnetic Space Cognition and Intelligent Control,
+Beijing 100089, China, and also with the Yangtze Delta Region Institute,
+University of Electronic Science and Technology of China, Huzhou 313000,
+China (e-mail: tieshanli@126.com).
+Digital Object Identifier 10.1109/TVT.2025.3573308
+
+due to its broad application potential [1], [2], [3]. Its primary
+goal is to stabilize the relative positions of heterogeneous MASs
+through local interactions, thereby establishing and maintaining
+a predefined geometric formation. As a representative case,
+the uncrewed aerial vehicles-uncrewed ground vehicles (UAVsUGVs) system [4], comprising multiple UAVs and UGVs, significantly extends the search radius and service coverage by
+leveraging air-ground coordination and complementary functionalities [5]. Consequently, the heterogeneous UAVs-UGVs
+system enables tasks that are difficult for single-vehicle formations [6], [7] and is widely applied in 3D mapping [8], hybrid
+path planning [9], surveillance-reconnaissance mission [10], etc.
+The distributed formation control problem for heterogeneous
+UAVs-UGVs systems has been thoroughly explored recently.
+Current advancements include a disturbance-resistant UAVsUGVs formation [10] via distributed average tracking, a fault
+tolerant adaptive formation control framework [4], a human-inthe-loop 3D coordination [11] through unified models. However,
+in [4], [10], [11], the attitude dynamics of each UAV was
+ignored. Actually, the UAV must be maneuvered into a specific
+attitude to produce the required acceleration to achieve the
+target position [12]. Therefore, considering both the position
+and attitude dynamics of the UAV is essential. Additionally,
+in practical applications, the system parameters of the heterogeneous UAVs-UGVs system are prone to varying during
+operation [13] and inter-vehicle communication channels may
+suffer from uncertainties [14] such as packet loss [15], random
+quantization [16], and measurement noise [17]. These practical
+factors pose significant challenges for distributed formation control of heterogeneous UAVs-UGVs systems, particularly when
+precision in formation specification is required.
+Defining the precision of formation specification often depends on the transient and steady-state values of the relative
+position errors between the neighboring vehicles or leader.
+To achieve a required precision, funnel control methods [18],
+[19], [20], as an effective tool, have been broadly utilized
+to ensure the system attains the desired transient and steadystate control performance. Alternatively, the prescribed performance control (PPC) approach [21], [22], [23] serves as another
+tool for preassigning both transient and steady-state behaviors.
+
+0018-9545 © 2025 IEEE. All rights reserved, including rights for text and data mining, and training of artificial intelligence and similar technologies.
+Personal use is permitted, but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:20 UTC from IEEE Xplore. Restrictions apply.
+
+15620
+
+IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, VOL. 74, NO. 10, OCTOBER 2025
+
+Inspired by their nature, numerous funnel/PPC-based control
+methods were put forward for heterogeneous uncertain MASs.
+In [24], the event-triggered synchronization control issue of the
+heterogeneous uncertain UAVs-UGVs system with prescribed
+performance was studied, while neural networks were utilized in
+controller design. Similarly, several funnel/PPC control methods
+were constructed in [25], [26], [27] for heterogeneous uncertain
+MASs based on fuzzy-approximation approach. However, the
+employment of function approximation drastically increases the
+complexity of the controller [28], [29], [30].
+Different from the function approximation-based funnel/PPC
+control methods, the low-complexity funnel/PPC control without using function approximation has been widely investigated. To mention a few, [29] and [30] with relative-degree-two
+MASs, [31] with marine surface vessels, and [32], [33] with
+mismatched uncertainties MASs. Nevertheless, two primary
+concerns still require attention. One concern is that the feasibility of these control laws depends on local, known initial
+conditions, which is a restrictive requirement for heterogeneous
+UAVs-UGVs systems where platform heterogeneity inherently
+leads to distributed, unknown initial states. While recent advances [34], [35], [36] progressively relax these assumptions for
+SISO systems, their reliance on homogeneous state dimensions
+renders them inapplicable to cross-domain systems where aerial
+and ground vehicles exhibit fundamentally different dynamic
+orders. The second concern is that merely confining the concerned error within a predefined funnel, which leads to a bounded
+steady-state error (referred to as “practical stability”), is insufficient for precision tasks such as cooperative payload transport
+that require asymptotic convergence. More recently, non-smooth
+feedback approaches [37], [38], [39] achieve asymptotic tracking but at the cost of structural complexity incompatible with
+the computational constraints of heterogeneous UAVs-UGVs
+systems. To sum up, these two unresolved challenges motivate
+our investigation into smooth asymptotic global funnel control
+strategy in a low-complexity form for heterogeneous UAVsUGVs systems. Specifically, the integration of such control
+solutions onto heterogeneous UAVs-UGVs systems necessitates
+controller designs with inherently low computational complexity, while maintaining the cross-domain coordination requirements of global initial-condition independence and asymptotic
+precision.
+Motivated by the preceding observations, we construct a new
+adaptive asymptotic funnel control approach for designing a
+robust distributed formation control strategy for heterogeneous
+UAVs-UGVs systems. Specifically, the major innovations of this
+study are outlined below.
+1) A fairly general class of heterogeneous UAVs-UGVs systems with communication noises and dynamics uncertainties is considered, where both the position and attitude
+dynamics of UAVs are simultaneously involved.
+2) By applying a nonlinear function together with a specific funnel function, a clever transformation is performed
+such that the initial error consistently remains within
+a non-empty open set. Building upon this transformation, an adaptive asymptotic funnel control approach is
+developed by integrating the bound estimation method
+
+with funnel control. This approach guarantees asymptotic
+formation control while satisfying arbitrarily predefined
+global funnel performance constraints, in contrast to the
+current funnel/PPC methods in [29], [30], [31], [32], [33],
+which require known initial conditions and merely attain
+“practical stability.”
+3) Compared with the existing funnel-based asymptotic results [37], [38], [39], the proposed strategy eliminates
+the need for controller structure switching by introducing
+compensating terms in the form of smooth functions with
+respect to formation errors and certain Lebesgue integrable functions. Furthermore, it incorporates fewer nonlinear terms, which is achieved by leveraging the adaptive
+law’s inherent properties with suitable scaling.
+The remainder is structured as follows. Section II presents
+the mathematical preliminaries and problem formulation. Section III shows the main results, containing the proposal of a
+robust distributed formation control and its stability analysis.
+The theoretical outcomes are demonstrated using numerical
+simulations in Section IV, and the entire paper is concluded
+in Section V.
+II. PRELIMINARIES AND PROBLEM FORMULATION
+A. Notation
+R, RN , and RN ×n , and R+ denote the sets of real numbers,
+real vectors of order N , real matrices of size N × n, and positive
+real numbers, respectively. 1N ∈ RN represents a vector of
+ones, while IN signifies the identity matrix of size N × N .
+Nn1 stands for {1, . . . , n}. · indicates the Euclidean norm
+of a vector or the induced 2-norm of a matrix. S(x) ∈ Rn×n
+represents a skew-symmetric matrix corresponding to x ∈ Rn .
+The special orthogonal group is denoted by SO(n) := { ∈
+Rn×n : T = In , det() = 1}. L∞ represent the space of
+essentially bounded. Lebesgue integrable functions and square
+integrable functions are denoted by L1 and L2 .
+B. Graph Theory
+Let’s use a digraph G = (V, E) to represent the interaction among Na (≥ 1) UAV(s) and Ng (≥ 1) UGV(s) and one
+(virtual) leader, and use the subgraph G = (V, E) to describe
+the communication graph of N (= Na + Ng ) vehicles, where
+the set of vehicles V = V\{0} with V = {1, . . . , N, 0}, and
+2
+the set of edges E ⊆ V and E ⊆ V2 . It is assumed that all
+UAVs are in the group Ma while the remaining UGVs are
+grouped into group Mg . The neighbors of the i-th vehicle
+are denoted as N̄i = {l : (l, i) ∈ E} and Ni = {l : (l, i) ∈ E}.
+The adjacency matrices of G and G are given as A and
+A = [ail ]N ×N with ail = 1 if l ∈ Ni , and ail = 0, otherwise.
+A is defined as A = [A, b0 ; 01×N , 0] ∈ R(N +1)×(N +1) , where
+b0 = [b1 , . . . , bN ]T with bi = 1 if 0 ∈ N̄i , otherwise bi = 0.
+Denote the Laplacian matrix of G and G as L and
+ L = [Lil ]N ×N
+with Lil = −ail for i = l, i, l ∈ V, and Lii = l∈Ni ail , respectively. L is defined as L = [H, −b0 ; 01×N , 0](N +1)×(N +1) with
+H = L + B and B = diag{b1 , . . . , bN }.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:20 UTC from IEEE Xplore. Restrictions apply.
+
+YAN et al.: ROBUST DISTRIBUTED FORMATION CONTROL FOR HETEROGENEOUS UAVs–UGVs SYSTEMS
+
+15621
+
+2) UGV Dynamics: As illustrated in Fig. 2, the mathematical
+model of the i (∈ Mg )-th UGV can be modeled as [4]
+⎤
+⎡
+ g
+cos(ηig ) 0  g 
+˙p̄i
+v
+= ⎣ sin(ηig ) 0⎦ ig ,
+η̇ig
+ωi
+0
+1
+ g
+1
+1
+v̇i
+mgi ri
+mgi ri
+(2)
+τ gi + ϑgi (t),
+g =
+si
+ω̇i
+− I sgiri
+I g ri
+i
+
+Fig. 1. Configuration of the i-th UAV: {Êx , Êy , Êz } and {B̂1 , B̂2 , B̂3 }
+denote the earth frame and body frame.
+
+i
+
+where p̄gi (t) = [x̄gi (t), ȳig (t)]T ∈ R2 is the i-th UGV’s position
+in {Êx , Êy }, ηig (t) denotes its heading angle, vig (t) and ωig (t)
+are the linear and angular velocities, respectively; the radius of
+the wheel and half width of the i-th UGV are denoted by ri
+and si , respectively; Iig and mgi indicate the moment of inertia
+and mass of the i-th UGV, respectively, τ gi ∈ R2 represents the
+control torque, the disturbance is denoted by ϑgi (t) ∈ R2 .
+From observing (1) and (2), it is evident that the number of
+inputs for the UAV (i.e., uz,i , uφ,i , uθ,i , and uψ,i ) and UGV (i.e.,
+τ gi ∈ R2 ) is fewer than the number of configuration variables
+for the UAV (i.e., pai ∈ R3 and η ai ∈ R3 ) and UGV (i.e., p̄gi ∈
+R2 and ηig ). Therefore, the dynamics of both UAV and UGV
+are under-actuated systems. To this end, we formulate a virtual
+position control input
+uap,i = uaz,i EB (η ar,i )o3 ∈ R3 ,
+
+Fig. 2.
+
+Configuration of the i-th UGV: {Êx , Êy } represents the earth frame.
+
+C. Modeling of the Heterogeneous UAVs-UGVs System
+1) UAV Dynamics: The configuration of i (∈ Ma )-th UAV is
+shown in Fig. 1. Define these two frames as Ê = {Êx , Êy , Êz }
+and B̂ = {B̂1 , B̂2 , B̂3 }, the position of the i-th UAV in Ê
+as pai = [pai,x , pai,y , pai,z ]T ∈ R3 , and its Euler angles as η ai =
+[φi , θi , ψi ]T ∈ R3 , and then the dynamics of the i-th UAV is
+expressed as [12]
+mai p̈ai = EB (η ai )f ai + ϑap,i (t),
+Iia η̈ ai = −S(η ai )Iia η ai + τ ai + ϑaη,i (t),
+
+(1)
+
+where mai > 0 represents the i-th UAV’s mass, EB (η ai ) ∈
+SO(3) represents the rotation matrix bringing B̂ to Ê, which
+a
+a
+a
+, Iθ,i
+, Iψ,i
+) ∈ R3×3 is
+can be found in [40], Iia = diag(Iφ,i
+a
+a
+EB
+a T
+the inertia matrix, and f i = kω,i uz,i o3 − ( (η i )) o3 mai g ∈
+R3 and τ ai = [kω,i lc,i uφ,i , kω,i lc,i uθ,i , kτ,i uψ,i ]T ∈ R3 are
+respectively denote the external forces and torques with
+o3 = [0,0, 1]T , the gravity g, and the control inputs
+2
+2
+2
+2
+2
+, uφ,i = ω2,i
+− ω4,i
+, uθ,i = ω3,i
+− ω1,i
+, and
+uz,i = 4q=1 ωj,i
+4
+j+1 2
+uψ,i = q=1 (−1) ωj,i , where ωj,i denotes the j-th rotor speed, and lc,i , kω,i , kτ,i > 0 are the scaling factors,
+[(ϑap,i (t))T , (ϑaη,i (t))T ]T ∈ R6 denotes the disturbances.
+
+(3)
+
+with η ar,i = [φr,i , θr,i , ψr,i ]T being the reference attitude for
+the i-th UAV, which requires to be tracked through the controller of attitude system. Noted that the extraction of the
+desired attitude is required since the virtual position controller is not directly force-generated. Using the fact that
+EB (η ar,i )o3  = 1, as the reference of yaw angle ψr,i is
+preset, the control input uaz,i along with the reference of
+pitch angle and the roll angle are derived as uaz,i = uap,i ,
+φr,i = sin−1 ((ui,1 sin(ψr,i ) − ui,2 cos(ψr,i ))/uaz,i ), and θr,i =
+tan−1 ((ui,1 cos(ψr,i ) − ui,2 sin(ψr,i ))/ui,3 ).
+By utilizing uap,i , the first equation of (1) can be rewritten
+as mai p̈ai = kω,i uap,i − kω,i uap,i + EB (η ai )f ai + ϑap,i (t). Then,
+a
+consider the parameter uncertainty, by defining Bp,i
+= (mai )−1
+a,N
+a,Δ
+a
+kω,i I3 = Bp,i
++Bp,i
+and Bη,i
+= (Iia )−1 diag(kω,i lc,i , kω,i lc,i ,
+a,N
+a,Δ
+kτ,i ) = Bη,i + Bη,i with the subscripts N and Δ denoting the
+nominal parameter and the parameter uncertainty, the model (1)
+can be reformulated as
+a,N a
+a,N a
+up,i − go3 + Bp,i
+ũp,i + (mai )−1 ϑap,i (t),
+p̈ai = Bp,i
+a,N a
+uη,i − (Iia )−1 S(η ai )Iia η ai + Δaη,i ,
+η̈ ai = Bη,i
+
+(4)
+
+a,N −1 a
+) Bp,i EB (η ai )o3 − uap,i being identiwith ũap,i = uaz,i (Bp,i
+fied as the coupled term arising from the discrepancy in attitude
+tracking, uaη,i = [uφ,i , uθ,i , uψ,i ]T ∈ R3 representing the cona,Δ a
+trol torques, Δaη,i = Bη,i
+uη,i + (Iia )−1 ϑaη,i (t).
+Then, for the i-th UGV, an onboard sensor shown in Fig. 2 is
+installed at the position pgi (t) = [xgi (t), yig (t)]T ∈ R2 , which is
+offset by a distance di > 0 from p̄gi (t) in the direction specified
+by ηig (t). The position pgi (t) is described by pgi (t) = p̄gi (t) +
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:20 UTC from IEEE Xplore. Restrictions apply.
+
+

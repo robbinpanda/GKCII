@@ -1,0 +1,374 @@
+Decentralized UAV-UGV Coordinated Navigation
+under Connectivity Constraints
+
+2025 IEEE 101st Vehicular Technology Conference (VTC2025-Spring) | 979-8-3315-3147-8/25/$31.00 ©2025 IEEE | DOI: 10.1109/VTC2025-SPRING65109.2025.11174416
+
+Mohammed Alwagait, Hakim Ghazzai, and Gianluca Setti
+King Abdullah University of Science and Technology (KAUST), Thuwal, Saudi Arabia.
+Abstract—This paper presents a novel decentralized navigation
+framework for urban environments, integrating an Unmanned
+Aerial Vehicle (UAV) with an Unmanned Ground Vehicle (UGV).
+The system is designed such that the UAV aims to reach a
+predefined destination to perform critical aerial tasks while the
+UGV maintains proximity to support dynamic charging and
+continuous operation. The navigation strategy employs a hybrid
+path planning approach, combining a Probabilistic Roadmap
+(PRM) with an A* search algorithm, further optimized by
+path pruning for the UAV. In contrast, the UGV utilizes the
+Dynamic Window Approach (DWA) for adaptive navigation. Both
+unmanned vehicles operate while maintaining a safe distance to
+ensure uninterrupted communication and prevent connectivity
+loss. Validated through extensive simulations in ROS2 and
+Gazebo, this framework enhances mission efficiency and enables
+real-time coordination for effective decentralized navigation.
+Index Terms—UAV, UGV, autonomous navigation, coordination, path planning.
+
+I. I NTRODUCTION
+Over the past decades, unmanned systems have experienced
+remarkable advancements driven by improvements in computation, sensing, and control technologies. Unmanned Aerial
+Vehicles (UAVs) have emerged as agile platforms capable of
+rapid deployment and aerial reconnaissance, while Unmanned
+Ground Vehicles (UGVs) offer robust endurance and higher
+payload capacities. Despite their individual strengths, standalone UAVs and UGVs are often constrained by limitations
+such as restricted energy capacity, mobility challenges, and
+limited operational range. Recent trends in robotics research
+have increasingly focused on integrating heterogeneous platforms into cooperative systems, a development that unlocks
+new possibilities for tackling complex operational challenges
+in dynamic, obstacle-rich environments. Applications of UAVUGV systems are diverse and include precision agriculture,
+surveillance, and infrastructure inspection to search and rescue
+operations in disaster-affected areas and environmental monitoring of hazardous terrains [1]–[4].
+Recent research on integrated UAV-UGV systems demonstrates a broad range of applications and promising advancements in cooperative robotic platforms. Qin et al. [5] introduced a low-cost aerial–ground delivery system that harnesses
+the complementary capabilities of UAVs and UGVs, emphasizing cost efficiency and operational flexibility in logistics.
+Similarly, Singh et al. [6] explored UAV and UGV-assisted
+path planning [7] for sensor data collection in precision agriculture, showcasing the potential to enhance data acquisition
+and crop monitoring. In [8], the authors investigated cooperative 3D multi-object tracking by integrating multi-source
+data fusion, significantly improving situational awareness and
+tracking accuracy through the joint perspectives of aerial and
+ground vehicles. Parallel to these developments, efforts have
+
+been made to address the coordination and resource allocation
+challenges inherent in UAV-UGV systems. Yan et al. [9] examined formation tracking using event-triggered communications,
+ensuring robust and efficient coordination between platforms
+under communication constraints. Moreover, Ma et al. [10]
+proposed an adaptive depth graph neural network framework
+for dynamic task allocation in complex environments, enhancing the system’s adaptability and operational robustness.
+Together, these studies highlight the evolving capabilities of
+integrated UAV-UGV systems and underscore a trend toward
+more efficient, resilient, and versatile multi-agent robotic
+platforms in both civilian and defense applications. Despite
+these promising contributions, several limitations persist in
+current UAV-UGV cooperative systems. Many studies, while
+innovative in their respective application areas, have essentially
+focused on the application aspect of the UAV-UGV system, developed centralized navigation approaches, or not considered
+real-time coordination under communication limitations.
+Building on the insights discussed, this paper proposes
+a novel coordination UAV-UGV navigation framework in
+obstacle-constrained environments where the UAV performs
+mission-critical tasks and aiming at reaching pre-defined destinations, while the UGV functions as a mobile unit aiming
+at following the UAV, e.g., mobile charging station. First, we
+propose a hybrid global path planning strategy that combines
+a Probabilistic Roadmap (PRM) with an A* search algorithm,
+incorporating a path pruning mechanism to optimize the
+planning process of the UAV. Second, we adopt the Dynamic
+Window Approach (DWA) to continuously reposition the UGV
+to stay in close proximity to the UAV. The coordinated
+navigation is performed in a decentralized manner while
+avoiding connectivity loss between the unmanned vehicles.
+The framework is validated through simulations in ROS2
+and Gazebo, demonstrating effective real-time coordinated
+navigation. This approach diverges from traditional methods
+that often handle aerial and ground vehicles separately or rely
+on reinforcement learning solutions, which may compromise
+accuracy and safety [11], [12].
+II. S YSTEM M ODEL
+This section outlines the modeling for the UAV-UGV system. It also introduces the environmental representation and
+the mathematical models for both vehicles. As shown in Figure 1, the UAV navigates complex, obstacle-rich environments
+while coordinating its movement with the UGV.
+A. Mapping and Environment Representation
+We consider that unmanned vehicles are provided with a
+3D map of the environment in which they are navigating. This
+
+979-8-3315-3147-8/25/$31.00
+©2025
+IEEE Jiaotong University. Downloaded on May 25,2026 at 05:49:04 UTC from IEEE Xplore. Restrictions apply.
+Authorized licensed use limited
+to: Shanghai
+
+Fig. 1: Illustration of the UAV navigation in an urban environment.
+
+  
+  
+ 
+ṗ
+L(F2 − F4 )
+p
+p
+ − q  × I q  , (2)
+L(F3 − F1 )
+I q̇  = 
+ṙ
+M1 − M2 + M3 − M4
+r
+r
+where F1, F2, F3, and F4 represent the thrust forces generated
+by the four individual rotors of the quadrotor UAV, and M1,
+M2, M3, and M4 denote the moments or torques generated
+by the rotors. The parameter m denotes the UAV’s mass, and
+R is the rotation matrix that converts the body frame into the
+world frame using the Z −X −Y Euler angle convention. The
+symbol I represents the moment of inertia about the UAV’s
+center of mass, and L is the distance from the center of mass
+to each rotor’s axis of rotation. The variables p, q, and r are
+the components of the angular velocity. The control inputs
+include two parts: the total thrust u1 = F1 + F2 + F3 + F4
+and the moments
+u2 given as follows:
+
+
+L(F2 − F4 )
+.
+L(F3 − F1 )
+u2 = 
+(3)
+M1 − M2 + M3 − M4
+
+raw map is first converted into a structured 3D Point Cloud
+Data (PCD) map, which is then processed to extract relevant
+information such as free space, obstacles, and navigable areas.
+This processed data is used by the UAV for global path
+planning and by the UGV for local navigation, as it will be
+detailed in Section III. The environment is modeled as a multidimensional navigation space, typically using:
+1) Grid Representation:
+a) For UAV Navigation: The UAV operates in a bounded
+volumetric space defined as [XUAV , YUAV , ZUAV ], which is
+discretized into voxels or occupancy grids with resolutiondependent cells for path planning. Thus, the number of voxels
+Nv can be calculated according to a chosen resolution ρ as
+follows:
+ 
+ 
+
+
+YUAV
+ZUAV
+XUAV
+×
+×
+.
+(1)
+Nv =
+ρ
+ρ
+ρ
+b) For UGV Navigation: The UAV moves on a planar
+surface defined as [XUGV , YUGV ], which is discretized into a
+grid of cells according to ρ, resulting in a number of cells Nc
+measured asfollows: 
+
+XUGV
+YUGV
+Nc =
+×
+.
+(2)
+ρ
+ρ
+2) Static Obstacles: In this study, we consider static objects
+placed on the map, such as buildings, walls, and trees. They
+are represented as occupancy grids, where each cell (or voxel)
+is marked as free or occupied, forming an occupancy map
+M (x, y, z) defined as follows:
+(
+1, if occupied,
+M (x, y, z) =
+0, if free.
+For map generation, the system can utilize pre-recorded offline
+maps to create a 3D representation of the environment. The
+processed PCD map is fed into the UAV’s global planner
+to compute a collision-free path, while the UGV integrates
+this data into the Navigation2 (Nav2) stack, allowing it to
+reactively follow the UAV while avoiding obstacles. This unified mapping framework ensures that both unmanned vehicles
+operate in a synchronized and environment-aware manner.
+
+We assume that the UGV operates under non-holonomic
+constraints, meaning it cannot move sideways like a UAV
+or a holonomic robot (e.g., omnidirectional wheels). It can
+only move forward, backward, or rotate based on its wheeled
+configuration. The generalized state vector for a ground robot
+is given as follows:
+xGR = (x, y, θ, v, ω)T ,
+(5)
+where (x, y) is the UGV’s position in a 2D coordinate frame,
+θ is UAV’s heading (yaw angle), v is the linear velocity, and
+ω is the angular velocity. The kinematic model of a ground
+robot follows:
+ẋ = v cos(θ), ẏ = v sin(θ), θ̇ = ω,
+(6)
+where v is the linear velocity along the forward direction,
+and ω is the angular velocity determining the turning rate.
+In a Differential Drive Robot (DDR), the wheel velocities
+determine motion:
+rw
+rw
+(ωL + ωR ) , ω =
+(ωR − ωL )
+(4)
+v=
+2
+d
+where rw is the wheel radius, d is the wheel separation
+distance, and ωL and ωR are the left and right wheel angular
+velocities.
+
+B. UAV Model
+
+D. UAV-UGV Channel Model
+
+The UAV, identified as a quadrotor system and characterized
+by the position vector r, representing the center of mass in
+the world coordinate frame, is tied to the UAV’s dynamics, as
+expressed in the following
+
+ [13]:
+
+0
+0
+,
+0
+mr̈ =  0  + R 
+(1)
+−mg
+F1 + F2 + F3 + F4
+
+The state vector of the UAV is defined as:
+xUAV = [x, y, z, ϕ, θ, ψ, ẋ, ẏ, ż, p, q, r]T
+(4)
+T
+where r = [x, y, z] , ψ, ϕ, and θ are the position, the yaw,
+the roll (rotation around x-axis), and the pitch (rotation around
+y-axis), respectively.
+C. UGV Model
+
+In this study, UAV and UGV communicate via an Air-toground (A2G) channel, exchanging positional data essential
+for the UGV to track the faster-moving UAV, which in turn
+must maintain a safe distance to avoid connectivity loss.
+We model the channel gain H as a function of distance
+d, considering the large-scale path loss: H(d) = √ 1 ,
+P L(d)
+
+where P L(d) represents the path loss, which varies with
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:04 UTC from IEEE Xplore. Restrictions apply.
+
+Fig. 2: UAV control flow diagram.
+
+the Euclidean distance between the units. The path loss in
+decibels (dB) for line-of-sight (LoS) and non-line-of-sight
+(NLoS) conditions is modeled as [14]:
+LoS
+LoS
+P LdB (d) = pLoS P LLoS
+)P LN
+,
+(5)
+dB + (1 − p
+dB
+with the path loss for each 
+condition
+given
+by:
+
+4πf d
+X
+P LdB (d) = 10n log10
++ LX
+(6)
+dB ,
+C
+where X ∈ {LoS, N LoS}, f is the carrier frequency, n is the
+path loss exponent, C is the speed of light, and LX
+dB is the
+additional loss specific to each link condition. The probability
+of maintaining a LoS link is given as:
+1
+,
+(7)
+pLoS (d) =
+1 + β1 exp (−β2 [θ(d) − β1 ])
+where β1 and β2 are parameters dependent on the environmental context, and θ(d) is the elevation angle between the
+UAV and the UGV.
+To ensure uninterrupted connectivity, the path loss should
+be maintained at a sufficiently low level, such that the distance
+separating the UAV and UGV does not exceed ηDth , where
+Dth is the threshold for safe distance and η is a tolerance
+parameter. This condition helps to avoid potential connectivity
+losses and ensures that both units operate within a safe
+operational range.
+III. UAV-UGV C OORDINATED NAVIGATION A PPROACH
+This section presents the main methods enabling UAV-UGV
+coordinated navigation in the obstacle-constrained environment where the UAV aims to reach a target location without
+losing connectivity with the UGV. The latter aims to keep
+close proximity with the flying unit.
+A. UAV Navigation Framework
+1) Global Path Planning for UAV: The shortest path on
+the graph isn’t always the one on the environment because
+the PRM can be sparse. [15] As a result, we include a
+supplementary path simplification process to further optimize
+the produced path. By determining if direct connections between intermediate waypoints are feasible without running into
+barriers, this stage assesses whether the originally calculated
+path can be reduced. A more direct route eliminates pointless
+detours, cutting down on total trip distance and increasing
+efficiency.
+With the help of this two stage method PRM for roadmap
+creation, A* for pathfinding, and a simplification check for
+optimization the UAV is guaranteed to take the most effective
+path while avoiding obstacles. PRM path is generated based
+on N number of nodes in the 3d space. The Pure Pursuit Path
+
+Fig. 3: UGV control flow diagram.
+
+Solver then creates smooth trajectory commands for the UAV
+to follow, publishing the optimum path for execution. Fig. 3
+depicts a thorough flow.
+2) Path Following and Control for UAV: After the global
+path has been determined, the UAV follows the computed
+trajectory using a Pure Pursuit Path Solver [16]. This algorithm
+calculates a series of target waypoints along the planned path
+and continuously adjusts the UAV’s heading and velocity to
+maintain smooth navigation. The Pure Pursuit method ensures
+that the UAV maintains a stable path, avoiding sharp turns
+or erratic movements. To further enhance trajectory tracking,
+a PID Controller is integrated to regulate velocity and orientation. The PID controller plays a pivotal role in our UAV
+control architecture by using continuous sensor feedback to
+adjust the control inputs and maintain the desired flight path.
+Specifically, the controller modulates the throttle, roll, pitch,
+and yaw based on the UAV’s state, which is comprehensively
+defined by the state vector in Equation (4). This state vector
+provides detailed information about the vehicle’s position, orientation, and velocity, which is essential for the PID controller
+to accurately compute the required adjustments. The final
+control outputs from the PID controller are then applied to the
+UAV’s dynamics model, executing the planned motion. This
+multi-stage control framework enables precise and adaptive
+UAV navigation, making it robust for real-world deployment
+scenarios. The complete workflow for the UAV navigation is
+depicted in Figure 2.
+B. UGV Navigation Framework
+Unlike the UAV, which follows a predefined global path,
+we propose that the UGV dynamically adjusts its trajectory
+using the NAV2 stack and the DWA planner [17]. This choice
+allows the UGV to autonomously move while tracking the
+UAV. In fact, the NAV2 stack provides a flexible and modular
+navigation system that reacts to environmental changes. The
+DWA planner, used within NAV2, is responsible for local path
+planning and obstacle avoidance. DWA operates by evaluating
+possible velocity commands within a defined window, selecting the most optimal movement that avoids obstacles while
+keeping the UGV dynamically following the UAV without
+requiring a strict predefined path. The UGV navigation process
+follows these steps:
+• Map Processing: The processed 3D PCD map is provided as input to NAV2, enabling the UGV to understand
+the navigable space.
+• Localization: The UGV continuously tracks its position
+using sensor fusion (e.g., odometry and IMU).
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:04 UTC from IEEE Xplore. Restrictions apply.
+
+

@@ -1,0 +1,299 @@
+Landing for the Hunt:
+UAV-UGV Cooperation in a Predator-Prey Scenario
+
+2025 Brazilian Conference on Robotics (CROS) | 979-8-3315-5288-6/25/$31.00 ©2025 IEEE | DOI: 10.1109/CROS66186.2025.11066150
+
+Felipe dos Anjos Rezende1 and Guilherme Serra Francisco Pinel1 and Alexandre S. Brandão1 .
+
+Abstract—Cooperative robotics has emerged as a promising
+approach to solving complex tasks requiring collaboration among
+multiple agents. This paper proposes a decentralized system
+for cooperation between unmanned aerial vehicles (UAVs) and
+unmanned ground vehicles (UGVs), where robots operate independently without direct information exchange. The methodology
+is based on a leader-follower formation strategy, where the
+UGV acts as the leader and provides visual information to the
+UAV through color segmentation for relative position detection.
+Based on this data, the UAV adjusts its trajectory to align
+with the UGV and execute a landing maneuver. Experiments
+were conducted to validate the approach on linear and circular
+trajectories, demonstrating the system’s effectiveness in reducing
+visual errors and achieving precise landings on moving targets.
+The results indicate that the proposed approach exhibits accuracy
+and robustness in various scenarios.
+Index Terms—Predator-Prey, Leader-Follower, UAV, UGV, Image Processing
+
+I. I NTRODUCTION
+Cooperative robotics has emerged as a promising approach
+for addressing complex tasks that require collaboration among
+multiple robots. Cooperative association models include centralized strategies, in which a central unit makes decisions
+and distributes commands to the agents [1]–[4]. Decentralized
+strategies are also widely used, in which robots make decisions
+based on local information gathered from the environment or
+through interactions with other robots [5]–[8].
+Beyond organizational models, different association strategies among robots are observed depending on the level of
+coordination and the nature of the task. These include the
+leader-follower model, where one robot assumes the role of
+leader, and the others adjust their actions to follow it [9],
+[10], and the predator-prey strategy, which involves pursuing
+and capturing a moving target [11]. Additional strategies
+involve structured formations, in which robots maintain specific geometric configurations [12], and task allocation-based
+cooperation, where each agent is assigned a subtask based on
+efficiency criteria [13].
+In this context, the integration of unmanned aerial vehicles
+(UAVs) and unmanned ground vehicles (UGVs) has emerged
+as a promising approach for addressing complex challenges
+
+in mobile robotics [14]. This association takes advantage of
+the complementary strengths of both platforms, combining
+the aerial mobility and wide-view capabilities of UAVs [15]
+with the robustness, payload capacity, and precise navigation of UGVs [16]. Such synergy is particularly relevant in
+scenarios like search-and-rescue missions [17], environmental
+mapping [18], agricultural monitoring [19], and automated
+industrial operations [20].
+This work proposes a decentralized system in which UAVs
+and UGVs operate independently, without direct information
+exchange between the platforms. The study explores leaderfollower formation strategies, which can be extended to hunterprey dynamics. In this approach, the UGV acts as the leader,
+providing the visual information required for the UAV’s relative localization.
+II. M ATERIALS AND M ETHODS
+This section is divided into two subsections to provide
+a clear overview of the proposed application. The first one
+addresses the control of the Pioneer 3-DX robot, manufactured
+by Adept MobileRobots®, and the second one focuses on
+the control of the Bebop 2 drone, produced by Parrot Inc.®.
+It is essential to highlight that the control of both robots is
+decentralized and employs a leader-follower formation strategy. In this configuration, the Bebop 2 drone operates as the
+follower, relying exclusively on visual information provided by
+the Pioneer 3-DX robot. Figure 7 illustrates the experimental
+setup, which will be detailed in the subsequent sections.
+To demonstrate the decentralized nature of the system, a
+laptop was directly connected to the drone’s Wi-Fi network
+(yellow), enabling control of the Bebop 2 using Python scripts
+developed with the PyParrot library. The ground robot, Pioneer
+3-DX, was controlled through an infrastructure comprising a
+main computer running the Robot Operating System (ROS),
+responsible for publishing and receiving robot data.
+
+*This work was supported by CAPES, FAPEMIG and CNPq.
+1 Mr. Rezende, Mr. Pinel and Dr. Brandão are with the Robotics Specialization Center, Department of Electrical Engineering, and Graduate Program on Computer Science, Federal University of Viçosa, Viçosa - MG,
+36570-009, Brazil, E-mail: {felipe.rezende, guilherme.pinel,
+alexandre.brandao}@ufv.br
+979-8-3315-5288-6/25/$31.00©2025 IEEE
+
+Fig. 1: Representation of the experimental setup.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:31 UTC from IEEE Xplore. Restrictions apply.
+
+Additionally, a secondary computer was utilized to process
+and compute control signals using MATLAB®. This computer
+communicated with the main ROS system (ROS Master)
+to transmit control commands and receive odometry data
+from the Pioneer 3-DX (green), calculated through velocity
+integration using the RosAria library. A Raspberry Pi® served
+as an interface between the Pioneer 3-DX and ROS, facilitating
+communication and command execution.
+A. UGV Control
+The control of the Pioneer 3-DX ground robot was implemented by parameterizing desired position functions, as
+described in [21]. The implementation leveraged the AuRoRa
+framework [22], which integrates a control signal computation
+class and the ROS system for publishing control signals and
+receiving sensor data. These functions were configured to
+evaluate the effectiveness of the proposed system in various
+scenarios, including linear and curvilinear trajectories. For
+better visualization, Equation 1 present the parameterization
+for straight while Equation 2, circular paths.
+Xd (t) =
+
+t
+·d
+tmax
+
+
+2πn
+·t
+t
+ max 
+2πn
+·t
+Yd (t) = r sin
+tmax
+
+(1)
+
+
+
+Xd (t) = r cos
+
+(2a)
+(2b)
+
+Here, tmax represents the total simulation time, and t denotes
+the current time. The parameters d and r refer to distances:
+for the linear trajectory, d indicates the total displacement
+distance, while for the circular path, r represents the curvature
+radius. The angular frequency parameter n was introduced to
+define the number of revolutions within tmax . Since the desired
+points move along the trajectory, their respective velocities
+must also be computed, requiring the time derivatives of these
+position functions.
+The control loop was developed in MATLAB using the AuRoRa platform, aiming to minimize position error. The system
+receives the robot’s current position data from ROS, obtained
+via velocity integration from sensor readings, and compares it
+with the desired position. The error, calculated by subtracting
+the received current position from the desired position, is used
+as input for the controller proposed in [21], which computes
+control signals based on the robot’s parameters. The entire
+system operates at a 10 Hz update rate, balancing processing
+costs with the Pioneer 3-DX’s sensor and actuator limitations.
+B. UAV Control
+The PyParrot library was adapted to improve interaction
+and response times for controlling the UAV. Given that the
+data update frequency for the UAV must be higher, around
+33 ms (30 Hz) [23], the image processing must be efficient
+enough to avoid interfering with task execution. Specifically,
+the image processing time must remain lower than the control
+signal update rate.
+
+Within the control loop, the system receives the latest valid
+image from the Bebop 2, processes it using color segmentation, and calculates control signals based on position error
+in pixels. The UAV then adopts a predator-prey strategy for
+aggressive maneuvering, enabling it to land on the platform
+located on the UGV (Figure 2a).
+1) Color Segmentation: Object segmentation using color
+thresholds in images is a widely applied technique in computer vision [24]. The segmentation process for the Flying
+Robot Trial League (FRTL) competition platform, depicted in
+Figure 2, is described step by step below.
+First, the captured image (Figure 2a) is loaded and converted
+to the HSV (Hue, Saturation, Value) color space, which
+simplifies color-based segmentation. Binary masks are then
+generated for blue and yellow colors based on predefined HSV
+thresholds. Figures 2b and 2c illustrate the masks obtained for
+these thresholds:
+(
+(
+[92, 101, 68]lower
+[18, 60, 128]lower
+blue =
+, yellow =
+[126, 255, 221]upper
+[32, 255, 236]upper
+The blue and yellow masks are combined to form a final
+mask (Figure 2d), followed by morphological closing operations to remove noise and fill gaps, resulting in a refined mask
+(Figure 2e). Connected components are then identified, and
+the component nearest to the control point is selected, with its
+center coordinates (cx, cy) highlighted in red (Figure 2f). The
+segmentation process is outlined in Algorithm 1.
+2) Visual Controller: The coordinates cx and cy, extracted
+from the segmentation process in Section II-B1, represent the
+target’s position in the image frame. The visual controller
+processes these coordinates to generate motion commands for
+aligning the UAV with the target.
+The target’s position in the drone’s reference frame is
+calculated in meters using a calibration constant K, which
+converts pixel coordinates into physical units, as expressed by
+Algorithm 1 Segmentation and Object Identification
+Ensure: Coordinates of the platform center (pixels)
+1: Acquire the latest valid image from Bebop 2
+2: Convert the image to HSV color space
+3: Define thresholds for blue and yellow
+4: Generate binary masks based on thresholds
+5: Combine blue and yellow masks
+6: Apply morphological closing to reduce noise
+7: Identify connected components in the refined mask
+8: for each connected region do
+9:
+Calculate area and distance to reference point
+10:
+if area > minimum threshold and distance is smallest
+then
+11:
+Select the region
+12:
+end if
+13: end for
+14:
+15: return
+
+Coordinates of the center
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:31 UTC from IEEE Xplore. Restrictions apply.
+
+(a) Original image used for segmentation.
+
+(b) Binary mask for blue color.
+
+(c) Binary mask for yellow color.
+
+(d) Combined mask for blue and yellow colors.
+
+(e) Final mask after morphological operations.
+
+(f) Identified connected components in the final
+mask.
+
+Fig. 2: Segmentation process steps.
+
+K · cx
+˜ ·h
+K · cy
+˜ ·h
+, ydB =
+(3)
+1000
+1000
+where K was experimentally determined as 2.22 mm/pixel,
+based on prior knowledge of the target’s real-world dimensions
+and its distance from the UAV. The parameters cx
+˜ and cy
+˜ represent the errors between the control point and the platform’s
+position in the image frame, as shown in
+xB
+d =
+
+cx
+˜ = cxd − cx,
+
+cy
+˜ = cyd − cy.
+
+(4)
+
+The desired control point (cxd , cyd ) was set to (300, 428) to
+account for the physical displacement of the camera’s field
+of view relative to the UAV’s body frame. Only significant
+deviations (|cx|
+˜ > 20 and |cy|
+˜ > 20) are considered for
+generating motion commands. This ensures robust and precise
+control for aligning the UAV with the target.
+III. R ESULTS AND D ISCUSSION
+The validation of this study involved performing a comprehensive experiment, available at the following link:
+https://youtu.be/2febSiD1dpE. The video demonstrates two
+proposed experiments, where the drone is displaced and must
+land on a platform attached to the ground robot. In the first
+
+experiment, the Pioneer robot follows a trajectory described
+by Equation (1), which corresponds to a linear path. In the
+second experiment, it performs a circular trajectory described
+by Equation (2). It is worth noting that in both experiments,
+the view from the Bebop drone as well as the processed image,
+as described in Section II-B1, are displayed.
+It is important to emphasize that the position graphs were
+generated using the robots’ own odometry. The Pioneer’s
+odometry was derived from ROS, while the Bebop’s odometry
+was calculated using Python. To better illustrate Experiment 1,
+Figure 3 was generated. The figure shows that the drone was
+displaced 1.5 meters along the x-axis and the same distance,
+but in the opposite direction, along the y-axis. Meanwhile,
+the Pioneer traveled a distance d equal to 7 meters along the
+positive x-direction. The trajectory followed by the Pioneer
+is represented by the red line, while the path traveled by the
+Bebop is shown in black. Note that the Bebop’s path ends
+before reaching its final position, as the aerial robot performed
+a landing in motion.
+To provide a deeper analysis of the position error values
+observed during visual control in Experiment 1, Figure 4 was
+generated. This figure displays both the error magnitude and
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:31 UTC from IEEE Xplore. Restrictions apply.
+
+

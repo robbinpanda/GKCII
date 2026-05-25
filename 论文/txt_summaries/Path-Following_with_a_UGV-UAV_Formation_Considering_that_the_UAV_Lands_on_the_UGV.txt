@@ -1,0 +1,393 @@
+2020 International Conference on Unmanned Aircraft Systems (ICUAS)
+Athens, Greece. September 1-4, 2020
+
+Path-Following with a UGV-UAV Formation Considering that the UAV
+Lands on the UGV
+Vinı́cius Pacheco Bacheti† , Alexandre Santos Brandão‡ and Mário Sarcinelli-Filho†
+following implies that the vehicle (in this case the UGV-UAV
+formation) should follow a specified path, but the velocity
+can be freely set, whereas in positioning it is zero and
+in trajectory-tracking it is defined by the velocity of the
+trajectory. Therefore, considering the last step of a package
+delivery application, when the drone should land back in
+a terrestrial platform (a small truck, for instance), a pathfollowing task fits better to the application than trajectorytracking, as roads constraints, such as red lights and other
+cars, may affect the desired velocities in an unpredictable
+manner.
+To discuss the topics involved, the paper is hereinafter split
+in five sections, starting with Section II, which describes the
+experimental setup adopted to run the experiments necessary
+to validate the proposal, and Section III, in which the
+formation UGV-UAV is characterized and described. In the
+sequel, Section IV describes the path-following controller
+proposed to guide the formation, and Section V shows results
+of some real experiments run using the Pioneer 3-DX and
+the Bebop 2 vehicles. Finally, Section VI highlights the
+conclusions of the work.
+
+Abstract— This paper addresses the control of a formation
+composed of an unmanned ground vehicle (UGV) and an
+unmanned aerial vehicle (UAV). The formation navigates in
+a coordinated way, with the UAV following the UGV while
+keeping a relative pose with respect to the UGV as long as the
+UGV follows a specified path, so that the UAV can land on the
+UGV at any desired instant. This application is conceived in
+a context in which the UAV has finished a package delivery
+task and comes back to land over a platform used as a base
+for the package delivery operation. Experimental results are
+presented, which validate the approach adopted to accomplish
+such a task.
+
+I. I NTRODUCTION
+Unmanned aerial vehicles have been used as an autonomous robot to execute several tasks. Much of these tasks
+are related to the capability of collecting top view images,
+such as applications involving infrastructure inspection [1],
+[2], [3], agricultural inspection [4], [5], load transportation
+[6], [7], [8].
+More recently applications involving multiple UAVs or
+even groups of UAVs and UGVs have been used in many
+applications, such as those in [9], [10], [11], [12], [13],
+[14], [15], just to mention a few, with gain in terms of cost
+effectiveness, time to task accomplishment, or even because
+of the task to be accomplished itself.
+In such a context, this paper addresses the problem of the
+joint navigation of a formation composed of a UGV and a
+UAV (heterogeneous formation) to follow a predefined path,
+with the possibility that the UAV takes-off from the UGV
+or lands on it. Notice that this could be part of a task of
+package delivery by quadrotors, with the quadrotor departing
+from a mobile base to delivery the package, when close
+to the package destination, and/or landing back on it after
+delivering the package. The approach used is to consider the
+UAV and the UGV as a formation (a multi-robot system),
+and control the navigation of both vehicles in a coordinated
+way.
+Notice that this work differs from those reported in [16]
+and [17], which deal with tasks of positioning and trajectorytracking, respectively, whereas this work deals with pathfollowing. In this sense it is worth mentioning that path-
+
+II. T HE E XPERIMENTAL S ETUP
+This section presents the experimental setup used to run
+the experiments discussed in Section V. The UGV adopted is
+the unicycle-like nonholonomic platform Pioneer 3-DX, from
+Adept Mobile Robots, and the UAV is the quadrotor Bebop
+21 , from Parrot Drones SAS, which are shown in Figure 1.
+The Pioneer 3-DX is a quite versatile small lightweight two-
+
+* This work was supported by CNPq-Brazil and FAPES-ES, Brazil
+† V. P. Bacheti and M. Sarcinelli-Filho are with the Graduate Program
+on Electrical Engineering, Federal University of Espı́rito Santo, Vitória
+- ES, Brazil, where Mr. Bacheti is pursuing a Masters degree and Dr.
+Sarcinelli-Filho is a professor vinicius.bacheti@gmail.com,
+
+Fig. 1: Pioneer 3-DX and Bebop 2 with the markers used
+for capturing their motion.
+wheels differential drive robot used worldwide for education
+and research. In this work, in particular, it has a rectangular
+
+mario.sarcinelli@ufes.br
+‡
+
+A. S. Brandão is with the Department of Electrical
+Engineering, Federal University of Viçosa, Viçosa - MG, Brazil
+
+1 See https://www.parrot.com/us/drones/parrot-bebop-2-power-pack-fpv
+
+alexandre.brandao@ufv.br
+978-1-7281-4277-7/20/$31.00 ©2020 IEEE
+
+488
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:45 UTC from IEEE Xplore. Restrictions apply.
+
+platform over it to allow the landing of the UAV, as it is
+shown in Section V. In terms of its kinematics, the Pioneer
+3-DX is a differential drive platform, whose control inputs are
+the linear velocity v and the angular velocity ω. Its kinematic
+model, the one used here, is well known from the literature,
+even when using a control point displaced of the virtual axle
+linking its driven wheels [18], [19].
+As for the Bebop 2 quadrotor, it is a rotorcraft aerial
+vehicle originally designed as a toy to be controlled by
+smartphones or tablets, mainly for entertainment purposes,
+for its quite good video generation capabilities. However, due
+to the implementation of a library available in ROS2 (Robot
+Operating System), which connects an external computer
+with the onboard computer responsible for the low-level
+control of such a quadrotor, it is possible to use it as
+a platform to run experiments regarding navigation and
+guidance.
+As for the model of the Bebop 2 quadrotor adopted here, it
+is a rotorcraft aerial four-rotor vehicle that moves in response
+to changes in the speeds of each rotor. As a consequence
+of such changes, four forces arise, one associate to each
+propeller, and the inclination of the platform caused by
+such changes generates forces in the three directions of
+the Cartesian 3D space, and torques around the respective
+axes. The combination of such forces and torques makes the
+quadrotor fly in any desired direction, with the desired speed,
+provided that such velocities stay below the limits imposed
+by the manufacturer.
+An important aspect of the Bebop 2 quadrotor is that it is
+equipped with an autopilot, which is a low-level controller
+responsible for controlling the attitude of the vehicle. Such
+an autopilot allows the user to limit the pitch and roll angles
+(θ and φ), besides the linear velocities and rotational velocity
+around its Z axis. For applications in which no aggressive
+maneuver is adopted, such as in this work, the user can limit
+the pitch and roll angles to small values, thus allowing to
+approximate such values by zero values, meaning that the
+platform correspondent to the body of the quadrotor is always
+in the horizontal position, but is able to develop velocities in
+the directions X and Y of the 3D space [20], [21], enabling
+the user to send commands that are a four-entries vector
+composed by the linear speeds in the three axis and the
+angular speed around the Z-axis (yaw velocity).
+This vector of commands is, then,
+ 
+uvx
+uvy 
+
+u=
+ uż  ,
+uψ̇
+
+maximum rotational speed, when in the positive direction,
+to −1, which corresponds to the same variables when in the
+negative direction. As aforementioned, such parameters are
+configurable, through the internal autopilot of the Bebop 2. In
+this work the maximum value for the pitch and roll angles is
+5◦ , the maximum vertical speed is 1m/s and the maximum
+rotation speed is 100◦ /s. As for their positive directions, they
+are, respectively, front, left, up and counter-clockwise.
+It is important to establish these values, as the identified
+constants presented at the end of this section are directly
+dependent on them.
+As a consequence of such simplifications, the simplified
+dynamic model proposed in [20] is adopted to represent the
+Bebop 2 quadrotor, which is written as
+ẍ = f1 u − f2 ẋ.
+
+(1)
+
+Such a model has been shown to be an acceptable approximation for low values of pitch and roll angles, as it is the case
+here. In such a model the vector ẍ stands for the accelerations
+on the global frame, whereas ẋ is the vector of velocities in
+the frame of the vehicle, which are characterized as
+ 
+ 
+ẍ
+ẋ
+ ÿ 
+ ẏ 
+
+ 
+ẍ = 
+ z̈  , and ẋ =  ż  .
+ψ̈
+ψ̇
+The matrices f1 and f2 , by their turn, are given by
+
+K1 cos ψ
+ K1 sin ψ
+f1 = 
+
+0
+0
+
+K2 cos ψ
+ K2 sin ψ
+
+f2 = 
+0
+0
+
+−K3 sin ψ
+K3 cos ψ
+0
+0
+
+0
+0
+K5
+0
+
+−K4 sin ψ
+K4 cos ψ
+0
+0
+
+0
+0
+K6
+0
+
+
+0
+0
+ and
+0
+K7
+
+0
+0
+.
+0
+K8
+
+As for the constants K1 , · · · , K8 that appear in f1 and f2 ,
+they were experimentally identified with the help of the high
+precision motion capture system OptiTrack3 , configured with
+eight cameras, to gather the required data. Once the data
+were gathered, the method presented in [22] was adopted
+to analyze it and obtain the parameter values. Figure 2
+shows the robots in the middle of the working space (an
+indoor environment), as well as some of the cameras of the
+OptiTrack system around the room. Besides, markers are
+used to allow the OptiTrack system to identify the robots,
+which can be seen in Figures 1 and 2. The resultant parameter
+values are presented in Table I.
+
+where uvx and uvy are velocity commands in the X- and
+Y -axis, uż is the velocity command in the Z-axis and uψ̇ is
+the command for the yaw velocity.
+All these commands are sent to the vehicle as normalized
+values, ranging from 1, which corresponds to the maximum
+pitch and roll angles, the maximum vertical speed and the
+
+TABLE I: The values identified for the model parameters
+K1
+0.8417
+
+2 See https://www.ros.org/
+
+K2
+0.1823
+
+K3
+0.8354
+
+K4
+0.1710
+
+K5
+3.966
+
+K6
+4.001
+
+K7
+9.8524
+
+K8
+4.7295
+
+3 See https://optitrack.com/motion-capture-robotics/
+
+489
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:45 UTC from IEEE Xplore. Restrictions apply.
+
+The variables describing the formation are also shown in
+Figure 3, where the index 1 stands for the UGV and the
+index 2 stands for the UAV. The variables
+correspondent
+
+T
+to the positions of the UGV (h1 = x1 y1 z1 ) and
+T
+
+the UAV (h2 = x2 y2 z2 ) are grouped in the vector
+
+T
+
+ T
+T
+= x1 y1 z1 x2 y2 z2 , which
+x = h1 hT2
+describes the so called robot variables, whereas the variables
+T
+grouped in the vector q = xf yf zf ρf αf βf
+are called formation variables. As previously mentioned,
+the
+coincides
+with  the UGV position, so
+ virtual robot
+T
+
+T
+xf yf zf
+= x1 y1 z1 . Thus, two different
+spaces are defined, namely the formation space (the cluster
+space in [26] and in [19]) and the robots space, which are
+connected by two transformations, a direct one, allowing
+getting q from x, characterized as
+q = f (x),
+
+(2)
+
+and a inverse one, allowing getting x from q, characterized
+as
+x = f −1 (q).
+(3)
+An important remark is that when considering the position
+of the UGV we are considering a value z1 , which is always
+zero in this paper. To consider the variable z1 , however,
+allows using this description for a formation of two UAVs,
+for instance, what caused the decision of keeping the position
+of the UGV as a 3D position.
+
+Fig. 2: Pioneer 3-DX and Bebop 2 with their markers.
+
+III. F ORMATION C HARACTERIZATION
+To characterize the UGV-UAV formation considered in
+this work the paradigm of virtual structure [23], [24], [25] is
+adopted. Such a structure is characterized as a straight line
+in the 3D Cartesian space, which is the line segment linking
+the two vehicles. According to this paradigm, a virtual
+robot is put on a reference point in the geometric element
+characterizing the formation. It can be the center of gravity
+of the geometric element characterizing the formation, such
+as in [26], [27], [18], which, in these works, would be the
+middle point of the line linking the UGV and the UAV.
+However, as the objective is to propose a control approach
+that allows the UAV to land on the UGV, the point of interest
+for control, in the present work, will be the extremity of the
+virtual line correspondent to the UGV, such as in [24]. Thus,
+the formation characterization is the one shown in Figure 3.
+
+IV. T HE PATH -F OLLOWING C ONTROLLER FOR THE
+F ORMATION
+The control structure adopted in this work is illustrated
+in Figure 4, which shows the different layers and how they
+interact to allow guiding the formation as a whole.
+The goal of a path following task is to reach and follow a
+predetermined path with no time constraint. A path is defined
+by a parametric function c(s) = (x(s), y(s), z(s)) ∈ R3 ,
+where s is the curvilinear abscissa. As the formation in this
+paper is based on the UGV, z(s) will always be constant and
+equal to zero. The path parametrization layer is responsible
+for this, in the proposed control structure. Moreover, once
+defined the path is static with respect to time, which allows
+the parametrization to be done prior to the navigation, thus
+out of the control loop. The control layer, however, still has
+to determine the point in the path that is the closest point
+to the robot and its distance, as this result will influence
+the behavior of the controller. Notice that this is because
+the position of the robot with respect to the path is timedependent.
+A. Control Layer
+The nearest
+point between
+T the path and the robot is defined
+
+as cn = cnx cny cnz . The distance between cn and
+
+T
+xf yf zf
+is defined as ñ, where t is the tangential
+unitary vector with respect to cn and ψt is the orientation of
+t in the reference inertial system.
+
+Fig. 3: Characterizing the UGV-UAV formation.
+490
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:45 UTC from IEEE Xplore. Restrictions apply.
+
+

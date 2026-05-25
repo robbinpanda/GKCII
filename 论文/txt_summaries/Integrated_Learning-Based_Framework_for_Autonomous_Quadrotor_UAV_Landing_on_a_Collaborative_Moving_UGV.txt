@@ -1,0 +1,292 @@
+16092
+
+IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, VOL. 73, NO. 11, NOVEMBER 2024
+
+Integrated Learning-Based Framework for
+Autonomous Quadrotor UAV Landing on a
+Collaborative Moving UGV
+Chang Wang , Jiaqing Wang , Zhaowei Ma, Mingjin Xu, Kailei Qi, Ze Ji , Member, IEEE, and Changyun Wei
+
+Abstract—Autonomous unmanned aerial vehicle (UAV) landing
+on a moving unmanned ground vehicle (UGV) remains a challenge
+as it is difficult for the UAV to track the real-time state of the
+UGV and adjust its landing policy accordingly. This paper proposes a learning framework for a quadrotor UAV to land on a
+moving UGV without knowing its motion dynamics. Specifically,
+the learning framework consists of two main systems: a Landing
+Vision System (LVS) using deep learning and a Landing Control
+System (LCS) using deep reinforcement learning. The LVS enables the UAV to recognize and localize the UGV in real time to
+estimate the relative position and velocity between them. Besides,
+the location of the UGV is tracked in the field of view of the UAV
+using consecutive images, alleviating the tracking failure problem.
+We propose a Memory Consolidated TD3 (MCTD3) algorithm to
+generate optimal policies to enable precise tracking and landing
+control of the UAV. In addition, we propose an adaptive COACH
+(ACOACH) algorithm that allows human intervention in the action
+space of the UAV to speed up the training process. We demonstrate
+the effectiveness of the proposed method in both simulation and
+real-world experiments.
+Index Terms—Autonomous landing, bio-inspired system,
+convolutional neural networks, deep reinforcement learning, UAV
+landing, YOLO.
+
+I. INTRODUCTION
+NMANNED aerial vehicles (UAVs) and unmanned
+ground vehicles (UGVs) have been widely used in a
+variety of real-world applications, including agriculture [1],
+
+U
+
+Manuscript received 6 January 2024; revised 15 May 2024; accepted 4 July
+2024. Date of publication 11 July 2024; date of current version 7 November 2024.
+This work was supported in part by the National Natural Science Foundation
+of China under Grant 62303481 and Grant 52371275, and in part by University
+Independent Scientific Research Project under Grant 2022505070. The review
+of this article was coordinated by Prof. Haejoon Jung. (Chang Wang and Jiaqing
+Wang contributed equally to this work.) (Corresponding author: Changyun Wei.)
+Chang Wang and Zhaowei Ma are with the College of Intelligence Science
+and Technology, National University of Defense Technology, Changsha 410073,
+China.
+Jiaqing Wang is with the State Key Laboratory of Ocean Engineering and
+Institute of Oceanography, Shanghai Jiao Tong University, Shanghai 200240,
+China.
+Mingjin Xu is with the College of Naval Architecture and Ocean Engineering,
+Naval University of Engineering, Wuhan 430033, China.
+Kailei Qi and Changyun Wei are with the College of Mechanical and
+Electrical Engineering, Hohai University, Changzhou 213022, China (e-mail:
+c.wei@hhu.edu.cn).
+Ze Ji is with the School of Engineering, Cardiff University, CF24 3AA Cardiff,
+U.K.
+Digital Object Identifier 10.1109/TVT.2024.3425755
+
+logistics [2], reconnaissance [3], and search-and-rescue [4].
+Coordination between UAVs and UGVs is often more practical for solving complex, interdependent tasks than using them
+individually. For instance, when a quadrotor UAV hovers at a
+certain height, it can share a global terrain view with a UGV for
+efficient path planning. On the other hand, the UGV can provide
+the UAV with a battery charging facility to extend the flight time.
+Autonomous landing is essential for a UAV to collaborate with
+a UGV [5], [6], [7]. If reliable GPS coordinates of the UAV and
+the landing destination were provided, the landing task could
+be solved as a control problem. A robust autonomous landing
+system enables the UAV to cooperate effectively in such critical
+situations to provide real-time surveillance, medical delivery, or
+communication relays [8], [9]. This can be achieved through the
+use of fuzzy control [10], Model Predictive Control (MPC) [11],
+PD (Proportional, Derivative) control [12], PID (Proportional,
+Integral, Derivative) control [13], and Unfortunately, these methods may fail in GPS-denied environments, such as search and
+rescue inside mountains or fire scene [14], [15], [16]. To tackle
+this issue, the UAV can apply vision-based control methods to
+track and locate the destination, using vision combined with
+reinforcement learning to address the landing task [17], [18].
+In our previous work [5], [19], we integrated the Deep Deterministic Policy Gradient (DDPG) [20] reinforcement learning
+algorithm with the traditional PID controller to achieve autonomous tuning of PID parameters. However, the UAV would
+occasionally lose track of the UGV in its field of view, revealing
+the need to provide it with reliable target tracking, localization, and landing control. Minaeian et al. [21] proposed an
+air-ground localization method to achieve accurate multi-ground
+target recognition. Yet, the proposed method is too complex and
+susceptible to interference.
+Based on existing machine learning theories for autonomous
+navigation, our study advances the application of these theories
+in complex, GPS-denied environments by introducing a novel integration of a learning framework for a quadrotor UAV to land on
+a moving UGV without knowing its motion dynamics. Precisely,
+our integrated learning framework consists of two systems: the
+onboard Landing Vision System (LVS) for UGV detection and
+the Landing Control System (LCS) for UAV motion control, as
+illustrated in Fig. 1. The UAV can accurately land without the
+UGV’s prior motion information. Furthermore, the UAV can
+adjust its pose to regain recognition when it loses perception of
+
+0018-9545 © 2024 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See https://www.ieee.org/publications/rights/index.html for more information.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:30 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: INTEGRATED LEARNING-BASED FRAMEWORK FOR AUTONOMOUS QUADROTOR UAV LANDING
+
+Fig. 2.
+
+Fig. 1. Tracking and landing process of our proposed autonomous landing
+system.
+
+16093
+
+Framework of TD3.
+
+where st+1 is the state at the time step t + 1 and π(at | st )
+represents the policy that maps from the state space to the action
+space. Neural networks are used to calculate the Q-values for
+each state-action pair. A function approximator is designed to
+minimize the error through the trained and optimized parameter
+θ∗ , as follows:
+
+
+(2)
+θ∗ = arg min E (δt − Qθ (st , at ))2 ,
+θ
+
+the UGV, thus increasing its robustness during the actual landing
+process. The main contributions are summarized as follows:
+r The integrated learning framework enables reliable UAV
+tracking of the UGV while learning the optimal landing
+policy.
+r We design a lightweight pipeline to achieve rapid detection
+and localization of the moving UGV, which can provide accurate relative positions and velocity estimations between
+the UAV and UGV.
+r We propose an efficient deep reinforcement learning algorithm MCTD3 for learning the landing policy, and we
+propose an interactive learning algorithm ACOACH to
+incorporate human experience for more efficient learning.
+The rest of the paper is organized as follows: Section II
+presents the related preliminaries of deep reinforcement learning
+and the kinematic model of the landing task. We illustrate our
+system framework in Section III. Our proposed LVS and LCS
+are elaborately described in Sections IV and V. Section VI
+discusses the experimental results. Finally, we conclude the
+paper in Section VII.
+II. PRELIMINARIES
+A. Deep Reinforcement Learning and TD3
+Deep Reinforcement Learning (DRL) [22] combines the advantages of deep neural networks and reinforcement learning
+(RL) to learn control policies for high-dimensional or continuous
+state spaces. The Q-value Qπ (st , at ) is defined as the expected
+cumulative future discounted rewards for an action at taken at
+the time step t. RL aims to find the optimal policy that maximizes
+the expected return. In a deterministic policy μ, the Q-value is
+defined by the Bellman expectation condition:
+Qμ (st , at ) = E [rt + γQμ (st+1 , μ (st+1 ))] ,
+
+(1)
+
+where δt = rt + γ maxa Qθ (st+1 , a) is defined as the Temporal
+Difference error (TD-errors), essentially the difference between
+the predicted and actual values of the reward.
+Although Q-value-based approaches are useful in searching
+for the optimal policy μφ , parameterized by φ, a more efficient
+approach is to use the policy gradient
+method to maximize the accumulated reward J(μφ ) = Eμφ [ t R(st , at )]. The gradients
+are used to update φ and are calculated as [23].
+Actor-critic methods combine both value-based and policygradient methods [24]. When the agent interacts with the environment at the time step t, the state st is observed, and the agent
+receives an action command at from the policy π(at | st ; θ)
+accordingly.
+Twin delayed deep deterministic policy gradient (TD3) represents one of the most successful applications of the actor-criticbased reinforcement learning paradigm, as shown in Fig. 2. One
+of the known issues with value-based reinforcement learning
+methods is that the Q-function tends to overestimate the Q-value,
+leading to suboptimal policies due to function approximation
+errors. TD3 addresses this problem by constraining the overestimated Q-value by taking the minimum value between a pair of
+critic networks Qθi (s, a)i=1,2 , where θi(i=1,2) are the parameters
+of the critic networks. Furthermore, Gaussian noises are added
+to the actions generated from the actor network to explore
+the environment fully. Then, we use the Bellman equation to
+calculate a target value y(r, s ). The smaller item of the two
+outputs (Qθ1 , Qθ2 ) from the target critic networks is fed into the
+Bellman equation to avoid overestimating the Q -value as:
+y (r, s ) = r + γ min Qθi (s , πφ (s ) + ε) ,
+i=1,2
+
+(3)
+
+where ε is the Gaussian noise added to enhance the exploration
+ability of the agent. We then update the critic networks as
+follows:
+
+(y − Qθi (s, a))2 .
+(4)
+θi ← argminθi N −1
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:30 UTC from IEEE Xplore. Restrictions apply.
+
+16094
+
+IEEE TRANSACTIONS ON VEHICULAR TECHNOLOGY, VOL. 73, NO. 11, NOVEMBER 2024
+
+Fig. 3.
+
+Definition of the coordinate system and forces acting on the UAV.
+
+Fig. 4.
+
+Conversion process from the PCS to the WCS.
+
+Meanwhile, the target actor network is not updated consecutively to reduce the overestimation problem. In TD3, however,
+the parameter φ will be updated by the deterministic policy
+gradient after certain training iterations, in the author’s case,
+e.g., updated the target critic networks two times [25]. The
+equation for the policy update is described as follows:
+
+
+
+∇φ πφ (s). (5)
+∇a Qθ1 (s, a)
+∇φ J(φ) = N −1
+a=πφ (s)
+
+Finally, a hyper-parameter τ (0 < τ < 1) is introduced for the
+soft update, which reduces the problem of over-fitting during the
+training. The target networks are updated as follows:
+θi ← τ θi + (1 − τ )θi
+φ ← τ φ + (1 − τ )φ .
+
+(6)
+
+B. Coordinate System
+The Coordinate System used in our study consists of several
+sub-systems, including the Pixel Coordinate System (PCS),
+the Camera Coordinate System, the Rack Coordinate System,
+the World Coordinate System (WCS), and the Target Coordinate
+Systems (TCS), as shown in Fig. 3. These sub-systems are
+essential for understanding the position and orientation of the
+UAV. In our design, the onboard camera is fixed to the UAV Rack.
+Therefore, we combine the Camera Coordinate System with the
+Rack Coordinate System as Camera & Rack Coordinate System
+(CCS). We also examined a quadrotor UAV with a rack in the
+X-configuration. The rack provides upward forces through four
+mini-motors installed perpendicular to the rack and rotation in
+the OC ZC negative direction. The pipeline for the UAV camera’s
+transformation of the PCS into the WCS is shown in Fig. 4.
+III. FRAMEWORK
+The problem of UAV landing can be represented as a Markov
+Decision Process (MDP). When the UAV detects the UGV, it
+can estimate its relative position and velocity, which allows the
+agent to calculate the state vector. We define the MDP for the
+landing task as {S, A, P, R, γ}. The current state st leads to the
+
+Fig. 5.
+
+The state transition for UAV autonomous landing.
+
+next state st+1 once the UAV perceives the current state st and
+executes the current action at , as depicted in Fig. 5.
+1) state:
+The state vector st at the time step t is defined as
+(Δdxt , Δdyt , Δdzt , Δvxt , Δvyt , Dt ) ∈ S, where
+S represents a six-dimensional continuous state space.
+(Δdxt , Δdyt , Δdzt ) denotes the relative distances of the
+UAV to the UGV in the WCS at the time step t, and
+(Δvxt , Δvyt ) represents the relative velocity between the
+UAV and the Landing Platform (LP) in the x and y axes.
+Dt serves as a warning variable indicating whether the
+UAV is approaching the boundary of the LP.
+2) action:
+The action space A is defined as a three-dimensional
+continuous space. The action a is represented as a =
+(vx , vy , vz ) ∈ A, where vx , vy , and vz denote the reference
+velocities sent to the UAV’s velocity controller along the
+x, y, and z axes in the WCS.
+3) policy:
+Solving the MDP involves determining a policy πθ ∈ Π :
+S × A → [0, 1] within a finite time horizon T , where
+πθ is parameterized by θ. The policy P represents the
+conditional probability p(s | s, a). It is defined as a mapping from the state-action space (S × A) to a probability distribution over the next state space S, denoted as
+P : S × A → P (S).
+4) reward function:
+Formulating an effective landing policy P necessitates the
+creation of a well-defined reward function R.
+The realization of each reward rt at discrete time steps comprises three components: tracking rewards, rdist and rvelo , and
+landing guidance reward, rland .
+r Distance reward rdist : The design of rdist is to encourage
+the agent to minimize the relative distance at each step.
+The relative distance
+ between the UAV and the target is
+calculated as dt = Δd2xt + Δd2yt . The tracking process
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:30 UTC from IEEE Xplore. Restrictions apply.
+
+

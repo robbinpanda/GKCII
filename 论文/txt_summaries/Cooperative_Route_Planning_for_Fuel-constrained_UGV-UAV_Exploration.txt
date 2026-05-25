@@ -1,0 +1,382 @@
+2022 IEEE International Conference on Unmanned Systems (ICUS) | 978-1-6654-8456-5/22/$31.00 ©2022 IEEE | DOI: 10.1109/ICUS55513.2022.9987158
+
+Mingjia Zhang
+Hefei Institutes of Physical Science,
+Chinese Academy of Sciences
+Hefei, China
+University of Science and Technology
+of China
+Hefei, China
+Nanjing Polytechnic Institute
+Nanjing, China
+hijia@mail.ustc.edu.cn
+
+Huawei Liang*
+Hefei Institutes of Physical Science,
+Chinese Academy of Sciences
+Hefei, China
+Anhui Engineering Laboratory for
+Intelligent Driving Technology and
+Application
+Hefei, China
+Innovation Research Institute of
+Robotics and Intelligent
+Manufacturing Chinese Academy of
+Sciences
+Hefei, China
+hwliang@iim.ac.cn
+
+Abstract Heterogeneous UGV-UAV system can efficiently
+complete large-scale tasks such as exploration and rescue by
+collaborative operation. This paper proposes a route planner
+based on a dynamic aggregation strategy to select the timeoptimal routes for function-constrained UGV and fuelconstrained UAV to reach all the mission points. To reduce the
+time consumption of waiting at the take-off point, UGV and
+UAV are inclined to rendezvous at the next meeting point by nowait operations. We present a two-step routing strategy to
+address this cooperative problem. First, the Voronoi diagram
+and greedy set cover method are used to determine meeting
+points and task areas. Then, solving a traveling salesman
+problem to find a UGV path by A-star and Lin-Kernighan
+heuristic. After that, an adaptive large neighborhood search
+heuristic is proposed to address vehicle routing problem with
+recharge for UAV among multiple task areas. The simulation
+and real experiment results demonstrate that our approach can
+effectively generate a time-optimal path for UGV-UAV
+Cooperative exploration.
+Keywords UGV-UAV, Fuel-constrained, Route planning,
+Adaptive large neighborhood search, Cooperative exploration
+
+I.
+INTRODUCTION
+In the past decade, the heterogeneous UGV-UAV system
+has had a rapid development and cooperative aerial-ground
+vehicle has been widely adopted in many applications
+including reconnaissance, surveillance, and exploration [1].
+Unmanned aerial vehicles (UAVs) have emerged as a
+promising exploration tool because of their advantages of low
+weight, small size, and good flexibility. However, due to their
+limited battery capacity, they can only be used in relatively
+small areas.
+By coordinating with the UAV, the UGV can provide
+recharging support for large-scale exploration [2]. Meanwhile,
+UGV can detect drivable areas to realize autonomous driving
+on rough roads based on the aerial image acquired from the
+UAV. On the basis of the new cooperative mode, we research
+the combinatorial optimization of UAV and UGV to further
+*Corresponding author
+This work was supported by the National Key Research and Development
+Program of China under Grant 2020AAA0108103 in part by the Institute
+of Robotics and Intelligent Manufacturing Innovation, Chinese Academy of
+Sciences under Grant C2021002, and in part by Scientific Research
+Foundation of Nanjing Polytechnic Institute under Grant NJPI-2021-11.
+
+PengFei Zhou
+Hefei Institutes of Physical Science,
+Chinese Academy of Sciences
+Hefei, China
+Anhui Engineering Laboratory for
+Intelligent Driving Technology and
+Application
+Hefei, China
+Innovation Research Institute of
+Robotics and Intelligent
+Manufacturing Chinese Academy of
+Sciences
+Hefei, China
+pfzhou@hfcas.ac.cn
+
+Fig. 1. An illustration of route planning for UGV-UAV
+exploration (red circle is the target point and blue star is the start
+point).
+
+improve the efficiency of exploration. Fig. 1 shows an
+example scenario where there are lots of wide distributed
+target points that need to be arrived by fuel-limited UAV and
+UGV driving in the road network as a mobile recharging
+station.
+This paper proposes suitable heuristics and a two-step
+optimization method to solve this non-deterministic
+polynomial-time problem in optimal time. The strategy starts
+by computing an iterative Voronoi diagram as an interpolation
+method in order to search the most suitable set of recharging
+stations for UAV relates to the road network. According to the
+result of partitioning, task points are allocated to the
+corresponding meeting point. Then, we determine the ideal
+number of meeting points using the greedy set cover method
+to cover every target point. Through domain decomposition,
+it is possible to reduce computing scale by turning a largescale problem into several smaller discrete subproblems. On
+the one hand, an optimization method based on the A*
+algorithm reduces the distance traveled between meeting
+points by the UGV. On the other hand, the components of the
+adaptive large neighborhood search (ALNS) heuristic are
+tailored to solve UAV path planning preferred to generate
+routes across task areas. According to our knowledge, no
+previous work has been done on this sort of dynamic
+aggregation strategy.
+
+  ,(((
+1047
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:47 UTC from IEEE Xplore. Restrictions apply.
+
+The rest of this paper is organized as follows: Section II
+gives a brief overview of the state-of-the-art development.
+Section III presents a mathematical formulation of the
+cooperative route planning problem and introduces the
+improved algorithm. Some experiments are conducted in real
+traffic situations and the results are presented in Section IV.
+Finally, we conclude this paper and discuss future research
+directions in Section V.
+II.
+
+RELATED WORKS
+
+Extensive research about cooperative route planning of
+fuel-constrained UGV-UAV has been carried out leading to a
+great many problem solutions. Chen J [3] classifies the
+Collaborative Methods of UGV-UAV systematically, applies
+the clustering method to target allocation, and discusses the
+multi-point dynamic aggregation problem. Tan C S [4]
+compares various route planning algorithms in terms of
+accuracy, time performance, and applicable environment.
+Murray and Chu [5] put forward the FSTSP, which
+involves a single vehicle and a drone accomplish parcel
+delivery task together. A complementary problem to the
+FSTSP is PDSTSP which most delivery destination are
+located near the transportation route and stopping place. As a
+result, the drone is within flight range of near-neighboring
+customers, whereas the vehicle may independently service
+faraway consumers. Both problems were addressed with
+heuristics and mixed integer linear programming (MILP) and
+prove the effectiveness of the heuristic method. TSP-D
+formulation composed of trucks and drones share the same
+road network is proposed by Agatz et al. [6]. Additionally,
+drones can also be launched and returned to the same location,
+UAVs play a more effective role than before. Bouman et al.
+[7] extended the work by analyzing the problem from two
+perspectives. In order to solve the original TSP, the dynamic
+programming approach is used, which involves the shortest
+path algorithm applied to the TSP truck route and drone nodes.
+Moreover, they also presented an A* algorithm that is better
+in all cases for larger instances to solve the time performance
+of dynamic programming. Even so, the above methods only
+permit UAVs to visit one potential target point while flying,
+which negatively impacts the performance of the UAV in
+terms of time.
+Maini and Sujit [8] define the Fuel Constrained UAV
+Refueling Problem with Mobile Refueling Station (FCURPMRS). This work is similar to ours in that the UAV must visit
+each target site, but the mobile refueling station has no routing.
+On this basis, Ropero F [9] define Energy Constrained UAV
+and Charging Station UGV Routing Problem (ECU-CSURP).
+Cooperative routing for UGV-UAV considering fuelconstrain using cooperaTive ExploRation Routing Algorithm
+(TERRA) is proposed, but it just supports UAV-UGV start
+and end at the same point. When the scope of the task area is
+determined, UGV should stay at the meeting location until
+relevant UAV has visited all of the task points. Although this
+method can get the optimal total distance, it is not optimal in
+terms of the actual running time of the system. For the above
+reasons, we consider an extension of FCURP-MRS and
+TERRA to support dynamic aggregation which means UAV
+should consider adjacent areas and arrive at the next meeting
+point preferentially.
+A branch and bound algorithm [10] and decompositionbased iterative heuristic [11] are proposed for improving
+solutions. propose a. There have been studies that have
+
+reduced the number of optimization variables and constraints,
+enabling the exact methods to be computed more quickly. In
+addition to exact algorithms, heuristics algorithms such as
+Genetic algorithm [12] and Tabu search [13] show better
+performance as to solution quality, solving rapidity, and
+algorithm robustness for larger instances. The adaptive large
+neighborhood search (ALNS) heuristic has grown to be a
+well-known framework for applying heuristic solution
+techniques [14]. Ghilas V [15] proposed neighborhoodsearch-based heuristics to solve the Pickup and Delivery
+Problem with Time constraints and predetermine route.
+Results show that the ALNS is highly effective in finding
+good-quality solutions considering complex constraints. In
+this paper, we use a hybrid tabu search heuristic-based
+improved ALNS algorithm to find a feasible solution and
+improve the solution quality.
+III.
+
+METHODS
+
+Fig. 2. An dynamic aggregation solution for ECU-CSURP
+
+A. Problem Statement
+The objective is to generate a cooperative routing for the
+heterogeneous UGV-UAV system to visit all targets while
+trying to minimize processing time. As soon as insufficient
+power is available to continue performing the next task for the
+UAV, it returns to the vehicle for battery replacement. As
+shown in Fig. 2, when several task nodes are more densely
+distributed and not time-consuming, the UAV may inspect
+several task nodes at a time before returning to the vehicle to
+replace the battery. In the process of returning, the UAV and
+the vehicle may rendezvous at the original meeting point, i.e.,
+the vehicle is still parked at the original meeting point waiting
+after the UAV is deployed, such as point 3 and point 4 in Fig.
+2; or the vehicle may also leave the original meeting point
+after the UAV is deployed, and the UAV and the vehicle
+rendezvous at another different meeting point, such as point 1
+and point 2 in Fig. 2.
+The basic assumptions are:
+UGV does not have any energy constraints.
+UGV and UAV move at fixed speeds, and UGV travels
+at a significantly slower speed than UAV.
+Not considering time spent at the meeting point for
+recharging and at the target point.
+The sets and variables used to model the UAV multiple
+depot capacity vehicle routing problem are listed in Table I.
+
+1048
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:47 UTC from IEEE Xplore. Restrictions apply.
+
+TABLE I.
+Sets and
+Variables
+
+SETS AND VARIABLES USED IN THE FORMULATION
+Description
+
+1) The Voronoi diagram and the greedy set cover
+algorithm are used to determine the necessary number of
+meeting points to cover all task points in the road network.
+2) The A* and LKH algorithm is employed to plan the
+distance-optimal path for UGV along the road network. The
+hybrid ALNS algorithm is used to plan the time-optimal path
+for UAV.
+
+Elements
+
+The set of meeting points
+
+The set of edges for UGV
+and UAV
+
+Begin
+
+Load and display task point location
+
+Divide task area and generate candidate
+assembly points by Voronoi diagram
+
+We express the FCURP-MRS with the following integer
+programming model:
+
+Is minimum
+cover set
+
+Optimization of assembly points
+
+UGV optimal path planning
+
+(1)
+
+UAV optimal path planning
+
+(2)
+Is Timeoptimal
+
+(3)
+
+Output UGV-UAV cooperative route
+
+(4)
+
+End
+
+(5)
+
+Fig. 3. The whole system control scheme.
+
+(6)
+(7)
+(8)
+(9)
+Equation (1) is the objective function, which minimizes
+the total time cost for the exploration task including three parts.
+The first part involves the departure of the UAV from the
+meeting point and arriving at the task location. The second
+part is UAV travel among the task points. The Third part is the
+UAV returning to the meeting point for recharge. In this paper,
+the UGV path is preprocessed to generate a fixed value. The
+total time of cooperative exploration is the UGV time cost
+adding the UAV time cost.
+Equation (2) implies the constraint that every task point
+should visit only once by the UAV. Equation (3) indicates the
+Equation (4) implies the constraint that UAV should land at
+UGV after completing the task. Equation (5) implies the
+constraint that the UAV can only start from a meeting point.
+Equation (6) represents the fuel constraints. Equation (8)
+shows that the role of
+is to judge UAV returns to the
+original meeting point or travels simultaneously with UGV to
+the next meeting point. If the UAV path is support dynamic
+aggregation, then the time cost for this path no longer counted
+in the total cost.
+B. Solution Algorithm
+In consideration of the solution space scale, we use a twoto solve
+step
+FCURP-MRS. Fig. 3
+the whole system control
+scheme. Specifically, the algorithm consists of the following
+steps:
+
+Dynamic aggregation
+strategy
+
+C. First Step
+The first step is comparable to the work in FCURP-MRS,
+placing intermediate UGV charging stops, so that, allows the
+UAV to reach its destination by replenishing its energy.
+However, our computational approach is founded on the boost
+polygon library to calculate the Voronoi diagram. The program
+generates an iterative Voronoi diagram that covers the desired
+locations in the road network. Map information is crucial to
+finding the correct meeting point. The topological struct of
+the road network is defined by nearest road curve and point.
+The method supports both points and edges as site types. The
+objective is to calculate a set of vertices located on the road
+network, whose areas cover all of the target spots. We tailored
+the implementation of a greedy set cover algorithm to search for
+a minimal set of vertices whose regions provide complete
+coverage of the collection of target points.
+Algorithm 1 shows the main process. The inputs consist of
+the list of target sites and the UAV maximum flight time.
+Algorithm1 Voronoi diagram and greedy set cover
+1
+Input:
+2
+Output:
+3
+//
+: set of target points not covered
+4
+// : set of target points covered
+5
+// : set of nearest road node in flying range
+6
+// : set of alternative meeting points
+do
+7
+While
+8
+Compute Voronoi edges
+as
+9
+Use map information to find
+10
+Connect the nearest task point as
+11
+Update
+12 end while
+13 Get the
+belong to
+14 Order the set by weights using greedy strategy
+
+1049
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:47 UTC from IEEE Xplore. Restrictions apply.
+
+

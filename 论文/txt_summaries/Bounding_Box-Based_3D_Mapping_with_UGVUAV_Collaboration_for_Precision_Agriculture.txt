@@ -1,0 +1,404 @@
+2026 12th International Conference on Automation, Robotics, and Applications
+
+2026 12th International Conference on Automation, Robotics and Applications (ICARA) | 979-8-3315-6353-0/26/$31.00 ©2026 IEEE | DOI: 10.1109/ICARA69401.2026.11480380
+
+Bounding Box-Based 3D Mapping with UGV–UAV
+Collaboration for Precision Agriculture
+Accacio F. dos Santos Neto
+
+Manuel B. Couto
+
+Marcelo R. Petry
+
+CEFET-MG, Leopoldina, Brazil
+accacio@cefetmg.br
+
+INESC TEC, Porto, Portugal
+manuel.b.couto@inesctec.pt
+
+INESC TEC, Porto, Portugal
+marcelo.petry@inesctec.pt
+
+António Paulo Moreira
+
+Paolo Mercorelli
+
+INESC TEC, Porto, Portugal
+FEUP, University of Porto, Portugal
+amoreira@fe.up.pt
+
+IPTS, Leuphana University of Lüneburg, Germany
+paolo.mercorelli@leuphana.de
+
+Abstract—Building 3D maps in agricultural environments is
+challenging due to dense vegetation, irregular terrain, lack of
+landmarks, and unreliable GPS. This paper proposes a Bounding
+Box-Based 3D Mapping method using collaboration between an
+Unmanned Ground Vehicle (UGV) and an Unmanned Aerial
+Vehicle (UAV). The method simplifies crop rows and tree canopies
+by enclosing their point clouds in 3D bounding boxes, fused
+with original UAV and UGV data, producing compact maps
+that preserve essential structures for autonomous navigation and
+trajectory planning. Evaluation in a simulated Orchard scenario
+shows that the method could reduce map size by up to 60% while
+maintaining 83.6% coverage. Multi-robot collaboration proved
+crucial, with the UGV contributing 74% and the UAV 26% of
+the merged map. Overall, the proposed method demonstrates
+potential and deserves further investigation in more complex
+agricultural scenarios.
+Index Terms—3D mapping, bounding box representation,
+UGV–UAV collaboration, precision agriculture, gazebo simulator
+
+I. INTRODUCTION
+Building 3D maps for autonomous systems in agricultural environments is a challenging task. The difficulty arises
+from limitations in perception and navigation in real-world
+agricultural settings [1]. These challenges are amplified by
+dense and heterogeneous vegetation, the absence of fiducial
+landmarks, irregular terrain, and unreliable GPS signals [2]. In
+this context, developing robust mapping techniques is essential
+to improve the performance of agricultural robotic systems.
+Traditional 3D mapping approaches—typically based on
+dense point clouds or voxelized representations—struggle to
+remain reliable under these conditions [3]–[6]. Occlusions
+caused by tree canopies limit the visibility of ground robots,
+while aerial platforms often miss structural details close to the
+terrain. Furthermore, dense map representations tend to impose
+high memory and computational demands, hindering their use
+in real-time agricultural navigation. These limitations motivate
+the need for more compact, cooperative, and structure-aware
+mapping strategies.
+To address these challenges, a 3D mapping algorithm is proposed in which collaboration between an Unmanned Ground
+Vehicle (UGV) and an Unmanned Aerial Vehicle (UAV) is
+
+979-8-3315-6353-0/26/$31.00 ©2026 IEEE
+
+integrated using bounding box (BB) structures. Through this
+collaborative strategy, the reconstruction of upper vegetation
+regions is improved, and compact maps are generated to
+facilitate trajectory planning in orchard-like environments and
+areas with dense canopy.
+The proposed method was evaluated in a simulated Orchard
+scenario specifically built for this study. The environment
+consists of rows of simulated trees forming structured corridors
+that mimic agricultural plantations, providing clear navigation
+paths and controlled conditions for assessing the performance
+of the mapping approach.
+In this context, the main contributions of this paper are:
+• A novel Bounding Box-Based 3D mapping method with
+UGV–UAV collaboration for precision agriculture, designed to generate compact and informative maps of
+agricultural environments.
+• Insights from a numerical case study in a simulated
+orchard environment (Gazebo), showing that the method
+can reduce map size while retaining essential coverage
+for UAV–UGV navigation and bounding box generation.
+The remainder of this paper is organized as follows. Section II reviews recent studies on UGV–UAV collaboration for
+3D mapping. Section III describes the proposed approach for
+3D map generation based on bounding boxes and UGV–UAV
+cooperation. Section IV presents a case study that demonstrates the application of the proposed methodology, while
+Section V analyzes and discusses the obtained results. Finally,
+Section VI concludes the paper by summarizing the main
+findings and outlining directions for future research.
+II. R ELATED W ORK
+This section reviews recent UGV–UAV collaboration approaches for 3D mapping, highlighting their objectives, key
+features, strengths, and weaknesses, followed by an analysis
+of their implications for navigation and decision-making.
+A. UGV-UAV collaboration for 3D mapping
+Recent work has introduced several frameworks for collaborative 3D mapping using heterogeneous UGV–UAV systems,
+
+601
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:11 UTC from IEEE Xplore. Restrictions apply.
+
+especially in challenging environments. Several studies focus
+on GNSS-denied scenarios: Yue et al. [7] integrate continuous–discrete mapping with Bayesian fusion for adaptive map
+merging, while Wang et al. [8] combine octomap-based reconstruction with ORB-SLAM2, achieving reliable navigation
+indoors. Surmann et al. [9] and Zhang et al. [10] fuse UAV
+and UGV point clouds using planar registration or multi-layer
+optimization pipelines, demonstrating robust localization and
+mapping, albeit with sensor or environmental limitations.
+Other approaches integrate visual and LiDAR data for
+collaborative mapping. He et al. [11] combine ego-motion
+estimation, pose graph optimization, and neural network-based
+data association, while Xie et al. [12] introduce hierarchical planning with SLAM modules for multi-robot outdoor
+mapping. Both achieve high accuracy but require significant
+computational resources.
+Focusing on agricultural environments, Tagarakis et al. [6]
+fuse UAV orthomosaics and UGV RGB-D data to estimate
+tree height and canopy volume, whereas Tian et al. [13]
+employ semantic Octree fusion for multi-layered scene representation, facilitating autonomous planning. Liu et al. [14]
+enhance global pose estimation using distributed SLAM with
+semantic–geometric registration, and AgriColMap [15] aligns
+UAV and UGV vegetation data via multimodal grids and
+optical flow.
+Finally, in dynamic or cluttered environments, Kim et
+al. [16] propose UAV–UGV systems for 3D data acquisition
+and path planning, improving efficiency and data quality despite coordination challenges. Table I summarizes key aspects
+of the 3D mapping methods, including sensors, alignment,
+merging and mapping approach, real-time capability, and main
+advantages and disadvantages.
+
+ful representation of the environment—one that highlights
+only navigable regions, obstacles, or task-relevant structures.
+Filling this gap requires a paradigm shift: from exhaustive
+reconstruction to compact and adaptive representations aligned
+with autonomous needs. Promising directions include online
+semantic segmentation, region-of-interest extraction, and adaptive resolution mapping, all aiming to enable more efficient
+and mission-relevant perception for robotic decision-making
+systems.
+III. B OUNDING B OX -BASED 3D M APPING M ETHOD
+The proposed method is based on the application of Bounding Box (BB) structures to generate a compact geometric
+representation of the agricultural environment by replacing
+crop rows with the bounding box representation of the point
+cloud obtained through UGV–UAV collaboration. These boxes
+delimit the vegetation rows and the volumes corresponding
+to tree canopies, providing a simplified yet information-rich
+spatial description of the mapped area. As illustrated in
+the simplified flowchart (Fig. 1), the methodology comprises
+sequential steps: merging point clouds, segmenting crop rows
+and tree volumes, organizing data into vertical layers, extracting and fusing 3D bounding boxes, and exporting a compact
+3D map. Each step will be described in detail in the following
+subsections.
+Start
+
+Merge UGV and UAV Point Clouds
+
+B. Analysis of Heterogeneous 3D Mapping Methods
+Tables I provide a representative overview of recent approaches to heterogeneous UAV–UGV collaboration for 3D
+mapping. A closer analysis reveals that many studies prioritize
+raw mapping accuracy, often at the expense of operational
+feasibility in autonomous navigation and real-time decisionmaking frameworks.
+Notably, the generation of high-resolution maps enhances
+environmental fidelity but demands computationally intensive processing pipelines, which can hinder their deployment in real-time systems. In contrast, selective mapping
+strategies—such as semantic filtering and adaptive data fusion—offer a promising trade-off by emphasizing task-relevant
+features while significantly reducing the computational load.
+This balance is critical for ensuring that mapping outputs
+effectively support downstream autonomy functions.
+Despite these advances, there remains a gap in the development of simplified mapping strategies adapted to trajectory
+planning and real-time decision-making. Most approaches
+focus on maximizing spatial detail and geometric accuracy,
+which often leads to excessive computational demands and
+reduced system responsiveness. Few studies address the challenge of maintaining a minimal yet semantically meaning-
+
+Segment Environment into
+Crop Rows and Tree Volumes
+
+Extract 3D Bounding Boxes and
+Fuse with Original Point Cloud
+
+Export Compact 3D Map
+
+End
+Fig. 1. Simplified flowchart of the proposed 3D mapping methodology based
+on bounding boxes.
+
+A. Merge UGV and UAV Point Clouds
+In this initial step, the point clouds acquired by the UGV
+and UAV are brought into a common reference frame and
+merged into a unified spatial dataset. After an optional voxel
+downsampling step to reduce redundancy, the alignment between the two clouds is refined using the Iterative Closest Point
+
+602
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:11 UTC from IEEE Xplore. Restrictions apply.
+
+TABLE I
+S UMMARY OF ARTICLES ON HETEROGENEOUS COLLABORATION FOR 3D MAPPING .
+Ref.
+
+Sensors
+Team
+
+Robots
+
+Alignment, Merge and Mapping Approach
+
+Realtime
+
+Advantages and Disadvantages
+
+[7]
+
+3D LiDAR (UGV),
+RGB cameras (UAV)
+
+No
+
+Robust in GNSS-denied environments; multi-resolution fusion improves
+accuracy / High computational cost; sensitive to UAV visual noise
+
+[8]
+
+Stereo and monocular
+RGB cameras, IMU,
+proximity
+sensors
+(UGV)
+
+Yes
+
+High accuracy in indoor environments; robust to GNSS absence / Sensitive
+to lighting; requires stable communication
+
+[9]
+
+RGB cameras (UAV),
+2D LiDAR and IMU
+(UGV)
+
+LOAM (UGV) and ORBSLAM
+(UAV);
+Bayesian
+probabilistic fusion; Hybrid
+SLAM (LiDAR + vision)
+continuous-discrete
+Visual feature matching, 3D
+homography; Visual map fusion via pose graph; Visual
+SLAM (ORB-SLAM + inertial
+data)
+Planar
+segment
+correspondence;
+Global
+pose
+optimization (pose graph);
+Vision + LiDAR SLAM
+Multi-layer optimization with
+ICP and pose correction; Incremental fusion via pose graph;
+Visual-LiDAR SLAM with 6DOF reconstruction
+Visual-LiDAR odometry with
+geometric constraints; Fusion
+via pose graph and neural networks; Visual-LiDAR SLAM
+with segmentation
+3D feature-based registration
+(ICP + pose graph); Cooperative fusion via distributed
+SLAM; Online LiDAR SLAM
++ multi-agent planning
+Photogrammetry (UAV) + ICP
+(UGV); Fusion for volume and
+height correction; 3D reconstruction (photogrammetry +
+visual SLAM)
+ICP + semantic matching; Semantic and probabilistic merge;
+Active mapping, visual + semantic SLAM
+Distributed ICP + graph optimization; Distributed fusion
+of local maps; Collaborative
+graph-based SLAM
+Visual and geometric feature
+matching; Semantic and geometric fusion; Visual + geometric SLAM for precision
+agriculture
+ICP + visual matching; Geometric fusion for single visualization; Offline processing for
+3D reconstruction
+
+Yes
+
+Integrates aerial and ground data; detailed maps / Dependent on planar
+surfaces; difficult in cluttered environments
+
+Yes
+
+High mapping speed (up to 15 m/s UAV); robust integration / Requires
+accurate sensor calibration; issues with dense vegetation
+
+Yes
+
+Robust in complex urban environments / High computational cost; sensitive to reflective surfaces
+
+Yes
+
+High exploration efficiency; reduces mapping time / Multi-agent coordination complexity; connectivity dependency
+
+No
+
+High accuracy for biomass and volume estimation; superior UGV detail
+/ Weather dependency for UAV; high computational cost
+
+Yes
+
+Efficient air-ground integration; detailed mapping / High computational
+demand; difficulties in low visibility
+
+Yes
+
+Robustness, scalability, efficient cooperation / System complexity; communication requirements
+
+No
+
+High accuracy and detail; optimized for agriculture / Requires robust
+hardware; limited in dense vegetation
+
+No
+
+High accuracy; multiple integrated perspectives / No real-time mapping;
+offline processing dependency
+
+[10]
+
+[11]
+
+[12]
+
+[6]
+
+/
+
+3D LiDAR (both),
+monocular
+RGB
+camera,
+low-cost
+IMU
+RGB cameras, 3D LiDAR, IMU
+
+3D LiDAR, RGB
+cameras,
+IMU,
+ultrasonic sensors
+
+RGB-D
+cameras
+(UGV), high-res RGB
+cameras (UAV)
+
+[13]
+
+RGB-D cameras, LiDAR, IMU
+
+[14]
+
+LiDAR, RGB cameras, IMU, GPS
+
+[15]
+
+[16]
+
+RGB
+cameras,
+multispectral, LiDAR,
+high-accuracy GPS
+
+RGB-D cameras, LiDAR, IMU
+
+(ICP) algorithm, which minimizes geometric discrepancies and
+improves the consistency of overlapping regions. The resulting registered point cloud provides a coherent and accurate
+representation of the environment, serving as the foundation
+for all subsequent processing stages.
+B. Segment Environment into Crop Rows and Tree Volumes
+The merged point cloud is first filtered using height thresholds to isolate vegetation from low-lying ground and sensor
+noise. To estimate the dominant orientation of the plantation,
+Principal Component Analysis (PCA) is applied to the filtered
+
+points. Based on this orientation, K-Means clustering is used
+to separate the vegetation into individual crop rows. Ground
+points are then estimated through a RANSAC plane fitting
+procedure, and the resulting ground model is used to normalize
+point heights. This segmented representation isolates the crop
+rows and tree canopy volumes, serving as the input for the
+subsequent bounding box extraction stage.
+C. Extract and Fuse 3D Bounding Boxes
+For each layer and row, the points are filtered to remove
+outliers using DBSCAN and percentile-based trimming. An
+
+603
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:11 UTC from IEEE Xplore. Restrictions apply.
+
+

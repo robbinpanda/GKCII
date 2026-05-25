@@ -1,0 +1,278 @@
+Received June 23, 2020, accepted July 26, 2020, date of publication July 30, 2020, date of current version August 12, 2020.
+Digital Object Identifier 10.1109/ACCESS.2020.3012886
+
+An Improved Real-Time Path Planning Method
+Based on Dragonfly Algorithm for Heterogeneous
+Multi-Robot System
+JIANJUN NI 1,2 , (Senior Member, IEEE), XIAOTIAN WANG1 , MIN TANG1 , WEIDONG CAO
+PENGFEI SHI1 , AND SIMON X. YANG 3 , (Senior Member, IEEE)
+
+1,2 ,
+
+1 College of IoT Engineering, Hohai University, Changzhou 213022, China
+
+2 Jiangsu Universities and Colleges Key Laboratory of Special Robot Technology, Hohai University, Changzhou 213022, China
+3 Advanced Robotics and Intelligent Systems (ARIS) Laboratory, School of Engineering, University of Guelph, Guelph, ON N1G 2W1, Canada
+
+Corresponding author: Jianjun Ni (njjhhuc@gmail.com)
+This work was supported in part by the National Natural Science Foundation of China under Grant 61873086, in part by the Jiangsu
+Province Natural Science Foundation under Grant BK20170305, and in part by the Fundamental Research Funds for the Central
+Universities under Grant 2018B23214.
+
+ABSTRACT Heterogeneous multi-robot system is one of the most important research directions in the
+robotic field. Real-time path planning for heterogeneous multi-robot system under unknown 3D environment
+is a new challenging research and a hot spot in this field. In this paper, an improved real-time path planning
+method is proposed for a heterogeneous multi-robot system, which is composed of many unmanned aerial
+vehicles (UAVs) and unmanned ground vehicles (UGVs). In the proposed method, the 3D environment
+is modelled as a neuron topology map, based on the grid method combined with the bio-inspired neural
+network. Then a new 3D dynamic movement model for multi-robots is established based on an improved
+Dragonfly Algorithm (DA). Thus, the movements of the robots are optimized according to the activities of
+the neurons in the bio-inspired neural network to realize the real-time path planning. Furthermore, some
+simulations have been carried out. The results show that the proposed method can effectively guide the
+heterogeneous UAV/UGV system to the target, and has better performance than traditional methods in the
+real-time path planning tasks.
+INDEX TERMS Heterogeneous multi-robot system, path planning, dragonfly algorithm, bio-inspired neural
+network.
+I. INTRODUCTION
+
+Heterogeneous multi-robot system is a new research hot spot
+in the robotic field [1]–[4]. Heterogeneous multi-robot system means that the types or the capabilities of the robots
+in a multi-robot system are different. With the development of multi-robot system, more and more heterogeneous
+multi-robot systems have been proposed to deal with some
+complex tasks, which require different robotics to finish, such
+as the space exploration, urban search and rescue, and so
+on. The main research topics of heterogeneous multi-robot
+systems include path planning, task assignment, fault
+self-healing, and so on [5]–[7].
+Among these heterogeneous multi-robot systems, the
+hybrid UGV/UAV system is the most used type of
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Ehsan Asadi
+140558
+
+.
+
+system. With the continuous improvement of technologies,
+the unmanned ground vehicles (UGVs) and unmanned aerial
+vehicles (UAVs) have been widely used in military, security,
+agriculture, disaster relief and other aspects [8]–[10]. But
+only one type of UGVs or UAVs can not finish the complex
+job very well sometimes, the hybrid UGV/UAV system is a
+good solution that can combine the advantages of UAVs and
+UGVs [11], [12]. However, the hybrid UGV/UAV system has
+also met some challenges, which are different from those of
+the homogeneous multi-robot system. In this paper, the realtime path planning is focused, which is the basic task of the
+hybrid UGV/UAV system [13], [14].
+The objective of the real-time path planning is to plan a
+passable path for the robots, from the starting position to
+the target position according to certain performance indexes
+(such as distance, time, etc.) under the dynamic environments
+with obstacles. The real-time path planning is a challenging
+
+This work is licensed under a Creative Commons Attribution 4.0 License. For more information, see https://creativecommons.org/licenses/by/4.0/
+
+VOLUME 8, 2020
+
+J. Ni et al.: Improved Real-Time Path Planning Method Based on DA for Heterogeneous Multi-Robot System
+
+task for the hybrid UGV/UAV system, because the UGVs
+walk on the ground and UAVs fly in the air, and the obstacles
+are unequally spread over the 3D environment.
+There are many research results in the path planning for
+the hybrid UGV/UAV system. For example, Li et al. [15]
+presented a path planning method in unmanned aerial/ground
+vehicle cooperative systems, which is based on a hybrid
+genetic algorithm and local rolling optimization algorithm.
+Seyedi et al. [16] proposed a scalable planning strategy for
+simultaneously finding the trajectories of UAVs and UGVs.
+Asadi et al. [17] implemented the Rapidly-exploring Random
+Tree (RRT) algorithm for a integrated UGV-UAV system.
+Although these methods can realize the path planning problem, there are some problems need to be further studied. For
+example, some methods above just solved the path planning
+problem of the UGV in a 2D environment. Few of them can
+deal with the path planning problem as a whole, which are not
+suitable for real-time path planning for the hybrid UGV/UAV
+system.
+With the development of technologies and the increased
+demands of applications, more and more researchers have
+focused on the problem of path planning in real 3D environment [18]. For example, Han [19] proposed a method
+based on critical obstacles and surrounding point set, which
+can lower the complexity for efficient 3D path planning.
+Ni, et al. [20] presented an improved dolphin swarm algorithm based navigation method for the autonomous underwater vehicle in 3D underwater environment. Yang et al. [21]
+presented an appropriate spatial representation of the environment for the path planning of ground robots in 3D environment. However, due to the variability and complexity of 3D
+unknown environment, the real-time path planning of hybrid
+UAV/UGV system is still a hot spot.
+Recently, the bio-inspired intelligent methods have been
+a hot spot in the real-time path planning [22]. For example, Ni and Yang have studied the bio-inspired neural network (BINN) in the real-time path planning task for different
+robots and the results show the efficiency of the bio-inspired
+neural network [23], [24]. Cai et al. [25] proposed a 3D
+real-time path planning method based on cognitive behavior
+optimization algorithm. Yan et al. [26] presented a real-time
+path planning algorithm for AUV using PSO combining the
+waypoint guidance. Zhu et al. [27] proposed an integrated
+biologically inspired self-organizing map algorithm for the
+task assignment and path planning of an AUV system. These
+bio-inspired methods have achieved some good results. However, most of them are used for the homogeneous robotic
+system, which can’t be used for the hybrid UAV/UGV system
+directly. And there are still some problems need to be further
+studied, such as the low accuracy and slow convergence speed
+problems.
+To deal with the problems in the real-time path planning
+for the hybrid UAV/UGV system, an improved bio-inspired
+methods is proposed, which is combined with the Dragonfly Algorithm (DA) [28], [29] and the bio-inspired neural network (BINN) [23], [30]. In the proposed method,
+VOLUME 8, 2020
+
+the motion space of the hybrid UGV/UAV system is converted into a topological state space composed of multiple
+neurons. The activity of each neuron is updated based on a 3D
+dynamic movement model in the dragonfly individual local
+search. Then the path can be generated based on the activities
+of all the surrounding neurons of the robots.
+The main contributions of this paper are summarized as
+follows: (1) The 3D environment of the hybrid UGV/UAV
+system is modeled based on the combination of the grid
+method and an improved bio-inspired neural network model.
+(2) An improved Dragonfly Algorithm is proposed for the
+real time path planning of the hybrid UGV/UAV system in
+unknown dynamic 3D environments. (3) The search space of
+the proposed method is reduced obviously, which can work
+for the real-time path planning in complex 3D environments.
+Furthermore, various simulations are carried out for the real
+time path planning of the hybrid UGV/UAV system.
+This paper is organized as follows. Section II presents
+the real-time path planning problem of the heterogeneous
+multi-robot system under 3D environment. The 3D real-time
+path planning method based on improved dragonfly algorithm is proposed in Section III. The simulations are given in
+Section IV. Section V discusses the performance of the proposed approach by some comparison experiments. Finally,
+the conclusions are given in Section VI.
+II. PROBLEM STATEMENT
+
+The real-time path planning problem in unknown 3D environment for a hybrid UGV/UAV system is studied in this paper.
+In this path planning task, UGVs and UAVs know their own
+position information and the target position information, but
+the current 3D environment space information is completely
+unknown. The UGVs and UAVs in the process of movement
+can detect the surrounding environment, identify and locate
+the surrounding obstacles and other robots, by using the
+onboard sensors. Furthermore, the robots in the same system
+can communicate to obtain the positions of each other by
+wireless communication technology. The schematic of the
+real-time path planning process for the hybrid UGV/UAV
+system is shown as Fig. 1.
+
+FIGURE 1. The schematic of the real-time path planning process for the
+hybrid UGV/UAV system.
+
+The problem studied in this paper is described as follows:
+(1) A hybrid UGV/UAV system is used to carried out
+the real-time path planning task. The task τ is denoted by
+140559
+
+J. Ni et al.: Improved Real-Time Path Planning Method Based on DA for Heterogeneous Multi-Robot System
+
+τ ={Ptarget , H }, where Ptarget is the position of the target and
+H is the hybrid UGV/UAV system. The target is on the ground
+and its position is known to all the UGVs and UAVs in the
+system.
+(2) In the hybrid UGV/UAV system, there are N UGVs and
+M UAVs. The UGV is marked as Ugi , i = 1, 2, . . . , N and the
+UAV is marked as Uaj , j = 1, 2, . . . , M .
+(3) The UGVs and UAVs can automatically locate themselves based on some positioning technologies. Because the
+communication range is big enough, the positions of the
+UGVs and UAVs in the system are known to each other.
+(4) The UGVs and UAVs can obtain the positions of the
+obstacles based on the onboard sensors. For the sake of
+analysis, the detection ranges of the UGVs and UAVs are set
+as equal, which are denoted as R.
+As described above, the real-time path planning task studied in this paper is near the real-world applications of the
+UGV/UAV system, such as the urban rescue task, target
+searching and field hunting problem [31]–[33].
+III. PROPOSED SOLUTIONS
+
+There are two main problems in the real-time path planning
+task, namely the environment modeling problem and motion
+planning problem. In this paper, the grid-based method and
+the bio-inspired method are combined to model the 3D environment. Then an improved dragonfly algorithm (IDA) is
+proposed to deal with the motion planning problem for the
+UGVs and UAVs. The work flow of the proposed solutions
+for the real-time path planning task is shown in Fig. 2.
+
+map is then taken as a neuron. Thus, the whole grid map is
+transformed into a topological state space composed of neural
+networks. The modelling process is shown in Fig. 3.
+
+FIGURE 3. The modelling process of the proposed method for the 3D
+environment: (a) The 3D environment; (b) The grid map based on the
+BINN model.
+
+In the grid map shown in Fig. 3(b), the nodes (namely the
+neurons) are interconnected, and the distance between two
+adjacent neurons is set as the length of the robot moving
+step l:
+l = Vi ∗ Sstep
+
+(1)
+
+where Vi is the speed of the i-th robot and Sstep is the simulation step size. The coordinate of each node in the grid map is
+expressed as (x, y, z), and the environmental information of
+the node in the grid map is defined as:
+
+1 target location
+
+
+
+ 0 movable position
+(2)
+W (x, y, z) =
+
+−1 obstacle position
+
+
+
+k robot position
+where k means the serial number of the robots in the
+multi-robot system. With the robot movement, the activities
+of the neurons (nodes in the grid map) will be updated based
+on the dynamic function of the bio-inspired neural networks
+(BINN) [23]:
+h
+
+X
+dxi
+= −Axi + (B − xi )([Ii ]+ +
+ωij [xj ]+ )−(D + xi )[Ii ]−
+dt
+j=1
+
+(3)
+
+FIGURE 2. The work flow of the proposed solutions for the real-time path
+planning task.
+
+A. 3D ENVIRONMENT MODELING
+
+The environment of the path planning task studied in this
+paper is a 3D environment, which is set to a 3D bounded
+cuboid space . Grid modelling method is used to divide the
+moving space  into a 3D grid map. Each node of this grid
+140560
+
+where, xi is the activity value of the i-th neuron; A, B, D
+are the parameters of the BINN, which are all nonnegative
+constants; h represents the number of adjacent neurons in
+the i-th neuron; ωij is the connection weight between the
+i-th neuron and the i-th neuron; Function [I ]+ and [I ]− are
+nonlinear functions defined as [I ]+ = max {I , 0}, and [I ]− =
+max {−I , 0}, respectively. Here, Ii is the external input of the
+i-th neuron, which is defined as:
+
+
+ E target area
+Ii = −E obstacle area
+(4)
+
+
+0 movable area
+where E  B is a larger normal number.
+VOLUME 8, 2020
+
+

@@ -1,0 +1,24 @@
+<launch>
+
+  <!-- output the point_cloud data -->
+  <node
+    name="point_cloud_write"
+    pkg="site_model"
+    type="point_cloud_write"
+    args="-d $(find site_model)/src/data_output/point_cloud_write.cpp" />
+
+  <!-- output the image -->
+  <node
+    name="image_output"
+    pkg="site_model"
+    type="image_output"
+    args="-d $(find site_model)/src/data_output/image_output.cpp" />
+
+  <!-- output the radar data -->
+  <node
+    name="radar_listener"
+    pkg="site_model"
+    type="radar_listener"
+    args="-d $(find site_model)/src/data_output/radar_listener.cpp" />
+
+</launch>

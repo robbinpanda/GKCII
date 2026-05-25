@@ -1,0 +1,307 @@
+I: Bus=0019 Vendor=0000 Product=0003 Version=0000
+N: Name="Sleep Button"
+P: Phys=PNP0C0E/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0E:00/input/input0
+U: Uniq=
+H: Handlers=kbd event0 
+B: PROP=0
+B: EV=3
+B: KEY=4000 0 0
+
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=PNP0C0C/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0C:00/input/input1
+U: Uniq=
+H: Handlers=kbd event1 
+B: PROP=0
+B: EV=3
+B: KEY=10000000000000 0
+
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=LNXPWRBN/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input2
+U: Uniq=
+H: Handlers=kbd event2 
+B: PROP=0
+B: EV=3
+B: KEY=10000000000000 0
+
+I: Bus=0003 Vendor=25a7 Product=fa67 Version=0110
+N: Name="CX 2.4G Receiver"
+P: Phys=usb-0000:00:14.0-6/input0
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-6/1-6:1.0/0003:25A7:FA67.0001/input/input5
+U: Uniq=
+H: Handlers=sysrq kbd event3 leds 
+B: PROP=0
+B: EV=120013
+B: KEY=1000000000007 ff9f207ac14057ff febeffdfffefffff fffffffffffffffe
+B: MSC=10
+B: LED=7
+
+I: Bus=0003 Vendor=25a7 Product=fa67 Version=0110
+N: Name="CX 2.4G Receiver Mouse"
+P: Phys=usb-0000:00:14.0-6/input1
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-6/1-6:1.1/0003:25A7:FA67.0002/input/input7
+U: Uniq=
+H: Handlers=mouse0 event4 
+B: PROP=0
+B: EV=17
+B: KEY=1f0000 0 0 0 0
+B: REL=1943
+B: MSC=10
+
+I: Bus=0003 Vendor=25a7 Product=fa67 Version=0110
+N: Name="CX 2.4G Receiver"
+P: Phys=usb-0000:00:14.0-6/input1
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-6/1-6:1.1/0003:25A7:FA67.0002/input/input8
+U: Uniq=
+H: Handlers=event5 
+B: PROP=0
+B: EV=100001
+
+I: Bus=0003 Vendor=25a7 Product=fa67 Version=0110
+N: Name="CX 2.4G Receiver Consumer Control"
+P: Phys=usb-0000:00:14.0-6/input1
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-6/1-6:1.1/0003:25A7:FA67.0002/input/input9
+U: Uniq=
+H: Handlers=kbd event6 
+B: PROP=0
+B: EV=1f
+B: KEY=306ff 0 0 483ffff17aff32d bfd4444600000000 1 130c730b17c000 267bfad9415fed 9e168000004400 10000002
+B: REL=1040
+B: ABS=100000000
+B: MSC=10
+
+I: Bus=0003 Vendor=25a7 Product=fa67 Version=0110
+N: Name="CX 2.4G Receiver System Control"
+P: Phys=usb-0000:00:14.0-6/input1
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-6/1-6:1.1/0003:25A7:FA67.0002/input/input10
+U: Uniq=
+H: Handlers=kbd event7 
+B: PROP=0
+B: EV=13
+B: KEY=c000 10000000000000 0
+B: MSC=10
+
+I: Bus=0019 Vendor=0000 Product=0006 Version=0000
+N: Name="Video Bus"
+P: Phys=LNXVIDEO/video/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/LNXVIDEO:00/input/input12
+U: Uniq=
+H: Handlers=kbd event8 
+B: PROP=0
+B: EV=3
+B: KEY=3e000b00000000 0 0 0
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH Front Mic"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+U: Uniq=
+H: Handlers=event9 
+B: PROP=0
+B: EV=21
+B: SW=10
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH Rear Mic"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+U: Uniq=
+H: Handlers=event10 
+B: PROP=0
+B: EV=21
+B: SW=10
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH Line"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+U: Uniq=
+H: Handlers=event11 
+B: PROP=0
+B: EV=21
+B: SW=2000
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH Front Headphone Front"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+U: Uniq=
+H: Handlers=event12 
+B: PROP=0
+B: EV=21
+B: SW=4
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH Headphone Surround"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+U: Uniq=
+H: Handlers=event13 
+B: PROP=0
+B: EV=21
+B: SW=4
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=3"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input18
+U: Uniq=
+H: Handlers=event14 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=7"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input19
+U: Uniq=
+H: Handlers=event15 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=8"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input20
+U: Uniq=
+H: Handlers=event16 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=9"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input21
+U: Uniq=
+H: Handlers=event17 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=10"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input22
+U: Uniq=
+H: Handlers=event18 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=11"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input23
+U: Uniq=
+H: Handlers=event19 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=12"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input24
+U: Uniq=
+H: Handlers=event20 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=13"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input25
+U: Uniq=
+H: Handlers=event21 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=14"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input26
+U: Uniq=
+H: Handlers=event22 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=15"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input27
+U: Uniq=
+H: Handlers=event23 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=16"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input28
+U: Uniq=
+H: Handlers=event24 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name="HDA Intel PCH HDMI/DP,pcm=17"
+P: Phys=ALSA
+S: Sysfs=/devices/pci0000:00/0000:00:1f.3/sound/card0/input29
+U: Uniq=
+H: Handlers=event25 
+B: PROP=0
+B: EV=21
+B: SW=140
+
+I: Bus=0003 Vendor=046d Product=4058 Version=0111
+N: Name="Logitech Wireless Mouse"
+P: Phys=usb-0000:00:14.0-5/input1:2
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.1/0003:046D:C534.0004/0003:046D:4058.0006/input/input41
+U: Uniq=00-00-00-00
+H: Handlers=kbd mouse1 event26 
+B: PROP=0
+B: EV=1f
+B: KEY=3f000307ff 0 0 483ffff17aff32d bfd4444600000000 ffff0001 130ff38b17d000 677bfad9415fed 19ed68000004400 10000002
+B: REL=1943
+B: ABS=100000000
+B: MSC=10
+
+I: Bus=0003 Vendor=046d Product=4023 Version=0111
+N: Name="Logitech Wireless Keyboard PID:4023"
+P: Phys=usb-0000:00:14.0-5/input1:1
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-5/1-5:1.1/0003:046D:C534.0004/0003:046D:4023.0005/input/input42
+U: Uniq=00-00-00-00
+H: Handlers=sysrq kbd event27 leds 
+B: PROP=0
+B: EV=12001f
+B: KEY=3f000307ff 0 0 483ffff17aff32d bfd4444600000000 1 130ff38b17d007 ffff7bfad941dfff ffbeffdfffefffff fffffffffffffffe
+B: REL=1040
+B: ABS=100000000
+B: MSC=10
+B: LED=1f
+
+I: Bus=0003 Vendor=046d Product=c24f Version=0111
+N: Name="Logitech G29 Driving Force Racing Wheel"
+P: Phys=usb-0000:00:14.0-14/input0
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb1/1-14/1-14:1.0/0003:046D:C24F.0008/input/input44
+U: Uniq=
+H: Handlers=event28 js0 
+B: PROP=0
+B: EV=20001b
+B: KEY=1ff 0 0 0 0 0 0 ffff00000000 0 0 0 0
+B: ABS=30027
+B: MSC=10
+B: FF=300040000 0
+

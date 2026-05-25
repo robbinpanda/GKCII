@@ -1,0 +1,42 @@
+[org.gnome.desktop.interface:GNOME-Flashback]
+gtk-theme='Yaru'
+icon-theme='ubuntu-mono-light'
+cursor-theme='DMZ-White'
+font-name='Ubuntu 11'
+monospace-font-name='Ubuntu Mono 13'
+document-font-name='Sans 11'
+
+[org.gnome.desktop.peripherals.touchpad:GNOME-Flashback]
+tap-to-click=true
+
+[org.gnome.desktop.wm.keybindings:GNOME-Flashback]
+show-desktop=['<Primary><Super>d','<Primary><Alt>d','<Super>d']
+
+[org.gnome.desktop.wm.preferences:GNOME-Flashback]
+titlebar-font='Ubuntu Bold 11'
+titlebar-uses-system-font=false
+action-middle-click-titlebar='lower'
+
+[org.gnome.nautilus.icon-view:GNOME-Flashback]
+default-zoom-level='small'
+
+[org.gnome.nautilus.preferences:GNOME-Flashback]
+open-folder-on-dnd-hover=false
+
+[org.gnome.settings-daemon.plugins.power:GNOME-Flashback]
+button-power='interactive'
+button-sleep='suspend'
+critical-battery-action='suspend'
+
+[org.gnome.settings-daemon.plugins.xsettings:GNOME-Flashback]
+antialiasing='rgba'
+
+[org.gtk.Settings.FileChooser:GNOME-Flashback]
+sort-directories-first=true
+startup-mode='cwd'
+
+[org.gnome.gnome-flashback:GNOME-Flashback]
+status-notifier-watcher=false
+
+[org.gnome.gnome-panel.general:GNOME-Flashback]
+default-layout='ubuntu'

@@ -1,0 +1,374 @@
+2025 lEEE 14th Data Driven Control and Learning Systems Conference
+May 9-11, 2025, Wuxi, China
+
+Optimizing UAV-UGV System for Reconnaissance and Strike Based on
+Soft Actor Critic Algorithm
+2025 IEEE 14th Data Driven Control and Learning Systems (DDCLS) | 979-8-3503-5731-8/25/$31.00 ©2025 IEEE | DOI: 10.1109/DDCLS66240.2025.11066058
+
+Yanpeng Pei, Hao Sun*, Qinglin Sun
+
+Institute of Artificial Intelligence, Nankai University, Tianjin 300350
+E-mail: peiyp@mail.nankai.edu.cn, sunh@nankai.edu.cn, sunql@nankai.edu.cn
+Abstract: In this paper, reinforcement learning is used to solve the reconnaissance and strike tasks of UGVs and UAVs in the
+battlefield environment, and different types of agents are trained separately under the premise of environmental interaction. As a
+mature reinforcement learning algorithm, SAC algorithm has been widely used in the training of single agents. By assigning part
+of the state of the UGV to the UAV, the problem that the fully distributed structure does not converge is solved. For the actual
+battlefield environment, UGVs and UAVs need to undertake different tasks. The UAV provides accompanying vigilance for
+UGV and the main reconnaissance task of the target area. The UGV should go to different target areas according to task priority
+order to carry out auxiliary reconnaissance and strike tasks after reconnaissance.
+Key Words: Reinforcement learning, Soft Actor-Critic, UGV and UAV system
+
+
+
+1
+
+Introduction
+
+In recent years, the rapid advancement of unmanned
+systems has significantly reshaped modern warfare and
+complex mission planning. Among these systems,
+Unmanned Aerial Vehicles (UAVs) and Unmanned Ground
+Vehicles (UGVs) have garnered considerable attention due
+to their complementary capabilities. UAVs, with their
+superior mobility and wide-area surveillance capabilities,
+excel in reconnaissance, target detection, and real-time
+situational awareness. UGVs, on the other hand, possess
+advantages in persistent ground operations, precision
+engagement, and logistics, making them indispensable in a
+variety of mission scenarios. By combining these strengths,
+UAV-UGV collaborative systems offer a powerful solution
+for achieving efficient, coordinated, and intelligent strike
+operations.
+The integration of UAVs and UGVs for cooperative
+missions poses several critical challenges ([1]-[3]). These
+include the design of robust coordination strategies ([4]),
+seamless communication protocols, and adaptive
+decision-making frameworks to address dynamic and
+uncertain environments. Furthermore, ensuring efficient
+resource allocation, minimizing operational latency, and
+maximizing mission success in high-stakes scenarios are key
+areas of focus. In the context of collaborative strike missions,
+the ability of UAVs to scout and identify targets in real-time,
+coupled with the precision of UGVs to engage these targets
+effectively, exemplifies the potential of such systems to
+outperform traditional unmanned operations ([5]). Recent
+advancements in artificial intelligence (AI), particularly in
+reinforcement learning, have provided promising avenues for
+addressing these challenges.
+Reinforcement Learning (RL) has emerged as a powerful
+paradigm for enabling intelligent agents to learn optimal
+behaviors through interaction with their environments. By
+maximizing cumulative rewards, RL algorithms allow agents
+to autonomously discover strategies that balance exploration
+and exploitation.[6] Among the most notable advancements
+are model-free RL methods, such as Q-learning([7]) and
+
+979-8-3503-5731-8/25/$31.00 ©2025 IEEE
+
+Policy Gradient approaches, which have demonstrated
+success in high-dimensional and continuous action spaces.
+More recently, algorithms like Deep Deterministic Policy
+Gradient (DDPG)([8]-[10]) and Soft Actor-Critic (SAC)
+([11],[12]),have leveraged deep neural networks to extend
+RL to complex tasks involving continuous control, offering
+greater stability and sample efficiency.
+This paper investigates a novel framework for UAV-UGV
+collaborative strike missions, focusing on optimizing their
+coordination through advanced reinforcement learning
+techniques. Specifically, we design a system where UAVs
+perform real-time reconnaissance to identify and classify
+targets, while UGVs execute precise strike actions informed
+by the UAV-provided intelligence. Experimental results
+show that the framework can select the maneuvering path
+and attack point automatically, and realize the good
+cooperation ability of UAV and UGV.
+
+2
+
+Method
+
+In this section, we first present the reconnaissance strike
+problem of the UGV-UAV system based on the actual
+battlefield environment, and subsequently analyze the
+problem and jointly deal with it with the SAC-based method.
+2.1
+
+Problem Description
+
+For the actual modern battlefield environment, consider a
+specific scenario: an unmanned vehicle and UAV system to
+complete the reconnaissance of the target in the enemy area
+on the map and select the appropriate strike point to fire
+artillery after the reconnaissance.
+Given a sequence of target regions  ,where each target
+area Ti has a center, priority, shape characteristics and target
+point. For each target area, the center address is defined as
+ci  ( xi , yi ) , where xi and yi are the coordinates of the
+
+center of the target area in the 2D space, and the priority pi
+is a scalar representing the priority of the target area. Higher
+values indicate higher priority. And for the shape parameters,
+we defined rectangle area whose length is li and width is wi .
+In addition, each target region has a target point ti
+corresponding to it. The parameters of each target point
+
+DDCLS'25
+
+899 on May 25,2026 at 05:34:06 UTC from IEEE Xplore. Restrictions apply.
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded
+
+include address cti  ( xti , yti ) , priority pti
+
+and threat
+
+degree d ti . So, the target area can be defined as
+Ti  (( xi , yi ), pi , li , wi , ti ) , ti  (( xti , yti ), pti , d ti ) .
+
+The state of the UGV is defined as
+sg  ( xg , y g , vg x , vg y , g , g s , g s ,
+
+g
+
+,  g s max , dg scan , dg strike , sgc , sg s )
+s max
+
+where ( xg , yg ) is the current position, (vg x , vg y )
+
+(1)
+is
+
+horizontal and vertical velocity, ( g ,  g s ,  g s ) are the
+orientation angle of the UGV, the reconnaissance angle and
+the artillery attack angle. ( g s max ,  g s max , dg scan , dg strike ) are fixed
+parameters and are the maximum reconnaissance and strike
+angle and the maximum reconnaissance and strike distance
+of the UGV. ( sgc , sg s ) are UGV reconnaissance device and
+artillery status.
+The state of the UAV is defined as
+
+sa  ( xa , ya , za , va x , va y , va z , a , a , a , d a scan ) (2)
+
+where ( xa , ya , za ) is the current position, (vax , va y , vaz ) is
+velocities in �, �and � directions, (a ,  a ,  a ) is the attitude
+angle of the UAV (roll angle, pitch angle, yaw angle). d ascan
+is the maximum reconnaissance radius of the UAV.
+2.2
+
+UGV-UAV System
+
+Considering the actual battlefield environment, we discuss
+UGV-UAV system within the continuous action framework.
+For any agent in the system, its action and state space are
+continuous. We define tuples ( S , A, p, r ) which is a Markov
+decision process (MDP), where S and A are action and
+ s, a) describes the probability density that
+state space. p( s∣
+the environment will transition from one state s to another
+s after the agent takes a certain action a . r ( s, a ) defines
+the agent in a certain state s to perform action a and the
+immediate reward received when a . This reward can be a
+real number indicating how good or bad the action was.
+SAC introduces the concept of maximum entropy whose
+goal is to learn a policy that maximizes a weighted sum of
+reward and entropy. Its objective function is defined as
+
+The SAC algorithm has become an important tool in the
+field of reinforcement learning due to its characteristic of
+maximizing entropy, its ability to adapt to continuous and
+high-dimensional spaces, as well as its strong sample
+efficiency and stability. Especially when it comes to
+balancing exploration and exploitation, solving complex
+tasks and high-dimensional problems, SAC demonstrates
+superior performance. The method of SAC not only plays a
+role in single-agent reinforcement learning but also performs
+well in multi-agent reinforcement learning in the algorithm
+MASAC ([13]). And if the strategy of centralized training
+and Decentralized Execution (CTDE) is used, the
+information is centralized and the strategy of the agents is
+jointly updated during training, and the agents make
+decisions independently based on their local information and
+strategy during execution. CTDE is a commonly used
+framework in multi-agent systems, where at training time all
+agents share information about the environment and train
+jointly, but each agent makes decisions based on its own
+observations at execution time. In this way, despite their
+different state and action space dimensions, the overall
+system behavior can be optimized by designing an
+appropriate joint learning strategy. For the system of single
+UGV and single UAV, the joint state dimension of
+unmanned vehicle and UAV will bring large computational
+overhead.
+If we consider updating the state in the environment at the
+same time, but instead of using centralized training, we
+generate their own experience pools, sample and train them
+separately, and then execute them separately. In the system
+of UGV and UAV, the high mobility of UAV can help UGV
+to complete the reconnaissance of the target area, and the
+enemy units in the target area can be detected earlier, so that
+the UGV can strike in a short time. At the same time, on the
+way, the UAV can learn the information of the UGV, which
+can provide a charging platform for the UAV.
+The overall structure is shown in Fig. 1:
+
+J ( )   s ~   ,a ~  rt     st 1 ~ p log  (at | st )  Q( st , at )
+t
+
+t
+
+(3)
+where rt is the immediate reward received after the agent
+
+performs action at in state st .  is a hyperparameter that
+regulates the entropy weight and controls the balance
+between reward and entropy. Compared to the previous
+algorithm, entropy addition gives the agent a better
+exploration-exploitation balance. Q ( st , at ) is a Q-value
+
+function of the current state st and action at and represents
+the expected total reward under this state-action pair.
+ (at | st ) is the policy function that represents the
+probability of choosing an action at in state st . p is the state
+transition probability of the environment.
+
+Fig. 1:The framework
+Compared with the fully distributed structure that is
+difficult to converge, the UAV can obtain part of the
+information (position and reconnaissance strike status) of the
+UGV, so that it can over- come the impact of the dynamic
+nature of part of the environment in the face of the change of
+the UAV. The specific update process for the UGV-UAV
+system is as follows, the movement of the UGV is:
+
+DDCLS'25
+900 on May 25,2026 at 05:34:06 UTC from IEEE Xplore. Restrictions apply.
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded
+
+vg x1  vg x  t ag x
+
+vg y1  vg y  t ag y
+
+ xg x1  xg x  t vg x
+ x  x  t v
+gy
+gy
+ g y1
+
+(4)
+
+(6)
+
+srate = dUGV ∙ dti ∙ βgs
+
+where srate is the current strike success rate of the specific
+target, dUGV , dti , βgs are the normalized distance between the
+UGV and enemy units, the threat degree of enemy units, and
+the artillery direction.
+
+the movement of the UGV is:
+
+vax1  vax  t aax
+
+vay1  va y  t aa y
+
+vaz1  va z  t aa z
+
+ xax1  xa x  t vax
+ x  x  t v
+ay
+ay
+ ay1
+ xa  xa  t va
+z
+z
+ z1
+
+distributed in a sub-area, and when the UGV-UAV system
+has completely scanned the entire area, it can attack. For a
+specific target, the UGV will calculate its current strike
+success rate to decide when to strike, and the strike success
+rate is calculated as follows:
+
+The objective function in the update process is as follows,
+JUGV (π)= Est~ρπUGV,at~πUGV rUGV +αUGV ∙
+Est+1~p logπUGV -Q(st ,at )
+(7)
+
+(5)
+
+When the UGV-UAV system carries out the
+reconnaissance phase of the target area, the target area is
+divided into several squares in order to determine the
+scanning progress.
+
+JUAV (π)= Est~ρπUAV,at~πUAV rUAV +αUAV ∙
+Est+1~p logπUAV -Q(st ,at )
+(8)
+
+The respective Q-network update formulas for both are as
+follows,
+Q1,UGV st , at =
+rt +γ Est+1 [ min (Q'1, UGV '(st+1 , at+1 ), Q'2, UGV '(st+1 , at+1 ))
+- αUGV log πUGV (at+1 │st+1 ) ]
+
+(9)
+
+Q2,UGV st , at =
+
+rt +γ Est+1 [ min (Q'1, UGV '(st+1 , at+1 ), Q'2, UGV '(st+1 , at+1 ))
+- αUGV log πUGV (at+1 │st+1 ) ]
+
+(10)
+
+Q1,UAV st , at =
+
+rt +γ Est+1 [ min (Q'1, UAV '(st+1 , at+1 ), Q'2, UAV '(st+1 , at+1 ))
+
+Fig. 2 Target Area Segmentation
+The UGV and the UAV will adopt corresponding scanning
+methods respectively. The UAV will scan the circle with a
+certain radius dascan , and the UGV will scan the front
+through its own device, The scanning range is a sector of
+radius dgscan .
+
+- αUAV log πUAV (at+1 │st+1 ) ]
+
+(11)
+
+Q2,UAV st , at =
+
+rt +γ Est+1 [ min (Q'1, UAV '(st+1 , at+1 ), Q'2, UAV '(st+1 , at+1 ))
+- αUAV log πUAV (at+1 │st+1 ) ]
+
+(12)
+
+The reward function of the UAV is designed as
+RUAV  1 Rapproach  2 Rscan korder  0.83 Rstrike korder
+
+)
+
+ 4 Rdone  5 Rcollision
+
+(13
+
+Where 1 , 2 , 3 , 4 and 5 are the coefficients of
+
+various reward values. Rapproach is the reward for being close
+to the targets. Rscan is the reward for scanning the targets.
+korder is the order coefficient of reconnaissance or strike, in
+this way, the reward differentiation under different priorities
+can be achieved. Rstrike is the reward for striking the targets
+by the UGV. Rdone is a one-time reward for completing the
+
+Fig. 3 Target Area Scanning
+The target subregion will be marked as a scouted state
+after it has been scouted for a fixed time, enemy units will be
+
+task. Rcollision is the collision penalty of the UAV, including
+the penalty of touching the boundary.
+The reward function of the UGV is designed as
+
+DDCLS'25
+901 on May 25,2026 at 05:34:06 UTC from IEEE Xplore. Restrictions apply.
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded
+
+

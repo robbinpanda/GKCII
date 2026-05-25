@@ -1,0 +1,461 @@
+2026 9th International Conference on Advanced Electronic Technology, Computers and Software Engineering (AETCSE) | 979-8-3315-6033-1/26/$31.00 ©2026 IEEE | DOI: 10.1109/AETCSE69203.2026.11504015
+
+2026 9th International Conference on Advanced Electronic Technology, Computers and Software Engineering (AETCSE)
+
+A Review of Active Collaborative Perception and
+Planning for Heterogeneous UAV-UGV Systems
+Wenzhe Sun
+Shien-Ming Wu School of Intelligent Engineering
+South China University of Technology
+Guangzhou, China
+18865313659@163.com
+
+Abstract—Unmanned aerial vehicles (UAVs) and unmanned
+ground vehicles (UGVs) offer complementary capabilities—widearea aerial surveillance versus high-payload ground operation—
+making their coordination a compelling paradigm for complex
+real-world missions. Yet deploying such heterogeneous systems
+remains challenging owing to significant perceptual viewpoint
+discrepancies, tightly coupled decision-making, and constrained
+communication and computation budgets. Existing surveys address perception, planning, or control in isolation, leaving a critical gap in the systematic analysis of the full perception–planning–
+decision–control chain. This paper presents a structured review of UAV-UGV collaborative systems, covering cooperative
+architecture design, multi-source sensor fusion, active perception
+strategies, multi-agent planning and decision-making, and motion
+control. We further analyze key deployment bottlenecks under
+dynamic real-world conditions and discuss how large language
+models (LLMs) and embodied intelligence are poised to reshape
+the architectural paradigm of future air-ground systems.
+Index Terms—air-ground heterogeneous collaboration; UAVUGV; active perception; multi-agent reinforcement learning;
+embodied intelligence
+
+I. I NTRODUCTION
+The complementary nature of UAVs and UGVs—aerial
+breadth versus ground precision—has established air-ground
+heterogeneous systems as a key enabler for missions ranging
+from disaster response to precision agriculture. UAVs provide
+rapid wide-area situational awareness but are limited in payload and endurance; UGVs deliver robust ground manipulation
+and transportation yet suffer from terrain-constrained visibility.
+Their integration enables a “global perception, local execution”
+closed loop that neither platform can achieve alone [1].
+Despite this promise, realizing efficient collaboration faces
+three fundamental challenges. First, perceptual heterogeneity: UAV top-down imagery and UGV frontal LiDAR/depth
+cameras differ substantially in scale, resolution, and geometry,
+complicating data fusion and shared environment representation [2]. Second, active perception requirements: passive,
+fixed-path sensing is insufficient; true intelligent coordination
+demands that each agent autonomously plan optimal observation viewpoints to maximize information gain, imposing
+tight perception-planning coupling [3]. Third, communication bandwidth constraints, real-time decision-making requirements under dynamic uncertainty, and the sim-to-real transfer
+gap collectively hinder reliable field deployment [4].
+
+979-8-3315-6033-1/26/$31.00 ©2026 IEEE
+
+LAYER 1 ꞏ TASK LAYER
+
+LLM Task Planner
+
+Task Scheduler
+
+Global State Estimator
+
+World Model
+
+Natural Language Parsing HighLevel Task Decomposition
+
+Sub-task Sequence Generation
+Dynamic Re-planning Trigger
+
+Co-SLAM Map Fusion Target
+Tracking State
+
+Predictive Co-Planning Safety
+Verification
+
+task dispatch
+LAYER 2 ꞏ COLLABORATION LAYER (CTDE Paradigm)
+
+UAV Local Policy Network
+Local observation only at execution
+Decentralized action output Actor
+(MADDPG / PPO)
+
+UGV Local Policy Network
+
+Training only — Centralized Training Framework
+gradient
+
+Global State Observation
+Shared info during training
+
+dec. policy
+
+Joint Value Function
+QMIX ꞏ MAPPO ꞏ QPLEX
+
+gradient
+
+dec. policy
+
+Wireless Collaboration
+
+LAYER 3A ꞏ UAV EXECUTION
+
+Local observation only at execution
+Decentralized action output Actor
+(MADDPG / PPO)
+
+LAYER 3B ꞏ UGV EXECUTION
+
+Active Perception
+
+Target Tracking
+
+Map Building
+
+Path Planning
+
+Multi-modal sensor fusion
+Information gain evaluation
+NBV viewpoint planning
+→ Co-SLAM data upload
+
+Wide-area target detection
+Trajectory prediction
+Guidance waypoint generation
+→ Send waypoints to UGV
+
+Wide-area target detection
+Trajectory prediction
+Guidance waypoint generation
+→ Send waypoints to UGV
+
+Wide-area target detection
+Trajectory prediction
+Guidance waypoint generation
+→ Send waypoints to UGV
+
+MPC Controller (Nonlinear)
+Velocity / acceleration constraints ꞏ Robust attitude control
+Multirotor UAV Physical Platform
+UAV information flow
+
+UGV information flow
+
+MPC Controller (Nonholonomic)
+Min. turning radius constraint ꞏ Adaptive speed control
+Differential / Ackermann UGV Platform
+
+Task dispatch
+
+Gradient (training only)
+
+State feedback / wireless comm.
+
+Dec. policy
+
+Fig. 1. Overall architecture for active collaborative perception and planning
+in heterogeneous UAV-UGV systems.
+
+Unlike prior surveys that address individual modules
+in isolation, this paper surveys the complete cooperation
+chain spanning architecture, perception, planning, control, and
+foundation-model directions, as illustrated in Fig. 1.
+II. C OOPERATIVE A RCHITECTURE AND S YSTEM
+M ODELING
+A. Platform Dynamics and Kinematic Constraints
+The core asymmetry between UAV and UGV stems from
+their contrasting dynamics. A typical multi-rotor UAV enjoys 6-DOF agile motion governed by Newton–Euler equations [5], enabling hovering and rapid maneuvering. Most
+UGVs, by contrast, are subject to nonholonomic constraints: differential-drive models prohibit lateral motion,
+while Ackermann-steering models impose a minimum turning
+radius [6]. This kinematic mismatch creates a hard physical
+barrier for joint motion planning—3D UAV trajectories that
+violate UGV nonholonomic constraints cannot be directly
+executed—requiring cooperative planners to explicitly incorporate heterogeneous motion constraints into their formulations.
+A notable special case is the tethered system [7], where
+a physical cable connects UAV to UGV, enabling continuous
+power supply and significantly extending UAV endurance. The
+cable simultaneously introduces additional tension constraints
+and collision-avoidance complexity, converting the relatively
+
+1067
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:27 UTC from IEEE Xplore. Restrictions apply.
+
+independent dual-agent problem into a strongly coupled cocontrol problem—a canonical tradeoff between endurance and
+kinematic freedom.
+B. Cooperative Control Architectures
+
+Phase
+
+UGV (Unmanned Ground Vehicle)
+Ground execution ꞏ fine sensing ꞏ task delivery
+
+Receive Mission Command (LLM
+Parsing & Task Decomposition)
+
+Phase 1
+Task initiation
+
+Phase 2
+Active Sensing
+Exploration
+
+UAV Takeoff & Climb
+
+UGV Standby & Ready
+
+Reach target altitude, establish comm. link
+Initsensors & localization modules
+
+Activate LiDAR & depth camera
+Initlocal map coordinate frame
+
+Wide-area Active Scanning
+
+UGV Standby & Ready
+
+Multi-modal sensing ꞏ info-gain eval.
+NBV viewpoint planning & flight
+→ Upload Co-SLAM data
+
+LiDAR local map building
+Fuse with UAV perception data
+← Receive UAV data
+
+① Decision
+
+① Target
+Located?
+
+No : retry
+
+Yes
+
+Target Tracking & Guidance
+
+Collaborative Path Planning
+
+Receive guidance waypoints
+Nonholonomic constraint optimization
+← Receive from UAV
+
+Continuous surveillance ꞏ trajectory pred.
+Generate & send guidance waypoints
+→ Send to UGV
+
+Phase 3
+Collab. Plan
+Tracking
+② Decision
+
+②
+Communication
+Normal?
+
+No
+
+Degraded: Both platforms switch to local autonomy
+Conservative decisions based on local sensing only
+
+UAV Trajectory Tracking Control
+
+UGV Trajectory Tracking Control
+Nonholonomic MPC execution
+Real-time obstacle avoidance
+
+Nonlinear MPC execution ꞏ state feedback
+Continuous estimation & outer-loop control
+
+Phase 4
+Execution
+MPC Control
+
+No
+
+③ Decision
+
+③ Mission
+Complete?
+Yes
+
+UAV Return & Land
+
+Task Done
+Wrap-up
+
+Replan
+Loop
+
+UGV Stop & Recover
+
+Upload mission results upstream
+Await next command
+
+Mission data download & archive
+Report perception results upstream
+
+Phase 5
+Replan
+
+Cooperative control architecture determines information
+flow, decision mode, and overall system performance. Three
+paradigms dominate current research. Centralized architectures aggregate all sensing data at a single compute node
+for global planning, yielding theoretically optimal solutions
+but suffering from poor scalability, heavy communication
+overhead, and a single point of failure [8]. Decentralized
+architectures grant each agent autonomous decision-making
+from local observations, offering strong robustness and scalability, but local information may lead to suboptimal outcomes [9]. Hierarchical architectures balance the two by
+decoupling high-level task allocation from low-level trajectory
+tracking [6].
+The rise of MARL has elevated Centralized Training with
+Decentralized Execution (CTDE) to the dominant cooperative framework [9], [10]: global state is exploited during
+training while each agent executes using only local observations at runtime. Value-decomposition algorithms exemplified
+by QMIX [10] make this paradigm particularly effective for
+tight cooperative tasks such as coordinated exploration and
+target encirclement. The effectiveness of CTDE under partial
+observability has been further validated in asynchronous multiagent settings [11], as illustrated in Fig. 2.
+
+UAV (Unmanned Aerial Vehicle)
+Wide-area sensing ꞏ NBV planning ꞏ guidance decisions
+
+Mission Accomplished
+
+↺ Replanning Loop (triggered when Decision ③ = "No")
+Policy network reassigns tasks → return to Phase 2 (sensing) or Phase 3 (replanning)
+Repeated replanning failure → trigger task degradation or human intervention
+
+Fig. 2. UAV-UGV active collaborative perception and planning task execution
+flow.
+
+III. ACTIVE C OLLABORATIVE P ERCEPTION
+A. Multi-Source Heterogeneous Sensor Fusion
+The perceptual advantage of air-ground systems arises from
+the complementarity of UAV top-down and UGV close-range
+sensing, yet this same complementarity creates the primary
+data fusion barrier [2]. Conventional geometry-based feature matching methods (SIFT, ORB) routinely fail on topdown/frontal image pairs due to sparse feature correspondence.
+Research has consequently shifted toward deep learningbased adaptive feature fusion, where attention mechanisms
+dynamically weight contributions from different viewpoints,
+establishing cross-modal semantic associations without requiring precise pixel-level alignment.
+At a higher level, Collaborative SLAM (Co-SLAM) enables UAV and UGV to independently build local submaps
+subsequently merged via server-side global consistency optimization [12], providing heterogeneous agents with a shared,
+accurate environmental representation that underpins the viewpoint planning in Section III-B.
+B. Active Perception Strategies: From Information-Driven to
+Task-Driven Viewpoint Planning
+The field has evolved from model-based optimization
+toward end-to-end learning. Classical information-theoretic
+methods—frontier exploration and Next-Best-View (NBV)
+planning [13]—maximize an information-gain function over
+candidate viewpoints but depend on computationally expensive
+
+ray-casting that limits real-time performance. Active Neural
+SLAM [14] replaced hand-crafted heuristics with end-to-end
+deep reinforcement learning, achieving continuous exploration
+in highly dynamic environments.
+Vutetakis et al. further proposed an active perception network that predicts information gain directly from local viewpoint features, entirely bypassing ray-casting and enabling
+non-myopic online exploration [15]. For air-ground cooperative exploration, Dechicha et al. combined UAV-based widearea frontier scouting with UGV-based local NBV refinement [7], embodying an effective heterogeneous division of
+labor: the UAV reduces global uncertainty while the UGV extracts fine-grained local detail. Despite their promise, learningbased policies remain sensitive to observation noise, motivating hybrid model-data approaches for deployment.
+C. Cooperative Target Tracking
+Cooperative target tracking exemplifies the closed-loop
+synergy between a “sensing eye” (UAV) and an “executing
+hand” (UGV). In the classical UAV-guided paradigm, the UAV
+tracks targets from altitude and feeds interception waypoints to
+the UGV in real time.Multi-agent reinforcement learning has
+driven major advances: Munasinghe et al. demonstrated that
+proficiency-constrained MARL yields significantly higher cooperative tracking success rates in dynamic vehicle pursuit [8];
+
+1068
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:27 UTC from IEEE Xplore. Restrictions apply.
+
+Zhao et al. trained UAV formations via MADDPG [16] to
+achieve persistent multi-target tracking in complex environments [17], with a graph neural network extension further
+scaling cooperative perception to large heterogeneous swarms.
+The target state estimates produced by this perception stack
+directly feed the collaborative planning module discussed next.
+IV. C OLLABORATIVE P LANNING AND D ECISION -M AKING
+Collaborative planning translates perception outputs into coordinated action sequences under kinematic, dynamic, and task
+constraints [18]. Table I compares representative approaches
+spanning rule-based optimization and end-to-end learning.
+A. From Explicit Optimization to Learned Decision-Making
+Early methods relied on rule-based optimization. Market
+auction mechanisms allocate tasks through distributed bidding
+but provide no optimality guarantees [19]. MILP yields globally optimal solutions but scales exponentially, precluding realtime replanning [6].
+Deep MARL offers a fundamentally different paradigm
+by learning state-to-action mappings through trial-and-error
+interaction. QMIX employs a monotonic mixing network to
+factorize the global action-value function into per-agent local
+utilities, enabling CTDE and excelling on purely cooperative
+tasks [10]. MADDPG adopts a centralized critic–decentralized
+actor framework, effectively handling mixed cooperativecompetitive settings [16]. MAPPO [20] achieves stable,
+sample-efficient cooperative training, while QPLEX [21] introduces a duplex dueling network to overcome QMIX’s
+monotonicity constraint.
+Despite these advances, MARL deployment in air-ground
+systems faces persistent challenges: sparse rewards impede
+learning; sim-to-real transfer degrades under perceptual noise
+and model mismatch [4]; and credit assignment among heterogeneous agents in non-stationary environments remains an
+open problem [24].
+V. C OOPERATIVE M OTION T RACKING C ONTROL
+Model Predictive Control (MPC) has emerged as the
+preferred solution for air-ground trajectory tracking owing to
+its native handling of multi-input multi-output systems and
+hard constraints. By solving a finite-horizon optimal control
+problem at each timestep in a receding-horizon fashion, MPC
+explicitly enforces velocity, acceleration, and inter-platform
+collision-avoidance constraints. Nan et al. demonstrated nonlinear MPC’s effectiveness for quadrotor fault-tolerant control [22]; Romero et al. extended model predictive contouring
+control to time-optimal flight [23], confirming MPC’s engineering viability for high-precision cooperative maneuvering.
+The heavy online computation of nonlinear MPC—particularly
+acute in multi-platform synchronous control—motivates ongoing work on lightweight formulations and neural network
+approximations.
+While classical MPC addresses execution-level robustness
+effectively, task-level generalization across open-world scenarios remains beyond its scope, motivating the foundation-model
+directions discussed next.
+
+VI. F UTURE D IRECTIONS : F OUNDATION M ODELS AND
+E MBODIED I NTELLIGENCE
+Current air-ground systems have matured considerably
+across the perception-to-control stack, yet fundamental limitations remain in task generalization and long-horizon reasoning
+under open-world conditions. The integration of LLMs and
+world models is reshaping the architectural paradigm toward
+general-purpose embodied intelligence.
+A. LLMs as High-Level Task Planners
+LLMs enable air-ground systems to accept natural language
+directives and decompose them into executable subtask sequences. Given “survey post-fire damage on the east side,” an
+LLM decomposes this into UAV infrared scanning followed
+by UGV close-range inspection [25]. The ELLMER framework shows that LLMs with retrieval-augmented generation
+can dynamically revise plans across long, unpredictable task
+horizons [26]. RT-2 vision-language-action models further
+transfer web-scale knowledge to robotic manipulation, opening
+a pathway for open-world semantic reasoning in air-ground
+systems [27].
+B. World Models and Embodied Intelligence
+A world model serves as an agent’s internal simulator
+of environment dynamics, enabling lookahead planning and
+safety verification by imagining the consequences of cooperative strategies before real-world execution—dramatically
+reducing trial-and-error costs [28]. DreamerV3 demonstrates
+the feasibility of learning generalizable world representations across diverse physical domains [28], with considerable
+value for air-ground applications. Looking ahead, systems
+that fuse LLM task planning, world-model causal prediction,
+and foundation-model perception will evolve from fixed-script
+automation tools into embodied collaborative agents capable of
+understanding intent and autonomously devising cooperative
+strategies [29].
+VII. C ONCLUSION
+This paper has reviewed active collaborative perception and
+planning for heterogeneous UAV-UGV systems along the full
+perception–planning–decision–control chain. Three takeaways
+emerge from this analysis. At the architectural level, CTDE
+has become the dominant cooperative framework, with hierarchical MARL representing the most engineering-viable
+path to distributed intelligence. In the perception domain,
+task-driven active information acquisition has superseded passive fusion, though hybrid model-learning approaches remain
+necessary for reliable deployment. On the planning side,
+learned decision-making increasingly outperforms classical
+optimization, but the sim-to-real gap demands co-design of
+data-driven policies with model-based constraints. Bridging
+this gap, alongside advances in cross-modal alignment and
+emergent coordination in large-scale swarms, constitutes the
+central challenge for the field. Looking further ahead, LLMs
+and world models offer a transformative vision: air-ground
+systems that transcend task-specific automation to become
+
+1069
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:27 UTC from IEEE Xplore. Restrictions apply.
+
+

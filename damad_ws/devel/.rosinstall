@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ecs-user/damad_ws/devel/setup.sh

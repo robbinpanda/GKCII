@@ -1,0 +1,13 @@
+<launch>
+    <!-- 启动文件，用于启动ROS节点 -->
+    <!-- 启动名为Set_param的节点，该节点属于site_model包，执行的脚本为Set_param.py，输出信息将显示在屏幕上 -->
+    <node pkg="site_model" type="Set_param.py" name="Set_param" output="screen"/>
+    <!-- 启动名为Car01的节点，该节点属于site_model包，执行的脚本为Car01.py，输出信息将显示在屏幕上 -->
+    <node pkg="site_model" type="Car01.py" name="Car01" output="screen"/>
+    <!-- 启动名为Car02的节点，该节点属于site_model包，执行的脚本为Car02.py，输出信息将显示在屏幕上 -->
+    <node pkg="site_model" type="Car02.py" name="Car02" output="screen"/>
+    <!-- 启动名为Car03的节点，该节点属于site_model包，执行的脚本为Car03.py，输出信息将显示在屏幕上 -->
+    <node pkg="site_model" type="Car03.py" name="Car03" output="screen"/>
+    <!-- 启动名为Main的节点，该节点属于site_model包，执行的脚本为Main.py，输出信息将显示在屏幕上 -->
+    <node pkg="site_model" type="Main.py" name="Main" output="screen"/>
+</launch>

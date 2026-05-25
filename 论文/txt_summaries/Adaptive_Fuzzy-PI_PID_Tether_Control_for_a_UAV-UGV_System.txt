@@ -1,0 +1,497 @@
+2025 International Conference on Modeling, Simulation & Intelligent Computing (MoSICom)
+December 10-12, 2025, BITS Pilani Dubai Campus, Dubai, UAE
+
+Adaptive Fuzzy-PI/PID Tether Control for a
+UAV-UGV System
+
+2025 International Conference on Modeling, Simulation & Intelligent Computing (MoSICom) | 979-8-3315-7391-1/25/$31.00 ©2025 IEEE | DOI: 10.1109/MOSICOM67153.2025.11398313
+
+Ammar Selim
+Department of Mechatronics and
+Biomedical Engineering
+Aston University
+Birmingham, UK
+220035912@aston.ac.uk
+
+Joshua D’Souza
+Department of Mechatronics and
+Biomedical Engineering
+Aston University
+Birmingham, UK
+j.dsouza@aston.ac.uk
+
+Abstract— This paper presents the development of a modelbased design approach for a tethered unmanned aerial vehicle
+(UAV) and unmanned ground vehicle (UGV) system. An
+integrated dynamic model is formulated to capture the coupled
+dynamics of the UAV, tether, and winch mechanism. A Sugenotype fuzzy inference system (FIS) is employed to adaptively
+adjust the reference tether length based on wind velocity and the
+desired geometric separation between the UAV and UGV. A
+dual-loop PID/PI control strategy with switching logic is
+implemented to regulate both tether length and winch motor
+velocity, enabling robust tracking of the reference tether length.
+Simulation results demonstrate the effectiveness of the
+integrated.
+
+D’Souza et al. [10] extended this direction by modelling
+tethered UAV systems within advanced simulation
+environments, capturing aerodynamic coupling and enabling
+controller validation prior to real-world testing.
+Cooperative UAV–UGV (unmanned ground vehicle)
+systems have also emerged as a promising direction,
+combining the aerial mobility of UAVs with the endurance
+and payload capacity of ground vehicles. Miki et al. [11]
+demonstrated that UAV assistance can enhance UGV
+performance in challenging terrain. When a tether is
+introduced into such architectures, new degrees of freedom
+and control dependencies arise. The UAV, tether, and winch
+must therefore be co-optimised to ensure stable and
+coordinated operation [12].
+
+Keywords—Unmanned aerial vehicles (UAVs), tethered UAV,
+tether, winch, PID, Autonomous Systems
+
+I.
+
+James E. Pickering
+Department of Engineering
+Harper-Adams University
+Edgmond, UK
+jpickering@harper-adams.ac.uk
+
+B. Novelty of the Research
+While the literature addresses elements of UAV attitude
+control and tether management, there is little work on the
+development of an integrated, model-based design that
+explicitly captures the interactions between the UAV, tether,
+and winch subsystems and couples this with an adaptive
+tether-length policy. This paper contributes:
+• A unified dynamic model combining UAV rigidbody motion, tether behavior, and winch
+electromechanics.
+• An adaptive tether-length strategy using a Sugenotype fuzzy inference system (FIS) to maintain
+positive tension under wind.
+• A coordinated dual-loop control architecture in
+which UAV stabilisation and winch operation are
+jointly managed.
+
+INTRODUCTION
+
+Tethered Unmanned Aerial Vehicles (UAVs) have gained
+significant attention in recent years. Compared to free-flying
+UAVs, tethered systems overcome the limitations of onboard
+battery capacity and provide secure, interference-resistant
+communication links. These characteristics position tethered
+UAVs as a viable alternative for missions requiring extended
+operation and high communication reliability.
+A. Literature Review
+Existing research highlights the suitability of tethered
+UAV platforms for long-duration missions such as
+surveillance, emergency response, and telecommunications,
+see [1], [2], [3] and [4]. The presence of a tether, however,
+significantly complicates the system dynamics. Its nonlinear
+and coupled behaviour, driven by catenary geometry and
+aerodynamic drag, introduces a dynamic constraint that
+strongly influences UAV motion, particularly under wind
+disturbances [5]. Studies by Nicotra et al. [5] and Yan et al.
+[6] model both taut and slack cable regimes, showing that
+cable mass and length variation induce oscillatory effects and
+additional control challenges. Marques et al. [3] further
+emphasised that effective tether management must address
+both mechanical stability and control adaptability in the
+presence of environmental perturbations.
+Classical PID control has been the predominant approach
+for regulating UAV attitude and tether behaviour due to its
+simplicity and ease of implementation [7]. Yet fixed-gain
+PID controllers struggle with the nonlinearities and parameter
+variations introduced by changing tether forces and wind
+gusts. To overcome these limitations, Musa [8] reviewed
+quadcopter control strategies and showed that fuzzy logic and
+neural networks offer improved adaptability to real-time
+disturbances. Misin [9] demonstrated that Model Predictive
+Control (MPC) can maintain UAV stability by predicting
+future states and optimising control actions under constraints.
+
+C. Outline of Paper
+The paper is organised as follows. Section II presents the
+system overview and problem formulation. Section III details
+UAV dynamics and control. Section IV describes the overall
+tethered UAV modelling and control. The simulation results
+are presented in Section V. Conclusion and details of further
+work are given in Section VI.
+II.
+
+SYSTEM OVERVIEW AND PROBLEM FORMULATION
+
+The tethered UAV–UGV system shown in Figure 1
+consists of a UGV, a quadrotor UAV, and an interconnecting
+tether. The tether provides a continuous electrical power
+supply to the UAV and enables bidirectional data
+communication with the UGV. A motor-driven winch
+mounted on the UGV adjusts the tether length dynamically
+during operation via an actuated spool mechanism.
+The system operates within a three-dimensional inertial
+frame. The UAV exhibits six degrees of freedom (DOF):
+translational motion along the inertial axes ( 𝑋, 𝑌, 𝑍 ) and
+
+979-8-3315-7391-1/25/$31.00 ©2025 IEEE
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:26 UTC from IEEE Xplore. Restrictions apply.
+
+238
+
+rotational motion about the body-fixed axes corresponding to
+roll (𝜙), pitch (𝜃), and yaw (𝜓). The UAV state vector at time
+e 𝑡 𝜖 ℝ≥0 is defined as:
+𝜒(𝑡) = [𝑥(𝑡), 𝑦(𝑡), 𝑧(𝑡), 𝜙(𝑡), 𝜃(𝑡), 𝜓(𝑡)]𝑇
+
+To support the modelling and controller design, the following
+assumptions are adopted:
+1. The airframe and components are symmetric.
+2. Environmental disturbances other than wind (e.g.,
+thermal effects) are neglected.
+3. The UAV mass is constant and uniformly
+distributed.
+4. The UAV behaves as a rigid body without
+deformation.
+5. The centre of gravity is located at the body-frame
+origin.
+6. Thrust and drag forces are proportional to the square
+of the rotor speeds.
+
+(1)
+
+where 𝜒(𝑡) 𝜖 ℝ6 comprises the translational position of the
+UAV’s center of mass, 𝜒𝑡𝑟𝑎 (𝑡) = [𝑥(𝑡), 𝑦(𝑡), 𝑧(𝑡)]𝑇 , and the
+rotational coordinates represented by the Euler angles:
+𝜒𝑟𝑜𝑡 (𝑡) = [𝜙(𝑡), 𝜃(𝑡), 𝜓(𝑡)]𝑇 .
+
+III.
+
+UAV DYNAMICS AND CONTROL
+
+A. UAV Dynamics
+The UAV orientation is defined through the
+transformation between the body-fixed frame and the inertial
+frame. This relationship is represented by the rotational
+transformation matrix 𝑅 𝜖 ℝ3×3 [9], which is used to project
+the thrust vector into the inertial frame. The matrix is given
+by:
+𝑐𝜓𝑐𝜃
+𝑅 = [𝑐𝜃𝑠𝜓
+−𝑠𝜃
+
+Fig 1: Free body diagram of tethered UAV-UGV system [5]
+
+The UAV is actuated by four rotors, where each rotor
+𝑖 𝜖 {1,2,3,4} generates an upward thrust proportional to the
+square of its angular velocity 𝜔𝑖2 . The control input vector is
+defined as: 𝑈𝑢𝑎𝑣 = [𝑈1 , 𝑈2 , 𝑈3 , 𝑈4 ]𝑇 , where the individual
+inputs are:
+𝑈1 = 𝑏(𝜔12 + 𝜔22 + 𝜔32 + 𝜔42 )
+𝜋
+𝑈2 = 𝑏𝑙𝑠𝑖𝑛( ) ⋅ (𝜔12 + 𝜔42 − 𝜔32 − 𝜔22 )
+4
+𝜋
+𝑈3 = 𝑏𝑙𝑠𝑖𝑛( ) ⋅ (−𝜔12 + 𝜔22 − 𝜔32 + 𝜔42 )
+4
+𝑈4 = 𝑑(−𝜔12 + 𝜔22 − 𝜔32 + 𝜔42 )
+
+𝑐𝜙𝑠𝜃𝑐𝜓 + 𝑠𝜙𝑠𝜓
+𝑐𝜙𝑠𝜃𝑠𝜓 − 𝑠𝜙𝑐𝜓 ] (7)
+𝑐𝜙𝑐𝜃
+
+where 𝑐 is the cosine and 𝑠 is the sine of the Euler angle. The
+translational motion of the UAV is described by the Newton–
+Euler equations:
+(8)
+
+𝑚𝜒̈𝑡𝑟𝑎 = 𝑅𝐹𝑧 + 𝐹𝑔 + 𝐹𝐷𝑈𝐴𝑉
+
+(2)
+(3)
+
+where 𝜒̈𝑡𝑟𝑎 𝜖 ℝ3 = [𝑥̈ , 𝑦̈ , 𝑧̈ ]𝑇 is translational acceleration,
+𝐹𝑧 𝜖 ℝ3 is the thrust vector generated by the rotors, 𝐹𝑔 𝜖 ℝ3 is
+1
+the gravitational force, and 𝐹𝐷𝑈𝐴𝑉 = 𝜌𝑎 𝐴𝜒 𝐶𝑑 (𝜒̇𝑡𝑟𝑎 + 𝑉𝑤 )2
+2
+is
+the
+aerodynamic
+drag,
+where
+𝑉𝑤 =
+𝑇
+𝑉
+𝑉
+𝑉
+[ 𝑤𝑥 𝑤 𝑦 𝑤𝑧 ] denote the wind velocity components..
+Using (8), the translational dynamics become:
+
+(4)
+(5)
+
+where 𝑈1 denotes the total thrust, 𝑈2 and 𝑈3 denote the roll
+and pitch torques, respectively, and 𝑈4 denotes the yaw
+torque. The parameters, 𝑏 and 𝑑 denote the rotor thrust and
+drag coefficients, and 𝑙 denotes the distance from the UAV
+centre to each rotor. The instantaneous tether length 𝐿 denotes
+the computed as the Euclidean distance between the UAV and
+UGV positions:
+𝐿 = √(𝑥 − 𝑥𝑈𝐺𝑉 )2 + (𝑦 − 𝑦𝑈𝐺𝑉 )2 + (𝑧 − 𝑧𝑈𝐺𝑉 )2
+
+𝑠𝜙𝑠𝜃𝑐𝜓 − 𝑐𝜙𝑠𝜓
+𝑠𝜙𝑠𝜃𝑠𝜓 + 𝑐𝜙𝑐𝜓
+𝑠𝜙𝑐𝜃
+
+𝑥̈ =
+𝑦̈ =
+
+𝜒
+
+𝑚
+(−𝑐𝜓𝑠𝜙 + 𝑠𝜓𝑠𝜃𝑐𝜙)𝑈1 − 𝐹𝐷𝑈𝐴𝑉
+
+𝑦
+
+𝑚
+
+(6)
+𝑧̈ = −𝑔 −
+
+The tethered UAV–UGV system is influenced by gravity,
+wind-induced aerodynamic drag, actuator limits, and bounds
+on allowable tether length. The tether imposes a geometric
+constraint on the UAV’s position relative to the UGV, and
+these constraints must be respected during operation. The
+goal is to design a control strategy that:
+• enables the UAV to track a desired trajectory,
+• regulates the tether length through winch actuation,
+and
+• maintains stability and robustness under wind
+disturbances.
+
+(9)
+
+(𝑠𝜓 𝑠𝜙 + 𝑐𝜓𝑠𝜃𝑐𝜙)𝑈1 − 𝐹𝐷𝑈𝐴𝑉
+
+(𝑐𝜃𝑐𝜙)𝑈1 − 𝐹𝐷𝑈𝐴𝑉
+
+𝑧
+
+(10)
+(11)
+
+𝑚
+
+The rotational dynamics follow Euler’s rigid-body equations:
+𝐼 𝜔̇ + 𝜔(𝐼𝜔) = 𝜏
+
+(12)
+
+where 𝜔 𝜖 𝑅3 is the angular velocity in the body frame, 𝐼 =
+𝑑𝑖𝑎𝑔(𝐼𝑥𝑥 , 𝐼𝑦𝑦 , 𝐼𝑧𝑧 ) 𝜖 ℝ3×3 is the inertia matrix, and 𝜏 =
+𝑇
+
+[𝜏𝑥 , 𝜏𝑦 , 𝜏𝑧 ] = [𝑈2 , 𝑈3 , 𝑈4 ]𝜖 ℝ3 is the applied torque vector.
+Expanding (12) yields:
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:26 UTC from IEEE Xplore. Restrictions apply.
+
+239
+
+𝐼𝑥𝑥 (𝐼𝑦𝑦 − 𝐼𝑧𝑧 )𝜃̇𝜓̇ − 𝐽𝑟 𝜃̇ 𝜔𝑟 + 𝑈2
+𝜙̈ =
+𝐼𝑥𝑥
+(𝐼𝑧𝑧 − 𝐼𝑥𝑥 )𝜓̇𝜙̇ + 𝐽𝑟 𝜙̇𝜔𝑟 + 𝑈3
+𝜃̈ =
+𝐼𝑦𝑦
+(𝐼𝑥𝑥 − 𝐼𝑦𝑦 )𝜙̇𝜃̇ + 𝑈4
+𝜓̈ =
+𝐼𝑧𝑧
+
+(13)
+
+(19)
+(20)
+
+𝐾2 = 𝜆1 + 𝜆2
+𝜆1 + 𝜆2 2 (𝜆1 + 𝜆2)2
+𝐾1 = (𝜆1 −
+) −
+2
+4
+
+(14)
+
+To convert the desired accelerations into attitude references,
+the standard mapping is used:
+
+(15)
+
+𝑥̈
+𝑦̈
+𝜃𝑑 = 𝑡𝑎𝑛−1 [
+𝑐𝜓𝑑 +
+𝑠𝜓 ]
+𝑧̈ + 𝑔
+𝑧̈ + 𝑔 𝑑
+𝑥̈
+𝑐𝜃 ∙
+− 𝑡𝜃𝑐𝜓𝑑
+𝑧̈
++
+𝑔
+𝜙𝑑 = 𝑡𝑎𝑛−1 [
+]
+𝑁𝜓𝑑
+
+where 𝐽𝑟 denotes the rotor inertia and 𝜔𝑟 denotes the
+resultant rotor speed.
+B. Trajectiry Tracking Control of the UAV
+A cascaded control architecture, see Figure 2 is used to
+track a desired trajectory. The outer loop controls UAV
+position, and the inner loop stabilises orientation.
+
+(21)
+
+(22)
+
+where:
+𝜓𝑑 = tan−1 (𝑦̇ 𝑑 /𝑥̇ 𝑑 )
+is the desired yaw angle, wrapped between [−𝜋, +𝜋]. In (22),
+the term 𝑁𝜓𝑑 denote the trigonometric component by 𝜓𝑑 :
+3𝜋
+𝜋
+▪ If ≤ 𝜓𝑑 ≤ , the denominator 𝑁𝜓𝑑 uses 𝑐𝜓𝑑
+4
+4
+▪ Otherwise, 𝑁𝜓𝑑 uses 𝑠𝜓𝑑
+2) Inner Loop
+The inner-loop controller stabilises the UAV’s orientation
+by ensuring the actual Euler angles track the desired
+references (𝜒𝑟𝑜𝑡𝑑 = [𝜙𝑑 , 𝜃𝑑 , 𝜓𝑑 ]𝑇 ). Let orientation error
+𝑒𝜒 = 𝜒𝑟𝑜𝑡𝑑 − 𝜒𝑟𝑜𝑡 𝜖 ℝ3 . In this case, as displayed in
+𝑟𝑜𝑡
+Figure 2, a PID control structure is implemented for each
+rotational axis. For each axis, the corresponding control input
+𝑈𝑟𝑜𝑡,𝑖 𝜖 {𝑈2 , 𝑈3 , 𝑈4 } is given by:
+
+Fig 2: UAV system Architecture.
+
+1) Position Contoller
+The desired position and velocity vectors are
+𝜒𝑡𝑟𝑎 𝑑 = [𝑥𝑑 , 𝑦𝑑 , 𝑧𝑑 ]𝑇 𝜖 ℝ3 and 𝜒̇𝑡𝑟𝑎 𝑑 = [𝑥̇ 𝑑 , 𝑦̇ 𝑑 , 𝑧̇𝑑 ]𝑇 𝜖 ℝ3 ,
+respectively. Position and velocity errors defined as 𝑒𝜒𝑡𝑟𝑎 =
+𝜒𝑡𝑟𝑎 𝑑 − 𝜒𝑡𝑟𝑎 and 𝑒̇𝜒𝑡𝑟𝑎 = 𝜒̇ 𝑡𝑟𝑎 𝑑 − 𝜒̇𝑡𝑟𝑎 , where 𝑒𝜒𝑡𝑟𝑎 =
+[𝑒𝑥 𝑒𝑦 𝑒𝑧 ]𝑇 𝜖 ℝ3 and 𝑒̇𝜒𝑡𝑟𝑎 = [𝑒̇𝑥 𝑒̇𝑦 𝑒̇𝑧 ]𝑇 𝜖 ℝ3×1 .
+Here, 𝑒𝑥 , 𝑒𝑦 , and 𝑒𝑧 are the position errors of the UAV, and
+𝑒̇𝑥 , 𝑒̇𝑦 , and 𝑒̇𝑧 are the velocity errors of the UAV. To track the
+desired trajectory, a second-order state-feedback position
+controller is implemented [10]. The control objective is to
+compute an inertial acceleration comman 𝑈𝑜𝑢𝑡𝑒𝑟𝑙𝑜𝑜𝑝 =
+
+𝑈𝑟𝑜𝑡,𝑖 = 𝐾𝑝 𝜒
+
+𝑟𝑜𝑡
+
+𝐾𝑥2
+𝑒𝑥
+𝐾𝑦2 ] [
+𝑒̇𝑥
+𝐾𝑧2
+
+𝑒𝑦
+𝑒̇𝑦
+
+𝑒𝑧
+𝑒̇𝑧 ]
+
+) + 𝐾𝑑 𝜒
+
+(𝑒̇𝜒
+
+∫ (𝑒𝜒
+
+) 𝑑𝑡
+
+𝑟𝑜𝑡
+
+𝑟𝑜𝑡
+
+𝑟𝑜𝑡
+
+𝑟𝑜𝑡
+
+(23)
+
+)
+
+where 𝑖 = 2 for 𝜒𝑟𝑜𝑡 = 𝜙, 𝑖 = 3 for 𝜒𝑟𝑜𝑡 = 𝜃, and 𝑖 = 4 for
+𝜒𝑟𝑜𝑡 = 𝜓. Furthermore, 𝐾𝑝 𝜒 , 𝐾𝑑 𝜒 , and 𝐾𝑖𝜒 are the
+proportional,
+respectively.
+
+(16)
+
+IV.
+
+derivative
+
+𝑟𝑜𝑡
+
+and
+
+𝑟𝑜𝑡
+
+integral
+
+𝑟𝑜𝑡
+
+control
+
+gains
+
+MODELLING OF TETHER CONTROL SYSTEM
+
+This section develops the modelling of the tether control
+subsystem within the UAV–UGV architecture illustrated in
+Figure 3. The modelling includes the tether dynamics and the
+winch actuator, while the control strategy integrates a dualloop controller, a FIS, and a switching mechanism to generate
+appropriate tether length references.
+
+where 𝐾 𝜖 ℝ3×2 denotes the state feedback gain matrix,
+consisting of the individual gains 𝐾𝑥 1 , 𝐾𝑦1 , 𝐾𝑧1 , 𝐾𝑥2 , 𝐾𝑦2 , and
+𝐾𝑧2 . To formulate this in terms of second-order error
+dynamics, the control input 𝑈𝑜𝑢𝑡𝑒𝑟𝑙𝑜𝑜𝑝 is equated to the
+second derivative of the position error. These second order
+different equations are thus simplified into its time-variant
+form, with these given by:
+𝑒(𝑡) = 𝐶𝑒̃ 𝜆𝑡
+𝑒(𝑡) = 𝐴𝑒̃ 𝜆1𝑡 + 𝐵𝑒̃ 𝜆2𝑡
+
+𝑟𝑜𝑡
+
++ 𝐾𝑖𝜒
+
+𝑇
+𝑇
+𝐾[𝑒𝑝𝑇 , 𝑒̇𝑝𝑇 ] = [𝑈𝑥 , 𝑈𝑦 , 𝑈𝑧 ] 𝜖 ℝ3 , with this given by:
+
+𝐾𝑥1
+𝑈𝑜𝑢𝑡𝑒𝑟𝑙𝑜𝑜𝑝 = [𝐾𝑦1
+𝐾𝑧1
+
+(𝑒𝜒
+
+(17)
+(18)
+
+where 𝜆1 and 𝜆2 are the desired pole locations. Hence, the
+gains are computed as follows:
+
+Fig 3: Tether system architecture.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:26 UTC from IEEE Xplore. Restrictions apply.
+
+240
+
+

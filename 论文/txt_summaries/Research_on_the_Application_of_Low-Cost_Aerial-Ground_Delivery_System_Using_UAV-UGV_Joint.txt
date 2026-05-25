@@ -1,0 +1,344 @@
+2023 9th International Conference on Mechanical and Electronics Engineering
+
+2023 9th International Conference on Mechanical and Electronics Engineering (ICMEE) | 979-8-3503-0714-6/23/$31.00 ©2023 IEEE | DOI: 10.1109/ICMEE59781.2023.10525562
+
+Research on the Application of Low-Cost AerialGround Delivery System Using UAV-UGV Joint
+Hailong Qin
+School of Electronics and
+Control Engineering
+Chang’an University
+Xi’an, China
+qinsober@chd.edu.cn
+
+Xin Yan
+School of Electronics and
+Control Engineering
+Chang’an University
+Xi’an, China
+yankeepgoing@163.com
+
+delivery plan, it is necessary to reconsider the problem from the
+perspective of UAVs, UGVs, and their coordinated cooperation.
+Safety is a critical issue in UAV delivery, requiring the
+development of predictable collision avoidance algorithms as
+described in literature [5]. Due to GPS signal instability, visual
+SLAM technology can improve UAV positioning accuracy, as
+discussed in literature. Visual SLAM technology is
+increasingly used in UAVs, as surveyed in literature [6][7].
+
+Abstract—The delivery service using unmanned aerial
+vehicles (UAVs) and unmanned ground vehicles (UGVs)
+collaboration has been a hot topic in the industry, and the lowcost UAV-UGV aerial-ground delivery system research has
+significant practical significance. This study proposes a low-cost
+aerial-ground delivery system for residential areas, based on
+UAV-UGV collaboration. The system uses a 2D SLAM enabled
+UGV for precise ground transportation and a quadrotor UAV
+equipped with SVO for high-altitude delivery of small and
+medium-sized packages. Both the UGV and the UAV are
+developed based on the Robot Operating System (ROS). This
+study comparing energy consumption and time taken under
+different operating modes and visual odometers respectively..
+The delivery process is divided into three stages and a visualmaximization-based SVO fusion method is proposed for the UAV
+search in case of target loss. Experimental results show that the
+proposed system is effective, accurate, timely, and has high
+practical value.
+
+Z. Chao et al. present offline monocular visual odometry
+(VO) for robots, which is significant for our experiments [8][9].
+We use the VO part of visual SLAM (vSLAM) as the local
+trajectory planning scheme for our UAV. Additionally, O.
+Omotuyi and M. Kumar optimize UAVs by coupling known
+thrust and dynamics with known control inputs and
+surrounding
+UAV
+dynamics
+and
+visual
+inertial
+measurements using the Unscented Kalman Filter (UKF) [10],
+providing theoretical support and experimental guidance for
+our low-cost, high-efficiency UAV-UGV joint delivery system
+development.
+
+Keywords—UAVs, UGVs, aerial-ground delivery system, SVO
+
+I. INTRODUCTION
+
+Considering the generally flat ground in residential
+environments, multi-line LiDAR is more expensive and
+computationally demanding than single-line LiDAR. Shen et al.
+conducted an in-depth analysis and comparative study
+of LiDAR SLAM algorithms for mobile robots [11], finding
+that the Cartographer scheme has stronger real-time
+performance in low-cost environments.
+
+The rapid growth of logistics demand and consumer
+demand for faster delivery speeds has led to the proposal of
+using UAVs for goods delivery by companies such as Amazon,
+Google, Meituan, and JD.com [1]. Successful cases have
+shown that small parcels can be directly delivered to rural area
+consumers' balconies using GPS and the UAV's height
+limitlessness [2]. Hence, efficient and low-cost UAV delivery
+systems have important practical significance and application
+prospects.
+
+R. Xuan et al. summarized five forms of coordination for
+delivery: joint, parallel, UGV/UAV-supported, and mixed
+delivery [12]. The topology of the problem can be abstracted
+into a TSP model for research. M. Shan et al. developed a twostage solution method to optimize total cost for truck-UAV
+logistics based on a "maximum weight judgment method" and
+improved simulated annealing algorithm [13]. For multiple
+loop deliveries, A. M. El-Adle et al. proposed a Variable
+Neighborhood Search (VNS) heuristic algorithm to solve the
+TSP-D and a two-stage strengthening scheme used by VNS
+[14].
+
+Although Unmanned aerial vehicles (UAVs) have shown
+good performance in many fields, their use of GPS to obtain
+latitude and longitude information is prone to signal failure due
+to the dense construction of buildings. Furthermore, due to
+their weight limitations, using UGVs for delivery over the
+same distance is the lowest cost option. Therefore, researching
+the coordinated delivery of UAVs and UGVs is of great
+significance [3].As research into unmanned aerial vehicleunmanned ground vehicle systems provides support for our
+work [4].
+
+Although proposed solutions have achieved good
+performance in specific scenarios, they often require more cost
+and computing resources and are limited to general
+environments. Our research aims to achieve cost-effective
+autonomous UAV-UAG joint delivery in fixed areas such as
+
+Despite an increasing number of joint delivery
+schemes using UAVs and UGVs, research on cost
+minimization remains limited. To achieve a minimum cost
+
+979-8-3503-0714-6/23/$31.00 ©2023 IEEE
+
+Jianxin Li
+School of Electronics and
+Control Engineering
+Chang’an University
+Xi’an, China
+lijianxin7624@outlook.com
+
+373
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:51 UTC from IEEE Xplore. Restrictions apply.
+
+dense residential areas. Our goal is to minimize costs while
+maintaining real-time performance. This paper proposes a
+UAV-UAG joint autonomous delivery scheme and conducts
+experiments and analysis to provide theoretical support and
+practical guidance.
+
+UAV part. The green rectangular block represents each
+hardware module, while the blue rectangular block represents
+the corresponding role and function of the hardware module in
+the system. Communication plays a crucial role in the system,
+as indicated by the pink rectangular block. This module
+includes the function of the UGV sending the start transport
+command to the UAV and the function of map sharing between
+the UAV and UGV.
+
+II. SYSTEM FRAMEWORK
+A. Hardware Components
+In order to explore more cost-effective and faster delivery
+solutions, we initially propose a combination of unmanned
+aerial vehicles (UAVs) and utility ground vehicles (UGVs),
+and then compare it with other options. To achieve cost
+minimization, our UAV hardware configuration includes an
+Inertial Measurement Unit (IMU) for controlling the UAV's
+attitude, a main control board and motion control board, a
+quadrotor UAV, and a forward-facing monocular camera
+(used for target search). We also use a wifi module to
+communicate with the UGV, connecting to wifi through a selfbuilt hotspot for communication.
+
+In the UGV part, we use a Mecanum wheel vehicle with
+an Ackermann structure chassis and a single-line lidar for
+environment perception and modeling. The UGV's main
+control board employs an Intel I5 processor for system
+efficiency and stability. For cost-effectiveness, we selected the
+EAI G1 high-precision lidar for the single-line lidar hardware
+device. During delivery, the ROS system is used for
+autonomous UGV navigation, enabling precise positioning and
+path planning. To ensure efficient coordination between the
+UGV and UAV, we equip a wireless network
+card for bidirectional communication between the two systems.
+In the UAV part, we utilize a forward-facing monocular
+RGB camera as the sole observation sensor. Its main function
+is to detect the delivery area location and establish a local
+map during ascent and return phases. Using SVO visual
+odometry technology, the camera also estimates depth via
+triangulation, enabling obstacle avoidance. A Wi-Fi module
+facilitates information exchange and command reception with
+the UGV, and the relative pose relationship between the UAV
+and UGV is transmitted through this module, ensuring a
+smooth UGV return.
+
+The UAV hardware includes an IMU for attitude control,
+main and motion control boards for flight control and
+navigation, and a monocular camera for visual perception and
+recognition. The UGV hardware comprises a main control
+board, single-line lidar for high-precision perception and
+modeling, and a Mecanum wheel vehicle with an Ackermann
+structure for good maneuverability and versatility in indoor and
+outdoor environments.
+B. Submodules and Functions
+Fig.1 shows the hardware configuration and corresponding
+functionality of the entire system.
+
+The IMU of the UAV is a necessary module that can
+achieve attitude maintenance and stable flight control. The
+main control board uses the Intel Aero Compute Board,
+running the ROS system. We designed multiple state
+transitions, including standby, ascent of delivery packages, and
+return, to achieve autonomous control and navigation of the
+UAV in different stages. Through the above hardware
+configuration and functionality, efficient delivery and
+autonomous navigation of the UAV can be achieved.
+It is worth noting that the driving control boards of both the
+UAV and UGV utilize STM32 chips, which play a critical role
+in receiving motion control commands from their respective
+main controls and converting them into motor drive power
+through the drive module. While they are not depicted in the
+figure due to their weak relationship with the system design,
+their existence is indispensable for the proper functioning of
+the
+entire
+system.
+Although
+the
+communication
+and information processing between the two systems are
+functionally performed by their respective main controls, it is
+facilitated through a hardware wireless network card
+supporting AP mode. An AP hotspot is established on the
+UGV, and the two systems exchange information via the Wi-Fi
+protocol, enabling efficient coordination and information
+sharing.
+C. Execution Logic
+In the context of a residential area, our system's operation
+process is shown in Fig. 2 and consists of two stages. The first
+stage involves UAG autonomous navigation mapping, with
+
+Fig. 1. Functional description of each module of UGV-UAV system
+
+The black rectangular block represents the system divided
+into two loosely coupled subsystems: the UGV part and the
+
+374
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:51 UTC from IEEE Xplore. Restrictions apply.
+
+only one mapping task required for a fixed area system,
+allowing all systems to share the same map. When delivery is
+needed, the UGV carrying the UAV autonomously navigates to
+the destination and instructs the UAV to transport the parcels.
+The UAV utilizes visual odometry for transportation and
+the coordinate transformation relationship between the UGV
+and UAV to minimize the UAV's path. Following delivery, the
+UAV returns to the UGV for the next task or recharge.
+Throughout the process, the UAG system efficiently
+coordinates the UGV and UAV, ensuring efficient delivery
+services.
+
+III. IMPLEMENTATION
+A. Delivery Area Detection
+When selecting a delivery area detection method, we
+prioritized low cost and high detection speed. We evaluated
+various mainstream target detection algorithms, including
+traditional algorithms such as SIFT, SURF, and deep learning
+methods such as RCNN, SSD, and YOLO. After conducting
+experiments and comparisons, we found that YOLO, SSD, and
+traditional target detection algorithms have better stability and
+real-time performance in solving the problem of instance
+detection. However, deep learning-based algorithms require
+significant upfront preparation and consume computational
+resources, and the characteristics of different household types
+in residential areas are inconsistent, increasing the difficulty of
+detection tasks. In comparison, traditional visual
+methods utilizing templates for target detection also
+demonstrate remarkable performance. Ultimately, we chose
+template-based traditional target detection methods to complete
+this task.
+We selected the WhyCon template from the optional visual
+markers because of its seamless integration with the ROS
+system, fast running speed, and long detection distance.
+Experimental results verified the correctness of our choice, as it
+reduced costs without compromising running speed. By
+selecting appropriate algorithms and templates, we efficiently
+implemented
+target
+detection
+and
+tracking,
+enabling autonomous navigation and positioning of the system.
+Our choices also considered the balance between cost and
+performance, improving the system's scalability and
+practicality.
+
+Fig. 2. UAV-UGV Aerial-Ground distribution system execution logic
+
+B. 2D Navigation Algorithms
+Accurate map construction is a crucial step in the field of
+SLAM, as it ensures navigation accuracy. When selecting a 2D
+SLAM algorithm for our system, we carefully weighed the
+advantages and disadvantages of various algorithms, given our
+use of a single-line lidar. F. Lu et al. [15] have presented
+several feasible solutions, including Gmapping, Cartographer,
+Hector, and others, each with unique strengths and weaknesses.
+Ultimately, we selected the Cartographer algorithm for our
+system.
+
+For packages that are heavy for delivery by UAV, the
+system adopts a method of notifying the recipient in advance to
+pick up the package at a designated location. During the UAV
+delivers small packages, the UGV will deliver the large
+packages to the designated location, which increases the
+difficulty of the UAV returning to the UGV. Fortunately, our
+UAV uses an application that relies on visual odometry (SVO)
+and can construct maps of the surrounding environment during
+the end delivery process. In addition, the UAV and UGV need
+to communicate over short distances to achieve map sharing
+based on the UAV's local map. Through coordinate
+transformation, we can build the coordinate transformation
+relationship between the UAV and the UGV, thereby ensuring
+that the UAV can successfully "return".
+
+Our selection of a SLAM algorithm was based on
+considerations of applicable scenarios and hardware
+requirements. GMAPPING lacks loop closure detection and is
+not suitable for constructing large scenes, while Hector has
+high requirements for laser radar and does not utilize odometry
+information. Karto is suitable for large-scale environments, but
+Cartographer, which utilizes odometry and IMU, has global
+and local maps, backend optimization, and low cumulative
+error, even with low-cost laser radar. Therefore, we chose
+Cartographer for map building, enabling efficient map
+construction and autonomous navigation. This selection
+ultimately supports the successful realization of autonomous
+control and positioning for our UAV-UAG joint delivery
+system.
+
+In our system, we use SVO for high-precision UAV
+positioning and map construction. Coordinate transformation
+technology enables effective communication and coordination
+between the UAV and UGV, improving delivery efficiency
+and accuracy. If the recipient marker is not detected during
+delivery, the UAV performs a target search based on the
+maximum parallel view of the plane and returns home if
+unsuccessful. We utilize visual sensors and deep
+learning for obstacle avoidance functionality during UAV
+movement. Additionally, a maximum parallel view of the plane
+algorithm is used for target search and positioning.
+
+C. Visual Odometry
+Visual localization and local map establishment are critical
+functions in our system, enabling autonomous control and
+
+375
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:51 UTC from IEEE Xplore. Restrictions apply.
+
+

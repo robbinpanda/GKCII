@@ -1,0 +1,487 @@
+Proceedings of the 39th Chinese Control Conference
+July 27-29, 2020, Shenyang, China
+
+Design of UGV Trajectory Tracking Controller in UGV-UAV
+Cooperation
+Qize Wu1, Juntong Qi1, Chong Wu1, Mingming Wang1
+1. School of Electrical and Information Engineering Tianjin University, Tianjin 300072, China
+E-mail: wuqize@tju.edu.cn
+Abstract: In the leader-following formation of unmanned aerial vehicles (UAVs) and unmanned ground vehicles (UGVs), when
+the UAV moves in the direction of the UGV motion constraint, traditional PID controller has a series problem, such as poor
+stability, large overshot. These problems affect the formation maintenance. In order to solve these problems, the following
+research is carried out. Firstly, the kinematic model and dynamical model of the UGV are analyzed. Secondly, an improved
+expert PID target tracking control algorithm is proposed which adjusts PID parameters online according to the knowledge base
+to improve response speed and stability. To build the knowledge base, lots of experiments are carried out. The problem of sudden
+change of the control amount when switching parameters is solved by the cubic function fitting smoothing. Finally, a UAVUGV indoor experimental platform is built to verify the effectiveness of the proposed method, and the experimental result shows
+that the improved expert PID based target tracking control algorithm has superior response speed and stability.
+Key Words: UAV-UGV, Target tracking, Expert PID, Cubic function fitting
+
+1
+
+Introduction
+
+With the advent of artificial intelligence technology,
+many researchers are committed to the research of UAVs
+and UGVs. UAVs can quickly detect a large area, however,
+due to the minimum limit of height and speed, UAVs are
+greatly limited in detecting ground targets. UGVs can detect
+ground targets at a close range, but are limited by speed,
+terrain and field of view. The UAV-UGV cooperation can
+combine advantages of UAVs and UGVs to accomplish
+tasks, such as topographic survey, logistics and
+transportation, target tracking that are unable to accomplish
+by UAVs or UGVs.
+Considering different application scenarios, researchers
+have done lots of work. Chen J proposed a decompositionbased method for target tracking to reduce the computational
+complexity and achieve good results [1]. Antun Ivanovic
+proposed a cooperative UAV-UGV team. The UAV was
+used for long-range detection and the UGV was used as a
+landing platform. The overall system framework was
+proposed, including motion planning and complex task
+assignment [2]. Lucas Vago Santana proposed a
+heterogeneous leader-follower formation control structure,
+and a centralized control structure was used. A centralized
+controller was used to control the UAV-UGV formation and
+the effectiveness of the method was verified through
+experiments [3].
+Currently, because UAVs had greater maneuverability,
+when the UAV-UGV cooperate work, researchers used
+UAVs to track UGVs. The computer vision technology was
+used to identify targets, and appropriate control algorithms
+were used to achieve UAVs tracking UGVs [4-6]. In the
+target tracking control of the UAV, compensation based on
+multiple sensors was needed and the sensor data was
+integrated to accurately estimate the attitude information.
+Then, the path planning algorithm was designed to target
+tracking according to the constraints of the quadrotor
+dynamics [7]. Abderrahmane Lakas proposed a UAV-UGV
+cooperative navigation framework. The UAV was used to
+
+3689
+
+collect environmental information and then guide the UGV
+to move to the target point [8]. This paper developed a series
+of control rules, aiming at improving computational
+efficiency without compromising the performance. In some
+application scenarios, it is difficult for UAVs to achieve
+precise control, such as harsh environments or height
+restrictions. On the contrary, the UGV can perform stable
+control in complex environments. Jun Ni proposed a robust
+controller for UGV path tracking, and the effectiveness was
+verified through experiments [9]. Oscar Barrero proposed a
+positioning system based on EKF and kinematic model, and
+a PID-based trajectory tracking controller was used [10].
+However, the PID controller was affected by system
+parameters and environmental factors, the control algorithm
+needs to be further optimized. Sen Zhu designed a UGV
+based on hybrid structure and the layered control structure
+was used to realize the requirement of actual environment
+[11]. The pure pursuit algorithm used the geometry to
+calculate the arc radius and selected the appropriate lookahead distance that the UGV required. Due to its
+convenience and satisfactory response, the pure pursuit
+algorithm was widely used in the path tracking field [12-13].
+Haytham A proposed a GA-tuned-PID controller to improve
+steering stability by reducing the error between the vehicle
+of heading and the target point. When the angle changes
+greatly, further optimization of the path tracking algorithm
+was needed [14]. Luo Z proposed an expert PID controller
+to solve the problem that the traditional PID parameters
+cannot be adjusted dynamically. This method combined
+professional knowledge and experience to adjust the
+parameters in real time to achieve better control effects [15].
+However, the discontinuous change of the parameters led to
+a sudden change in the control amount.
+The remaining structure of this paper is as follows. First,
+this paper analyzes the kinematic model and dynamical
+model of UGVs in Section 2. Second, the improved expert
+PID target tracking control algorithm is introduced in
+Section 3. Third, the construction of UAV-UGV platform is
+completed in Section 4. Then, the experimental results are
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:09 UTC from IEEE Xplore. Restrictions apply.
+
+analyzed in Section 5. Finally, the research completed and
+future improvements is summarized in Section 6.
+
+2
+
+Model Analysis of UGV
+
+2.1
+
+Dynamic Model Establishment
+
+The UGV is a typical non-holonomic constraint system,
+so establishing a correct mathematical model is the basis of
+the UGV motion control. According to the demand, the
+UGV adopts two-wheel differential drive. To simplify the
+analysis, the following assumptions are made:
+z The UGV is a uniform and symmetrical rigid body
+without internal forces and deformation.
+z During motion, the UGV does not slip.
+z The origin of the body coordinate system coincides
+with the center of mass.
+The non-holonomic constraints imposed by a nonholonomic constraint system are in the form of nonintegrable differential equations, which are converted to the
+non-integrable Pfaffian constraint.
+([ ) [
+(1)
+where ([ )  R
+
+mu n
+
+system model more intuitively. The kinematic model of the
+UGV is established as follows:
+ª r cos E r cos E º
+«
+2 »
+ªxº « 2
+»
+r sin
+i E r sin E » ªZr º
+(5)
+[ «« y »» «
+« »
+« 2
+2 » ¬Zl ¼
+«¬ E »¼ «
+»
+r »
+« r
+
+l ¼»
+¬« l
+where [ is the coordinate vector of the UGV. r is the wheel
+radius. Z l and Z r are the angular velocity of the left and
+right wheels. l is the distance of the drive wheel.
+The established coordinate system is shown in Fig.1.
+<
+
+£
+
+is the coefficient matrix of the
+
+&
+
+\
+
+generalized coordinate of the system (m>n). [  R is the
+generalized coordinate vector of the system. The motion of
+the UGV is a non-holonomic constrained motion and the
+formula is as follows:
+ªxº
+ [ [ x sin
+i E  y cos E >sin
+si E cos E 0 @ «« y »»
+(2)
+«¬ E »¼
+n
+
+where E is the yaw angle of the UGV in the inertial
+coordinate, defined counterclockwise as positive. x and y
+
+2
+
+;
+
+Fig.1: The UGV coordinate system
+
+2.3
+
+are the speeds of the UGV in the inertial coordinate.
+One of the necessary and sufficient conditions for a
+motion constraint to be a non-holonomic constraint is that
+the accessible distribution dimension i of the system is
+greater than m (where m is the dimension of [ minus the
+
+[
+
+Tracking Problem Description
+
+To transform the tracking problem into mathematical
+problems, a Cartesian coordinate system is established as
+shown in Fig.2.
+<
+
+number of constraints). From equation (2), [ is in the zero
+space of the constraint matrix  [ . The zero space is
+composed of two column matrices ( G 1 and G 2 ) and the
+relationship is as follows:
+ª cos E 0 º
+(3)
+>G1 G 2 @ = «« sin E 0 »»
+«¬ 0
+1 »¼
+
+Yr
+
+²
+
+¢
+¤
+©
+Y0
+
+&
+
+The dynamic model of the UGV is as follows:
+
+ªcos E º
+ª0º
+«
+»
+[ « sin
+i E » ulinear  ««0 »» uangular
+(4)
+«¬ 0 »¼
+«¬1 »¼
+where ulinear is the linear velocity control amount and uangular
+
+2
+
+Xr
+
+;
+
+Fig.2: Target tracking schematic diagram
+
+is the angular velocity control amount.
+2.2
+
+X0
+
+Kinematic Model Establishment
+
+The kinematic model can reflect the relationship among
+the current state variables of the UGV and can describe the
+
+3690
+
+where U is the distance between the current position and
+the target position in the coordinate of the UGV. J is the
+angular deviation of the current attitude and the target
+attitude of the UGV. T is the angle between the current yaw
+angle of the UGV and the positive direction of the X-axis in
+the global coordinate system. D is the angle between the
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:09 UTC from IEEE Xplore. Restrictions apply.
+
+line from the current position to the target position and the
+
+>Xr
+
+positive direction of the X-axis. qr
+
+Performance
+identification
+
+Yr @ is the target
+T
+
+position in the global coordinate. Assume that the current
+
+knowledge base
+
+> X 0 Y0 @ . Position deviation
+T
+
+position of the UGV is q0
+
+inference engine
+
+qe is as follows:
+
+qe
+
+ªXe º
+«Y »
+¬ e¼
+
+qr  q0
+
+ªXr  X0 º
+« Y Y »
+¬ r 0 ¼
+
+Parameter
+adjustment
+
+(6)
+PID controller
+
+The polar coordinate system > U J @ is as follows:
+T
+
+el
+ea
+
+U
+J
+
+Fig.3: Expert controller composition diagram
+
+(7)
+where e p is the position deviation and attitude deviation of
+the UGV in the global coordinate.
+e p > el ea @
+
+(8)
+The position deviation analysis graph is shown in Fig.2.
+According to the geometric relationship, the position
+deviation and angle deviation are as follows:
+X e2  Ye2
+
+el
+
+D
+
+(9)
+
+arctan 2(Ye , X e )
+
+(10)
+Finally, the deviation from the current angle to the target
+point of the UGV is as follows:
+ea D  T
+(11)
+
+3
+
+Target Tracking Control Algorithm
+
+Expert PID control belongs to intelligent control, with the
+characteristics of rapidity, stability and anti-interference.
+The design of the expert control rules is simpler than other
+intelligent control algorithms, such as fuzzy control, neural
+network control and genetic algorithm control. The
+mathematical model of the expert controller is as follows:
+U f E, K , I
+(12)
+where f is an intelligent control function, and the basic
+form is: IF E AND K THEN ( IF I THEN U ).
+E ^e1 , e2 , , em ` is the controller input set, K ^k1 , k2 , , k n `
+
+^
+
+is the knowledge base, I i1 , i2 ,
+
+U ^u1 , u2 ,
+
+Controlled object
+
+, i p ` is inference engine,
+
+First, the motion controller is divided into two channels,
+namely linear velocity controller and angular velocity
+controller, which are designed according to equation (8).
+The linear velocity PID controller uses el to generate the
+control amount. The linear velocity controller is designed as
+follows:
+de t
+(13)
+ulinear k pl * el t  kil * ³ el t dt  kdl * l
+dt
+where k lp , k il , k dl are the parameters of linear controller.
+The angular velocity PID controller uses ea to generate the
+control amount. The angular velocity controller is designed
+as follows:
+de t
+uangular k pa * ea t  kia * ³ ea t dt  kda * a
+(14)
+dt
+where k pa , k ia , k da are the parameters of angular controller.
+The control amount is passed to the underlying driver, it
+converts the PID control amount into the desired speed of
+the two drive wheels. The speed of the drive wheels is
+measured by the encoder and fed back to the underlying
+driver. The underlying driver controls the speed of the two
+drive wheels separately through the underlying PID
+controller.
+qr
+
+ªXr º
+«Y »
+¬ r ¼
+
+q0
+
++
+
+qe
+
+_
+
+ªXe º
+«Y »
+¬ e ¼
+
+Expert
+parameter
+adjustment
+
+ªX0 º
+«Y »
+¬ 0 ¼
+
+Linear speed
+measuring device
+
+, ul ` is the control output.
+
+According to the knowledge base K , the controller input
+set E is inferred to determine the parameter adjustment by
+I and the controller output U is calculated by f .
+The core of the expert controller is the knowledge base
+and the inference engine. According to different functions in
+the control system, the expert controller is divided into direct
+type and indirect type. According to the demand, the direct
+type expert controller is used. In general, the expert
+knowledge base has only a dozen control rules, which is
+convenient to modify and transplant. During the parameter
+adjustment process, the pre-established expert rules are
+matched, and the parameters of the controller are adjusted.
+The structure is shown in Fig.3.
+
+3691
+
+D
+
++
+T
+
+Linear speed
+PID controller
+
+J
+
+_
+
+Expert
+parameter
+adjustment
+
+Angular speed
+PID controller
+
+u linear
+
+UGV
+
+uangular
+
+Angular speed
+measuring device
+
+Fig.4: Expert PID control system
+
+When the UAV moves in the direction of the UGV motion
+constraint, the control amounts of the linear velocity and the
+angular velocity are simultaneously applied to the
+underlying driver, and the UGV needs to take a long route
+to track the UAV. To solve this problem, an expert PID
+controller is designed. The expert parameters adjustment
+adjusts the PID parameters according to the knowledge base
+so that the UGV can correct the angular deviation and
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:52:09 UTC from IEEE Xplore. Restrictions apply.
+
+

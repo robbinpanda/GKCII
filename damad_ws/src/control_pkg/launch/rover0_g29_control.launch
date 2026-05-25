@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="joy" type="joy_node" name="joy_node" output="screen" />
+	<node pkg="control_pkg" type="rover0_g29_control.py" name="g29_gazebo_control" output="screen" />
+	<rosparam command="load" file="$(find g29_force_feedback)/config/g29.yaml" />
+	<node pkg="g29_force_feedback" type="g29_force_feedback_node" name="g29_feedback" output="screen" />
+</launch>

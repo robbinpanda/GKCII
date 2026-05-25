@@ -1,0 +1,323 @@
+2020 5th International Conference on Advanced
+Robotics and Mechatronics (ICARM)
+
+A Two-level Memetic Path Planning Algorithm for Unmanned
+Air/Ground Vehicle Cooperative Detection Systems
+Lijia Ma, Xiaopeng Huang, Jie Chen, Jianqiang Li, and Tao Sun
+Abstract— The Unmanned Air/Ground Vehicle (UAV/UGV)
+cooperative detection systems are widely used in terrain reconnaissance, disaster rescue and urban/rural buildings survey,
+in which the UAV in the air can provide a broad view and
+take photography, while the UGV on the ground can offer
+sufﬁcient load capacity and serve as repeater stations as well.
+The path planning of UAV/UGV is one of the most important
+issues in the cooperative detection system, and its studies have
+attracted great attentions in recent years. In this study, a twolevel memetic path planning algorithm is proposed to help
+the unmanned air/ground vehicle cooperative systems detect
+realistic urban illegal building, considering the limits of the endurance capacity of the UAV, the load capacity of the UGV, and
+the communication restrictions between them. Experiments on
+both the synthetic data and the realistic urban illegal building
+data show the effectiveness of the proposed algorithm on solving
+the path planning problem in the UAV/UGV cooperative system
+for urban illegal building detection tasks.
+
+The path planning is one of the most common but important issues in UAV/UGV cooperative systems for real tasks
+in the presence of the limits of the endurance capacity of the
+UAV, the load capacity of the UGV, the obstacles and the
+communication restrictions [14]–[16]. Most of the existing
+works mainly focus on the path planning of either UAVs
+or UGVs, see the comprehensive review in [17]. Recently,
+some works have been proposed for the path planing in
+both UAVs and UGVs in real tasks. For instance, in the
+target tracking mission, Yu et al. [6] considered the path
+planning as a probability maximization problem by modeling
+the moving target state as the dynamic occupancy grid. In
+the reconnaissance mission, Manyam et al. [18] developed a
+mixed integer linear programming (MILP) algorithm with a
+branch-and-cut strategy to plan the paths for the UAV and
+UGV, considering the communication constraints between
+the aerial and ground vehicles. In the autonomous package
+delivery tasks, Mathew et al. [19] solved a shortest path
+planning problem under the limitations that the truck can
+only drive on the existing street and the quadrotor should
+visit all the given locations to deliver packages. Actually,
+the path planing problem of UAV/UGV cooperative systems
+can be generalized to the Travelling Salesman Problem (TSP)
+[20] in the presence of some limits for real tasks, and it can
+be solved by some classic heuristic algorithms, such as the
+ant colony algorithm [21], the simulated annealing algorithm
+[22], the genetic algorithm [23] and the memetic algorithm
+[24].
+In this paper, we study the path planning of the UAV/UGV
+cooperative systems with camera for the detection of nonstandard buildings in cities. The UAV has the advantages
+in speed and vision, while the UGV has the advantages
+in capability and stability. Moreover, the UAV is generally
+limited by its energy and load capability, while the UGV
+is limited by its speed and vision. In a city, the buildings
+that need to be detected are widely distributed into a large
+area, and their non-standard objects are located in different
+heights. Although some works about the path planning of
+UAV or UGV detection systems has been proposed, the path
+planning of UAV/UGV cooperative systems remains to be
+unsolved. Moreover, the traditional UAV or UGV detection
+systems cannot work well for the detection of non-standard
+buildings in cities due to their limits.
+To detect non-standard buildings in cities, we propose a
+UAV/GAV cooperative detection system. In this system, the
+UGV can carry the UAV and meanwhile charge the drone
+automatically, while the UAV can take a photo for the nonstandard buildings from an aerial perspective. Moreover, we
+
+Unmanned Air/Ground Vehicle, cooperative detection systems, path planning, memetic algorithm
+I. I NTRODUCTION
+In recent years, the studies on the Unmanned Air/Ground
+Vehicle (UAV/UGV) cooperative detection systems have attracted great attentions due to their wide applications on both
+military and civilian ﬁelds, such as terrain reconnaissance
+[1]–[3], border patrol [4], [5], target tracking [6], [7] and
+disaster rescue [8], [9]. The UAVs in the air have a fast
+ﬂight speed and broad vision, which can quickly negotiate
+obstacles and traverse multiple locations. The UGVs on
+the ground have a good endurance capability and stability,
+which can load supplies and travel a long distance [10]. The
+cooperation of UAVs and UGVs can comprehensively realize
+their advantages on the realistic complicated tasks in terms
+of speed, vision, capability and stability.
+The UAV/UGV cooperative systems [9], [11] consist of
+independent cooperative unmanned aerial vehicles (UAVs),
+unmanned ground vehicles (UGVs) and the control center,
+aiming to coordinate the UAVs and UGVs to complete realistic tasks while maintaining the communication restrictions
+between the vehicles and the control center [12], [13]. For
+instance, in a task of disaster relief, UAVs obtain the geomorphic information and send the aerial map to the ground
+monitoring center, while UGVs provide relief supplies to the
+disaster area based on the aerial map and the path planing
+generated by the ground monitoring center [9].
+College of Computer Science and Software Engineering Shenzhen University, Shenzhen 518060, China {Corresponding author: Jianqiang Li
+(lijq@szu.edu.cn).}
+Corresponding author: Jianqiang Li (lijq@szu.edu.cn).
+
+978-1-7281-6479-3/20/$31.00 ©2020 IEEE
+
+25
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:40 UTC from IEEE Xplore. Restrictions apply.
+
+2020 5th International Conference on Advanced
+Robotics and Mechatronics (ICARM)
+
+propose a two-level memetic path planning algorithm (called
+as Two-MA) to help the UAV/GAV system detect realistic
+urban illegal building, considering the limits of the endurance
+capacity of the UAV, the load capacity of the UGV, and
+the communication restrictions between them. Two-MA ﬁrst
+adopts a K-means algorithm to divide the buildings in cities
+into clusters, in which the buildings in the same clusters are
+closer than those in different clusters. Then, Two-MA uses
+the concept of hierarchical path planning, in which the UGV
+executes the global path planning across different clusters
+while the UAV executes the local path planning of buildings
+in the same clusters. Experiments on both the simulated data
+and the real data demonstrate the effectiveness of the twoMA algorithm.
+
+6WDUW
+&OXVWHULQJDQDO\VLVRIWKHORFDWLRQLQIRUPDWLRQ
+3DWK3ODQQLQJIRUFRRSHUDWLYH8$9DQG8*9
+8*9FDUULHV8$9WRWKHVWDUWLQJSRVLWLRQLQVWDUWLQJFOXVWHU
+1R
+
+8$9FROOHFWVLQIRUPDWLRQZLWKLQWKHFOXVWHUWKHQUHWXUQVWR8*9
+8*9FDUULHV8$9WRWKHQH[WVWDUWLQJSRVLWLRQLQQH[WFOXVWHU
+
+7KHFXUUHQWSRVLWLRQ
+KDVYLVLWHG"
+
+II. R ELATED BACKGROUNDS
+
+<HV
+7HUPLQDWH
+
+A. The UAV/UGV cooperative system
+The UAV/UGV cooperative system consists of UAVs,
+UGVs and a control center. The UAVs perform aerial
+photography in the air, while the UGVs execute loading
+and transportation on the ground. Moreover, the UGV can
+serve as the take off and landing for the UAV. The control
+center executes the compute-intensive tasks such as data
+transmission, data processing, task scheduling and vehicles
+coordinating. For instance, in the intelligence surveillance
+and reconnaissance (ISR) mission, the control center ﬁrst
+plans the path and dispatchs asynchronous tasks for the
+UAV and UGV, then processes the data transmitted from
+UAV/UGV to give further instructions. A comprehensive
+survey for the UAV/UGV cooperative system is shown in
+[25]. An experimental cooperative UAV/UGV cooperative
+system is shown in Fig. 1.
+
+Fig. 2: Framework of the system model.
+
+T SP (G) = min (
+
+Di Di+1 + DN D1 ),
+
+(1)
+
+i=1
+
+in which Di Di+1 represents the distance from a build i to
+a building i + 1 in cities for the task of detection of nonstandard buildings.
+III. M ODELS AND M ETHODS
+In this part, we introduce the heterogeneous multirobot
+team with cooperative UAV and UGV to complete tasks of
+detection of non-standard buildings in cities.
+The whole framework of the cooperative system is shown
+in Fig. 2. Generally, the operations of the systems consists
+of three steps: clustering analysis, path planning for the UAV
+and the path planning for the UGV.
+Step 1) Clustering analysis. Generally, the buildings in
+a cite are widely distributed into a large area, and their nonstandard objects are located in different heights. To quickly
+ﬁnd a good path, we ﬁrst divide the areas with buildings
+into a set of clusters, in which the buildings in the same
+cluster are close whereas those in different clusters are far.
+Here, we choose the K-means clustering algorithm [26] to
+generate clusters for buildings based on the Global Position
+System (GPS) data. The reason for choose K-mean clustering
+algorithm is that it can can achieve a good tradeoff between
+the clustering effect and the time complexity.
+Considering the limits of the endurance capacity of the
+UAV, the load capacity of the UGV, and the communication
+restrictions between them, we use the UAV to gather image
+information of the buildings for further analyses within the
+cluster, and use and the UGV to carry the UAV to traverse
+different clusters.
+Step 2) Path planning for the UAV.
+
+Fig. 1: A real UAV/UGV cooperative system for experiments.
+B. Path planning in UAV/UGV cooperative systems
+Here, the path planning problem in UAV/UGV cooperative
+system aims to ﬁnd the shortest path from a given position
+to a destination position which passes through all buildings.
+This problem can be modeled as a typical travelling salesman
+problem (TSP) [20] which is a classical NP-hard problem.
+Given n possible positions, the path planning problem
+aims to ﬁnd a possible path G across the n positions, so as to
+minimize the distance of the paths. It can be mathematically
+described as follows.
+978-1-7281-6479-3/20/$31.00 ©2020 IEEE
+
+N
+−1
+
+
+26
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:40 UTC from IEEE Xplore. Restrictions apply.
+
+2020 5th International Conference on Advanced
+Robotics and Mechatronics (ICARM)
+
+Algorithm 1 K-Means clustering algorithm
+
+The UAV within a cluster starts from the center of a
+cluster, and then passes through the rest of positions. Finally,
+it returns to the center of the cluster. Therefore, the path
+planing of the UAV can be modeled as a traveling salesman
+problem (TSP) from the node novel, which needs to ﬁnd a
+shortest path that travels all nodes in a cluster. To solve this
+TSP problem, we propose a memetic algorithm which is a
+combination of a genetic algorithm [23] and a local search.
+Step 3) Path planning for the UGV. The UGV aims
+to carry the UAV across different clusters. In this case,
+the path planning for the UGV across different clusters
+can be modeled as the TSP problem for the cluster level.
+Speciﬁcally, the path planning problem for the UGV aims
+to ﬁnd a shortest path that travels the centers of all clusters.
+To solve the TSP problem in the cluster level, we adopt the
+proposed memetic algorithm for the path planning of UAV
+when we set each cluster as a super node.
+Step 4) Geographic information collection. Based on
+the planned paths for the UAV and UGV, the heterogeneous
+cooperative system collects the geographic information of the
+buildings as follows. First, the UVA carries the UAV to the
+center of a cluster. Then, the UAV collects the information
+of the buildings within the cluster based on the UAV path.
+Next, the UGV carries the UAV to the next cluster based
+on the UGV path. The steps above are executed until all
+information of the buildings are collected.
+A graphical representation of the whole system is given
+in Fig. 3.
+
+1: Input: The number of clusters: k; The maximum number
+
+of iteration: Imax ; The original dataset: G.
+
+2: E ← InitializeCentroids(G, k);
+3: repeat
+4:
+C ← PartitionClusters(E);
+5:
+Enew ← RecomputationCentroids(G,C);
+6:
+E ← UpdateCentroids(G,Enew );
+7: until TerminationCriterion(Imax )
+8: Output: The k centroids E and cluster divisions C.
+
+Algorithm 2 Framework of Two-MA for path planing
+1: Input: Position indexes: C; Population size: Spop ; Max-
+
+imum number of generations: Gmax ; Crossover probability: Pc ; Mutation probability: Pm ; The size of mating
+pool: Nm ; the tournament size: Nt ;
+2: P ← Initialization(C, Spop );
+3: repeat
+4:
+Pparent ← Selection(P, Nm , Nt );
+5:
+Pchild ← GeneticOperation(Pparent , Pc , Pm , Nt );
+6:
+Pnew ← LocalSearch(Pchild );
+7:
+P ← UpdatePopulation(Pnew );
+8: until The current iteration reaches Gmax .
+9: Output: Convert the ﬁttest chromosome in P into the
+path of UAV/UGV.
+
+data are collected by the Global Positioning System (GPS),
+containing two dimensions representing the longitude and
+latitude of the buildings, respectively. The K-Means clustering algorithm can divide the original data into k different
+clusters based on the k initial centroids, where k is predeﬁned
+number of clusters . The framework of K-Means clustering
+algorithm is given as Algorithm 1.
+In Algorithm 1, the InitializeCentroids() procedure randomly selects k nodes in the dataset as the initial centroids
+E, then the PartitionClusters() operation divides the nodes
+into k clusters C based on the initial centroids E. The nodes
+that partitioned into the same cluster share the nearest mean.
+The RecomputationCentroids() function computes new centroids Enew in the current clustering division C. The whole
+algorithm is terminated when the iteration reaches the Imax
+or the centroids E are no longer changed.
+
+Fig. 3: Graphical representation of the system model. The
+dotted circles represent different clusters, and the red/blue
+nodes represent the start position of the UAV path in clusters.
+
+B. Two-MA for path planning for the UAV and UGV
+Two-MA aims to minimize the objective in Eq. (1) (minimize the distance of paths) for the UAV and UGV by simultaneously optimizing a population of solutions. The framework
+of Two-MA for path planing is given as Algorithm 2, and
+the corresponding operations are detailed next.
+1) Initialization: In the initialization step, the Initialization() function randomly generates the initial population with
+Spop individuals, in which each individual C represent a
+possible planning path. Speciﬁcally, the position indexes
+C are a set of positions’ indexes {Ci ∈ 1, 2, . . . , N }N ,
+and the planning path passes through all buildings from
+
+In the following, the K-means clustering algorithm and the
+proposed memetic algorithm are described.
+A. K-means clustering algorithm
+Many clustering algorithm can be used to ﬁnd the clusters
+of buildings in cites, including K-Means clustering [26],
+Mean-Shift clustering [27], Density-Based Spatial Clustering
+[28] and Hierarchical clustering [29]. Here the K-Means
+clustering algorithm is adopted due to its low computational
+complexity and good clustering effect. The urban buildings
+978-1-7281-6479-3/20/$31.00 ©2020 IEEE
+
+27
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:40 UTC from IEEE Xplore. Restrictions apply.
+
+

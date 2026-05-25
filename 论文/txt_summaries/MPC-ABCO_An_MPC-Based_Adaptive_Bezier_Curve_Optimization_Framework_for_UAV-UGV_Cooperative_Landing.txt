@@ -1,0 +1,390 @@
+11134
+
+IEEE ROBOTICS AND AUTOMATION LETTERS, VOL. 10, NO. 11, NOVEMBER 2025
+
+MPC-ABCO: An MPC-Based Adaptive Bezier Curve
+Optimization Framework for UAV-UGV
+Cooperative Landing
+Haiqi Li , Lei Qiang, Zihao Wu , Jiajun Chen , Yinsong Sun , and Xinbo Li
+
+Abstract—This letter addresses the approach of enabling a UAV
+to autonomously land on an agile UGV that moves irregularly with
+sudden accelerations, decelerations or abrupt turns, where existing
+methods have limitations in handling nonlinear dynamics and visual recognition errors in high-dynamic situations. To overcome
+these limitations, we present a real-time UAV-UGV cooperative
+landing framework that integrates Model Predictive Control and
+Adaptive Bezier Curve Optimization (MPC-ABCO) to achieve
+UGV’s position prediction and UAV’s trajectory forecasting, ensuring robust performance in high-dynamic scenarios. MPC-ABCO
+utilizes an MPC model to predict the UGV’s future states by
+leveraging odometry data to model UGV’s kinematic dynamics.
+Concurrently, the UAV’s landing trajectory is optimized by Bezier
+curves, with waypoints dynamically updated by considering UGV’s
+relative future positions detected by AprilTag code. Experimental
+results demonstrate that the proposed framework achieves an average landing deviation below 5 cm for UGV’s steering velocities up to
+5 m/s under no-acceleration stations. When the UGV follows irregular paths with random accelerations, MPC-ABCO outperforms
+traditional strategies in both landing success rate and accuracy,
+maintaining reliable performance at maximum velocities of 5 m/s.
+Index Terms—Unmanned Aerial Vehicle (UAV), dynamic
+landing, computer vision, model predictive control (MPC), Bezier
+curve, multi-robot system.
+
+I. INTRODUCTION
+HE convergence of Unmanned Aerial Vehicles (UAVs) and
+Unmanned Ground Vehicles (UGVs) has revolutionized
+robotics applications, e.g., automated vehicle systems, intelligent monitoring systems, and military reconnaissance systems [1], [2]. Among these, precise landing of UAVs on dynamically moving UGVs serves a critical enabling technology,
+directly impacting mission success and efficiency. Extensive
+researches have established reliable solutions for precise landing
+under static or low-dynamic conditions, which can be generally
+classified as follow paradigms:
+1) Pure vision-based methods
+
+T
+
+Received 30 April 2025; accepted 18 August 2025. Date of publication 5
+September 2025; date of current version 17 September 2025. This article was
+recommended for publication by Associate Editor D. Salda?a and Editor M. Ani
+Hsieh upon evaluation of the reviewers’ comments. (Corresponding author:
+Xinbo Li.)
+The authors are with the College of Communication Engineering, Jilin
+University, Changchun 130025, China (e-mail: lihq2022@mails.jlu.edu.cn;
+3022768464@qq.com; zhwu2022@mails.jlu.edu.cn; mitiylite@outlook.com;
+sunys2004@foxmail.com; xb_li@jlu.edu.cn).
+This article has supplementary downloadable material available at
+https://doi.org/10.1109/LRA.2025.3606796, provided by the authors.
+Digital Object Identifier 10.1109/LRA.2025.3606796
+
+2) Predictive control methods
+3) Trajectory-optimization solutions
+4) Learning-based adjusting control strategy
+5) Cooperative systems
+Vision-guided methods typically design various QR-codes
+to achieve precise landing, which provide relative positioning
+between camera frame on UAV and target frame on UGV [3],
+[4], [5]. To get better ability of control, predictive controllers are
+applied to achieve the landing tasks. Based on model predictive
+control (MPC), unmeasured disturbances are rejected and visual
+targets can be tracked by UAV smoothly and stably in constantspeed or non-linear situations. In [6], a controller integrating
+fuzzy logic and MPC is proposed for tracking the expected path,
+which has high accuracy and small error. Nonlinear complexity
+of UAV can also be solved by nonlinear models [7]. Combined
+with rapid control law, good transient performance is achieved
+in [8] to avoid losing sight of the target. Novel applications such
+as a UAV landing on a moving UAV can also be realized using
+MPC [9].
+Trajectory-based predictive method allows any controller
+to follow in dynamic scenarios. A model-free proportionalintegral-derivative (PID) controller is designed in [10] to follow
+dynamic trajectory for dynamic landing, which demonstrates
+enough precision. Different trajectory generation methods can
+achieve different tasks. To illustrate, examples include the accomplishment of the UAV-USV ocean landing process via MPCbased trajectory planning, as well as adaptive self-calibrated
+UAV control enabled by observer-aware trajectory design [11],
+[12]. Compared with learning-based dynamic control models,
+parameters are easier to define to achieve rapid response and predictive trackings towards moving target without trainings [13],
+[14], [15].
+The cooperative framework significantly enhances flexibility
+and high-dynamic performance when compared to other solutions. [16] introduces Cooperative Non-inertial Frame Based
+Model Predictive Control (CoNi-MPC), a method that requires
+only relative position and inertial measurement unit (IMU)
+data to accomplish complex tasks at velocities below 0.5 m/s.
+Moreover, a UAV-USV cooperative framework has demonstrated the capability to achieve constant-speed landing at speeds
+under 2 m/s even in the presence of wind disturbances [17],
+while trajectory-integrated cooperative approaches can generate
+more optimized landing routes [18], [19]. As presented in Table I, a detailed comparison between existing methods and our
+
+2377-3766 © 2025 IEEE. All rights reserved, including rights for text and data mining, and training of artificial intelligence and similar technologies.
+Personal use is permitted, but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:24 UTC from IEEE Xplore. Restrictions apply.
+
+LI et al.: MPC-ABCO: AN MPC-BASED ADAPTIVE BEZIER CURVE OPTIMIZATION FRAMEWORK FOR UAV-UGV COOPERATIVE LANDING
+
+TABLE I
+RELIABLE LANDING METHODS
+
+11135
+
+II. CHALLENGES AND PROPOSED MODEL
+A. Preliminaries of Dynamic Landing
+Dynamic landing of UAVs on UGVs faces two main limitations: nonlinear motion dynamics of UGVs and limitations of
+sensor-based localization, which together disrupt reliable state
+estimation, trajectory planning, and closed-loop control.
+Current approaches either focus on static or low-dynamic
+scenarios [4], [10], [21], [22]. Traditional trajectory generators
+fail to anticipate UGV motion, leading to lag behind UGV future
+states, thus causing landing failure in high-dynamic scenarios.
+Closed-loop control systems often use simplistic error correction, unable to handle the nonlinearity and uncertainty inherent
+in agile UGV motions. The convergence of UGV nonlinear
+dynamics and sensor limitations has created a complex control
+problem where accurate state prediction, adaptive trajectory generation, and robust feedback control must be tightly integrated.
+To overcome these limitations, we propose a unified framework that models UGV motion with sufficient fidelity, fuses
+heterogeneous sensor data (UGV odometry and UAV vision)
+in a closed-loop manner, and generates trajectories that respect
+both the UAV dynamics and real-time constraints.
+
+Fig. 1. Illustration of the UAV-UGV Cooperative Landing Process. The UAV
+detects target in (a), generates trajectory in (b), and continuously updates
+trajectory in (c).
+
+proposed approach is provided, with a focus on their “Dynamic
+prediction” capabilities which enable UAV to forecast a predicted trajectory according to UGV motions.
+In this letter, we propose a novel strategy composed of AprilTag visual guidance, UAV dynamic trajectory optimization and
+MPC-based UGV state predictor. Compared with pure MPCbased UAV trajectory generation method [11] or MPC-based
+UAV controller augmented with target state data [16], [18],
+we integrate Bezier curves generated by UAV and a positionvelocity-acceleration based UGV MPC model to achieve both
+predictive performance and resistance to errors caused by acute
+acceleration, which has greater high-dynamic performance.
+With the application of XTDrone simulation in ROS [20], we
+establish a predictive landing strategy based on UAV-UGV cooperative working, which is shown in Fig 1. The main contributions
+of this letter are summarized as follows:
+r The MPC model of UGV enables smooth prediction of next
+states even if UGV undergoes velocity changes or position
+diversion.
+r We propose a Bézier curve-based UAV trajectory, which is
+optimized for real-time trackability using a PID controller..
+r We present a multi-agent framework integrating UGV’s
+future odometry and UAV’s relative position.
+The rest of this letter is organized as follows. In Section II,
+the overall architecture of the proposed framework and the
+implementation methods of each sub-model are presented. In
+Section III, the performance of this system is analyzed. In Section IV, the functionality of the system is verified by integrating
+with the experimental results. Finally, the letter is concluded in
+Section V.
+
+B. Proposed Framework
+MPC-ABCO has three modules: real-time UGV state estimation, UAV trajectory generation and PID controller. Notably,
+the UGV continuously transmits its odometry data to the UAV
+through wireless communication, forming the foundational input for cooperative control.The closed-loop cooperation of these
+modules enables the landing process to be smooth and precise
+in high-dynamic scenarios.
+The MPC-based prediction module firstly provides predicted
+position information for UAV trajectory generation module.
+Running on the UAV’s onboard computer, this module leverages
+the received UGV odometry data to predict position deviations via MPC algorithm, quantifying the potential mismatch
+between the UGV’s actual motion and its predicted trajectory.
+The generated trajectory points are then sent to the PID controller. As the UAV flies and the UGV moves, the prediction
+module continuously updates the UGV’s predicted states by
+rolling optimization, and the trajectory module acquires the
+updated predicted position combined with the UAV’s visually
+detected AprilTag position as the end point to regenerate the
+trajectory. This closed-loop operation is able to handle dynamic
+environmental changes and vehicle uncertainties effectively.
+To elucidate, when the UGV moves randomly, MPC-ABCO
+could compensate for sudden influences and handle extreme
+interference even if computer vision is transiently unable to
+detect continuously. The corresponding framework is shown in
+Fig. 2.
+
+C. The Predicted Model of UGV
+The UGV’s planar motion is modeled using an extended
+state vector x = [x, y, ẋ, ẏ, ẍ, ÿ]T , where (x, y) denote position,
+(ẋ, ẏ) velocity, and (ẍ, ÿ) acceleration. The discrete-time state
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:24 UTC from IEEE Xplore. Restrictions apply.
+
+11136
+
+IEEE ROBOTICS AND AUTOMATION LETTERS, VOL. 10, NO. 11, NOVEMBER 2025
+
+The cost function minimizes control energy by penalizing large
+acceleration inputs and the solution produces the optimal state
+trajectory over the prediction horizon:
+X∗pred = x∗k+1|k , x∗k+2|k , . . . , x∗k+N |k ,
+
+(6)
+
+The position deviation vector is extracted from the final predicted state of UGV:
+∗
+Δpmpc = x∗k+N |k , yk+N
+|k
+
+T
+
+,
+
+(7)
+
+D. UAV Trajectory With Sensor Fusion
+The UAV camera detects AprilTag markers, providing visual
+target position pvis = [xvis , yvis , zvis ]T . This is fused with MPC
+predictions:
+Fig. 2. System framework of MPC-ABCO. UAV detects AprilTags to get
+relative UGV position, integrates UGV’s future states via sensor fusion to
+generate adaptive trajectory.
+
+xk+1 = Axk + Buk ,
+Ts2
+2
+
+0
+Ts
+0
+1
+0
+
+0
+
+⎤
+
+(1)
+⎡ Ts3
+6
+
+⎢
+⎢0
+⎢T2
+⎢ s
+⎥
+0⎥
+2
+, B=⎢
+⎢
+⎥
+Ts ⎥
+⎢0
+⎢
+⎥
+⎣ Ts
+0⎦
+1
+0
+Ts2 ⎥
+2 ⎥
+⎥
+
+0
+
+Ts3
+
+⎤
+⎥
+
+6 ⎥
+⎥
+
+0⎥
+⎥ , (2)
+Ts2 ⎥
+2 ⎥
+⎥
+0⎦
+Ts
+
+where Ts = 0.15 s is the prediction interval.
+Due to odometer drift of position and the fluctuation with
+spikes, the data is filtered by a Low-Pass Filter(LPF):
+odo
+p̂odo
+k = αpk + (1 − α)p̂k−1 , α = 0.15,
+
+(3)
+
+This recursive filter reduces high-frequency noise in position
+(x, y) and velocity (ẋ, ẏ) measurements α = 0.15 provides a balance between noise reduction and responsiveness. The filtered
+ˆodo , ẏˆodo ]T are then used to compute
+linear velocities v̂kodo = [ẋ
+k
+k
+the acceleration inputs:
+
+T
+ˆodo ẏˆodo − ẏˆodo
+ˆodo − ẋ
+ẋ
+k
+k−1
+k−1
+T
+uk = [ux,k , uy,k ] =
+, k
+, (4)
+Ts
+Ts
+These accelerations form the control inputs for the MPC framework. Then, a cost function is minimized over a prediction
+horizon N (N = 5) while satisfying acceleration constraints,
+which is designed to balance the tracking accuracy of system
+states and the cost of control inputs. It is formulated as follows:
+N −1
+
+min
+u
+
+uk+t|k 2 ,
+
+(8)
+
+Low-pass filtering (kf n = 0.8) smooths the fused position:
+p̂fused = kf n padjusted + (1 − kf n )p̂adjusted ,
+
+transition equation is:
+
+with system matrices:
+⎡
+1 0 Ts 0
+⎢
+⎢ 0 1 0 Ts
+⎢
+⎢0 0 1
+0
+A=⎢
+⎢0 0 0
+1
+⎢
+⎢
+⎣0 0 0
+0
+0 0 0
+0
+
+padjusted = pvis + Δpmpc ,
+
+(9)
+
+The fused position serves as the endpoint of UAV trajectory:
+P(t) = (1 − t)3 P0 + 3(1 − t)2 tP1 + 3(1 − t)t2 P2 + t3 P3 ,
+(10)
+where P0 = (x0 , y0 , z0 ) is the UAV’s current position,
+P3 = p̂fused is the target position, and P1 and P2 are intermediate control points.
+We define the intermediate control points in (11):
+⎧
+⎪
+⎨x1 = x0 + (x3 − x0 ) · α · γ + Δx · β,
+y1 = y0 + (y3 − y0 ) · α · γ + Δy · β,
+⎪
+⎩
+z1 = z0 + (z3 − z0 ) · α + δ,
+⎧
+⎪
+⎨x2 = x0 + (x3 − x0 ) · (1 − α) · γ + Δx · β,
+(11)
+y2 = y0 + (y3 − y0 ) · (1 − α) · γ + Δy · β,
+⎪
+⎩
+z2 = z0 + (z3 − z0 ) · (1 − α) + δ.
+
+r α (0 < α < 1) is the influence coefficient that adjusts the
+proportion of control points between the start and target
+positions, set to 0.15 to balance noise suppression and
+responsiveness in trajectory generation.
+r γ is the height compensation factor related to vertical
+displacement, which modifies horizontal offsets based on
+altitude changes to ensure trajectory smoothness, with a
+value of 0.5.
+r β is the motion trend weight incorporating target movement
+prediction, enhancing tracking performance by prioritizing
+future target positions, and is set to 0.8.
+r δ is the vertical offset specifically designed to avoid ground
+collision, providing a safety margin with a value of 0.5.
+III. ANALYSIS
+
+t=0
+
+s.t. xk+t+1|k = Axk+t|k + Buk+t|k , t = 0, 1, . . . , N − 1,
+− amax ≤ ux,t , uy,t ≤ amax , t = 0, 1, . . . , N − 1.
+(5)
+
+The proposed UAV-UGV cooperative landing method (MPCABCO) demonstrates superior performance leveraging integrated dynamic prediction, trajectory optimization, and adaptive
+control mechanisms. This section evaluates system performance
+from three critical perspectives: UGV motion prediction ability,
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:24 UTC from IEEE Xplore. Restrictions apply.
+
+

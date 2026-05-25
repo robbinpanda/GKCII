@@ -1,0 +1,325 @@
+2022 IEEE MIT Undergraduate Research Technology Conference (URTC) | 978-1-6654-7345-3/22/$31.00 ©2022 IEEE | DOI: 10.1109/URTC56832.2022.10002208
+
+UAV and UGV Autonomous Cooperation for
+Wildfire Hotspot Surveillance
+Diego Pasini, Charles Jiang
+Marie-Pierre Jolly
+∗
+
+The Pingry School–Basking Ridge, NJ, USA
+Emails: {dpasini2023, cjiang2023, mjolly}@pingry.org
+Abstract—As wildfires burn millions of acres each year around
+the globe and have become more severe due to climate change,
+wildfire prevention is more important now than ever. Existing
+wildfire surveying techniques such as hotspotting and cold
+trailing require human interventions that can lead to dangerous
+situations or satellite imagery which does not provide realtime data on hotspots. To address this problem, we propose
+a low-cost and effective integrated system of robots composed
+of an unmanned aerial vehicle (UAV, or drone) and unmanned
+ground vehicle (UGV, or rover) that autonomously cooperate and
+pathfind to detect and investigate hotspots. The UAV monitors a
+post-forest fire area from the air and uses aerial footage to create
+long-term direction for the UGV to inspect specific suspected
+hotspots. The UGV then follows the path to investigate each
+hotspot with centimeter-level accuracy. Testing of the pathfinding
+system with satellite imagery yielded highly accurate and consistent results necessary for high-precision autonomous navigation
+when investigating hotspots in dynamic environments.
+
+Fig. 1. Overview of the UAV and UGV Cooperative System
+
+I. I NTRODUCTION
+Wildfires have an enormous human, environmental, and economic impact on society. In addition to lost human lives and
+massive carbon emissions, wildfires cost over $16 billion in
+damages to structures and fire management alone in the US in
+2020 [1]. An essential part of wildfire prevention is identifying
+hotspots which are loose embers that stem out of a larger fire
+and light smaller pockets of fire. Currently, hotspotting relies
+on different techniques: watch towers, firefighters, satellite
+imagery, and aircraft. Watch towers can be expensive as they
+require around-the-clock staffing and only provide a limited
+detection range and angle of view. Firefighters can be deployed
+to detect hotspots and cold trails, which involves putting their
+hands in the ground to check for small pockets of embers
+after the wildfire has died down, but this procedure can lead to
+dangerous situations and requires extensive human resources.
+Satellite imagery, albeit precise for hotspot detection, cannot
+provide real-time data about these hotspots [2]. Finally, aircraft
+such as helicopters and planes can provide imagery for hotspot
+detection, but they require space to take off and are expensive
+to maintain and fly. The solution we investigate in this paper
+involves the integration of a UAV and UGV into a single
+autonomous system where the UAV finds a path between
+suspected hotspots and the UGV investigates them on the
+ground. The UGV also avoids undetected obstacles using our
+short-term correction algorithm. Previous research has demonstrated that UAV and UGV cooperative systems are useful for
+mapping environments and search and rescue [3], [4]. These
+systems, however, have not been specifically developed to
+address wildfire prevention through hotspot mapping.
+
+II. M ETHODOLOGY
+In this paper, we propose a low-cost scalable system of
+UAVs (drones) and UGVs (rovers) to automate hotspotting.
+Using a protocol called LDSC (long-term direction, short-term
+correction), a drone flies up and creates a long-term path for
+the rover based on aerial footage. The rover follows that path
+and avoids obstacles unidentified by the drone using short-term
+correction.
+A. System Overview
+The system consists of three main components: a drone,
+a rover, and a ground station, as seen in Fig 1. All devices
+are connected through a server powered by Apache Kafka to
+which data and commands are sent [5]. The order of operations
+for the system is:
+1) The drone lifts off, travels to its designated waypoint,
+and takes a photo of the area in which the rover will be
+moving.
+2) The image is then sent to the ground station which
+creates a path using a modified pixel weighting A*
+pathfinding algorithm [6]. The path includes points of
+interest detected by the drone (suspected hotspots). Each
+pixel in the path is converted to GPS coordinates.
+3) The GPS coordinates are then sent to the rover. The rover
+follows the path and adjusts to any obstacles overlooked
+by A* with an obstacle-avoidance algorithm.
+
+978-1-6654-7345-3/22/$31.00 ©2022 IEEE
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:35 UTC from IEEE Xplore. Restrictions apply.
+
+TABLE I
+C OST OF C OMPONENTS FOR D RONE AND ROVER
+Component
+Frames
+Motors and blades
+Batteries
+Pixhawk
+Raspberry Pi
+Jetson Nano
+Camera
+Lidar
+Remote Control
+Grand Total
+
+Drone
+$21.00
+$72.00
+
+Rover
+$159.00
+$44.00
+
+Both
+
+$205.00
+$515.00
+$22.00
+
+$146.00
+$290.00
+$56.00
+$100.00
+$295.00
+
+$593.00
+
+$360.00
+$1102.00
+
+Total
+$180.00
+$116.00
+$205.00
+$515.00
+$168.00
+$290.00
+$56.00
+$100.00
+$360.00
+$1990.00
+
+Fig. 2. The Drone
+
+C. Software
+The rover and drone use Python 2.7 and several Python libraries, including MAVProxy 1.8.46, DroneKit 2.9.2, OpenCV,
+and PyGeodesy 22.7.22 [12]–[15]. A startup script launches
+MAVProxy, which connects to the vehicles’ pixhawks. To
+begin navigation, DroneKit navigation commands are sent
+to MAVProxy. Computer vision is handled with OpenCV
+for camera calibration, the A* pathfinding algorithm, and
+capturing images, while PyGeodesy helps in the process of
+converting image pixels to GPS coordinates.
+D. Data Communication & Network Software and Design
+
+Fig. 3. The Rover
+
+B. Hardware Design
+In this paper, we built a drone and rover from scratch as
+shown in Fig. 2 and Fig. 3. As the drone and rover need
+to navigate autonomously, make intelligent decisions, and
+communicate with each other during navigation, the vehicles
+need to be computationally capable yet physically small.
+Seen in Fig. 2 and Fig. 3, both the drone and rover use a
+pixhawk 2.4.8 as the flight controller [7]. Attached companion
+computers allow for communication, autonomous movement,
+and computationally heavy tasks. The drone uses a Raspberry
+Pi 4B+ to minimize weight, while the rover uses a Nvidia
+Jetson Nano for higher computational power [8], [9]. The
+vehicles are powered by lithium polymer (LiPo) batteries,
+and the companion computers are powered by separate USB
+battery packs. Both vehicles localize themselves using a GPS
+compatible with an APM serial port. The drone holds a
+gyroscopic camera gimbal with 9g servos and an Arducam
+Wide Angle lens camera [10]. The rover is driven by one
+motor in the back and a servo in the front to steer. It is also
+equipped with a SlamTec RPLIDAR A1 unit to provide a 2D
+map of surrounding obstacles [11].
+All hardware components were purchased from common
+marketplaces for less than $2,000, shown in Table I. In total,
+half of the budget was spent on components usable for both
+the drone and the rover. A detailed list of components and
+their costs is available in the Github repository for this article.
+
+The drone, rover, and ground station all communicate using
+Apache Kafka. Each device has a consumer that listens to a
+topic on a server created on the ground station. Commands are
+sent by the producers as JSON serializables. After a consumer
+receives a command that is labeled for its device, it analyzes
+the command and executes its operations. The device then
+communicates to its respective producer to send any data back
+to the topic. Any number of devices can be added to this
+network using this framework, making the number of vehicles
+in the system scalable.
+E. Drone
+The drone, shown in Fig. 2, is a quadcopter designed to
+capture an aerial map of the target area and design a path
+between hotspots for the rover to follow. Using dronekit and
+waypoint finding, the drone autonomously flies to a target
+altitude and GPS coordinates, takes a photo using a gyroscopic
+camera mount, and sends that photo to the ground station for
+further processing.
+1) Gyroscopic Camera Mount: To ensure accurate conversion of pixels into latitude and longitude coordinates, a 2-axis
+servo mount is used in conjunction with a mpu6050 to keep the
+camera facing the ground irrespective of the drone’s movement
+[16]. During the flight, the program starts a subprocess that
+perpetually adjusts the x and y-angles of the camera mount to
+compensate for tilting.
+2) Camera Calibration: The drone uses a camera with a
+wide-angle lens to capture 2D images of the ground. Due to
+the innate characteristics of a wide-angle lens, optical barrel
+distortion causes objects in images to appear closer or further
+apart than they actually are. Distinct from the rest of the
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:35 UTC from IEEE Xplore. Restrictions apply.
+
+system, camera calibration was conducted using the OpenCV
+checkerboard test in order to undistort images and ensure
+accurate mapping [17]. Several images of a checkerboard were
+taken from different viewpoints to estimate distortion coefficients and parameters of the camera. The mean reprojection
+error, a measure of the calibration’s accuracy, was 0.0459
+pixels, well below the value of 1 that typically represents
+accurate estimations. Images were then able to be undistorted
+using the estimated distortion coefficients [18].
+After taking the undistorted image, the drone waits until it
+is connected to the Apache Kafka server, converts the image
+into a bitmap/JSON serializable, and sends the image to the
+Kafka topic. The drone then returns to its starting waypoint
+and lands.
+
+Fig. 4. Diagram of pixel to GPS coordinate algorithm: the blue box represents
+the image plane, the green box represents the real world.
+
+F. Groundstation
+After the ground station’s Apache Kafka consumer receives
+the image from the drone, the ground station converts the
+image back into an OpenCV numpy array and performs the
+A* algorithm to create a path connecting the nodes of interest
+(i.e. the suspected hotspots). In a further embodiment of this
+research, existing thermal imaging techniques could be used
+to detect the exact location of the hotspots, but this example
+used aerial camera footage and manually selected nodes [19].
+1) A*: A* is a search algorithm that finds the most efficient
+path between two nodes using a heuristic value (the distance
+to the end node) and the cost value of moving between each
+node. The algorithm is run on an image, representing each
+pixel as a node in the graph with up to eight neighboring
+nodes. Compared to other algorithms such as Dijkstra, A*
+is significantly faster. In this version, the cost (c) of moving
+between nodes is represented as a three-dimensional euclidean
+distance between the RGB values (each ranging from a value
+of 0 to 255) of both nodes shown in the equation below:
+c=
+
+p
+(r1 − r2 )2 + (g1 − g2 )2 + (b1 − b2 )2
+
+Weighting pixels based on color is used for the cost of the
+path, as it provides a way to determine changes in terrain using
+a visual camera which is more affordable than other sensors
+such as 3D LIDAR or stereo vision. Using color as the cost
+means that the path prioritizes roads and other areas of the
+map that have similar terrain for the rover to travel on.
+2) Pixel to GPS Coordinates: The center of the image
+(xc ,yc ) is taken as the GPS drone location (αc ,βc ) where α
+is latitude and β is longitude. The altitude and drone location
+are known when the image is taken. The degree of the camera
+mount in relation to the compass of the drone is also known
+and is used to adjust the heading of the photo to face North.
+The algorithm to convert a single pixel to GPS coordinate
+works as follows.
+First, the pixel distance between (xp ,yp ) and (xc ,yc ) is
+converted into meter based distance dimgx and dimgy as shown
+in Fig. 4. dimg is calculated by dividing the number of pixels
+between (xp ,yp ) and (xc ,yc ) by the resolution (pixels per
+meter) of the image.
+
+Second, the magnification (M ) of the image is calculated
+with the following formula:
+M=
+
+idist
+odist
+
+where odist is the height of the drone, and idist is the
+distance between the lens and the image sensor of the camera.
+idist is derived from the lens equation:
+1
+1
+1
++
+=
+odist
+idist
+f
+
+idist =
+
+odist ∗ f
+odist − f
+
+Where f is the focal length, which was estimated during
+camera calibration.
+Third, the real-world distance dworldx and dworldy are
+calculated as shown in Fig. 4.
+dworldx =
+
+dimgx
+M
+
+dworldy =
+
+dimgy
+M
+
+Finally, the latitude and longitude coordinates (αc ,βc ) of
+the pixel are calculated using the Vincenty formula from
+PyGeodesy which combines computational efficiency and accuracy up to a meter [20]. The NAD83 datum model of Earth’s
+surface was incorporated to improve the formula’s accuracy.
+G. Rover
+The rover, shown in Fig. 3, is designed to follow the longterm path and avoid obstacles not seen by the drone. After
+receiving the GPS path from the ground station, the rover uses
+dronekit to autonomously travel to coordinates on the path
+representing the suspected hotspots.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:35 UTC from IEEE Xplore. Restrictions apply.
+
+

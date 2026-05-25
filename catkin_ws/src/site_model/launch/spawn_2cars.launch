@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="false"/>
+  <arg name="model" value="$(find site_model)/urdf/car.urdf"/>
+
+  <!-- Start gazebo and load the world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" >
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+    <arg name="world_name" value="$(find site_model)/worlds/spawn_cars.world"/>
+  </include>
+
+  <!-- Spawn the site -->
+  <node
+    name="tf_footprint_base"
+    pkg="tf"
+    type="static_transform_publisher"
+    args="0 0 0 0 0 0 base_link base_footprint 40" />
+  <arg name="gpu" default="false"/>
+  <arg name="organize_cloud" default="false"/>
+  <param
+    name="robot_description"
+    command="$(find xacro)/xacro --inorder '$(find site_model)/urdf/site_model_cars.urdf.xacro' organize_cloud:=$(arg organize_cloud) gpu:=$(arg gpu)" />
+  <node
+    pkg="gazebo_ros"
+    type="spawn_model"
+    name="spawn_model"
+    args="-urdf -param /robot_description -model site_model"/>
+
+  <node
+    pkg="robot_state_publisher"
+    type="robot_state_publisher"
+    name="robot_state_publisher">
+    <param
+      name="publish_frequency"
+      type="double"
+      value="30.0" />
+  </node>
+  <node
+    name="fake_joint_calibration"
+    pkg="rostopic"
+    type="rostopic"
+    args="pub /calibrated std_msgs/Bool true"/>
+
+  <!-- 从yaml文件加载联合控制器的参数 -->
+  <rosparam file="$(find pkg)/config/ctrl.yaml" command="load"/>
+
+  <!-- 加载机器人模型描述参数 -->
+  <group ns="car1">
+    <param name="robot_description" textfile="$(find pkg)/urdf/car1.urdf"/>
+    <node name= "robot_state_publisher" pkg= "robot_state_publisher" type= "robot_state_publisher">
+      <param name="publish_frequency" type="double" value="30.0" />
+    </node>
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -model car1 -param robot_description -x -1.726 -y -0.5 -z 0.05 -R 0.0 -P 0.0 -Y -1.57"/> 
+    <node name="controller_manager" pkg="controller_manager" type="spawner" 
+	      respawn="true" output="screen" ns="/car1" 
+	      args="left_rear_wheel_velocity_controller       right_rear_wheel_velocity_controller
+	            left_front_wheel_velocity_controller      right_front_wheel_velocity_controller
+	            left_steering_hinge_position_controller   right_steering_hinge_position_controller
+	            joint_state_controller"/>
+    <node pkg="site_model" type="servo_commands.py" name="servo_commands" output="screen">
+      <param name="robot_name" value="car1" />
+    </node>
+  </group>
+
+  <group ns="car2">
+    <param name="robot_description" textfile="$(find pkg)/urdf/car2.urdf"/>
+    <node name= "robot_state_publisher" pkg= "robot_state_publisher" type= "robot_state_publisher">
+      <param name="publish_frequency" type="double" value="30.0" />
+    </node>
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+            args="-urdf -model car2 -param robot_description -x -1.726 -y -0.00 -z 0.05 -R 0.0 -P 0.0 -Y -1.57"/> 
+    <node name="controller_manager" pkg="controller_manager" type="spawner" 
+          respawn="true" output="screen" ns="/car2" 
+          args="left_rear_wheel_velocity_controller       right_rear_wheel_velocity_controller
+                left_front_wheel_velocity_controller      right_front_wheel_velocity_controller
+                left_steering_hinge_position_controller   right_steering_hinge_position_controller
+                joint_state_controller"/>
+    <node pkg="site_model" type="servo_commands.py" name="servo_commands" output="screen">
+      <param name="robot_name" value="car2" />
+    </node>
+  </group>
+
+</launch>

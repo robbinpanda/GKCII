@@ -1,0 +1,390 @@
+2021 IEEE 23rd Int Conf on High Performance Computing & Communications; 7th Int Conf on Data Science & Systems; 19th
+Int Conf on Smart City; 7th Int Conf on Dependability in Sensor, Cloud & Big Data Systems & Application
+
+2021 IEEE 23rd Int Conf on High Performance Computing & Communications; 7th Int Conf on Data Science & Systems; 19th Int Conf on Smart City; 7th Int Conf on Dependability in Sensor, Cloud & Big Data Systems
+& Application (HPCC/DSS/SmartCity/DependSys) | 978-1-6654-9457-1/21/$31.00 ©2021 IEEE | DOI: 10.1109/HPCC-DSS-SMARTCITY-DEPENDSYS53884.2021.00223
+
+1
+
+Game Theoretical Bandwidth Allocation in
+UAV-UGV Collaborative Disaster Relief Networks
+Bincheng Ying+ , Zhou Su++ , Qichao Xu+ , Xiandong Ma+
++School of Mechatronic Engineering and Automation, Shanghai University, China
+++School of Cyber Science and Engineering, Xi’an Jiaotong University, China
+Corresponding Author: zhousu@ieee.org
+
+Abstract—After a natural disaster, cellular communications
+may be hard to meet the needs of disaster relief due to the
+destruction of infrastructures, such as base stations and power
+stations. In order to transmit rescue data in time, the disaster
+relief network based on unmanned ground vehicles (UGVs) is
+advocated to transmit rescue-critical data to the relief center.
+However, due to the driving-difﬁcult roads in the disaster area
+and small communication coverage of UGVs, UGVs-assisted disaster relief network faces the challenge to quickly and accurately
+collect wide-range disaster information. To tackle this problem,
+in this paper, we ﬁrst take unmanned aerial vehicles (UAVs)
+to develop a UAV-UGV collaborative disaster relief network
+architecture, where the UAVs with high mobility, wide view
+and agility can efﬁciently help UGVs to perceive the disaster
+information. Then, to realize the efﬁcient data delivery between
+UAVs and UGVs with limited bandwidth resources, we devise
+a game-based bandwidth allocation framework. In speciﬁc, the
+multi-leaders multi-followers Stackelberg game is used to model
+the interactions between UGVs and UAVs, where each UGV acts
+as a leader to determines its bandwidth capacity and each UAV
+acts as a follower to determines its access selection based on the
+bandwidth capacity. Especially, the non-cooperative game model
+is introduced to analyze the competitions among UGVs, and the
+evolutionary game is utilized to study the strategy adjustments
+of UAVs. Through the backward induction method, the optimal
+access selection of each UAV and the optimal bandwidth capacity
+of each UGV are obtained, which form the Stackelberg equilibrium. At last, extensive simulation results demonstrate that the
+proposed scheme outperforms the conventional counterparts on
+the utilities of both UAVs and UGVs.
+Index Terms—Disaster relief network, UAV-UGV collaboration, bandwidth allocation, Stackelberg game, evolutionary game.
+
+I. I NTRODUCTION
+As it is known to all, natural disasters often cause a large
+number of innocent human casualties and economic losses in
+the world [1], [2]. Therefore, how to minimize the loss of
+economy and lives after disaster has become a great challenge
+for countries. The restoration of communication networks
+plays a critical role in disaster relief [3]. If the communication
+networks are failed, the working competence of rescue teams
+would degrade rapidly. According to the previous work [4],
+the communication network should be rebuilt in 72 hours as
+soon as possible to establish effective and efﬁcient connections
+between rescue workers and the remote command center.
+However, because of the unpredictable natural disasters, the
+original communication infrastructures may be damaged seriously, which cannot support the efﬁcient post-disaster rescue.
+
+978-1-6654-9457-1/21/$31.00 ©2021 IEEE
+DOI 10.1109/HPCC-DSS-SmartCity-DependSys53884.2021.00223
+
+As such, how to rapidly deploy emergency communication
+networks in such disaster areas has been of a great concern
+problem. Nowadays, some schemes combined with device-todevice (D2D) communication and wireless sensors networks
+(WSNs) [5] have been proposed to build disaster relief networks in disaster areas. However, the communication distance
+between two wireless nodes is short and the communication
+performance can be easily affected by geography. In addition,
+wireless nodes in the affected areas are easily damaged by
+secondary disasters.
+In recent years, unmanned ground vehicles (UGVs) equipped with a variety of sensors, large-scale batteries, and
+communication modules can replace human beings to enter
+disaster areas for carrying out dangerous missions with long
+endurance. Therefore, UGVs equipped with communication
+modules can be employed to establish disaster relief networks.
+However, the roads in the disaster regions can be damaged
+seriously which leads to that in UGVs can not enter deep into
+the affected zones. Besides, due to the limitation of mobility
+and communication coverage, UGVs are not able to serve a
+large range of devices effectively.
+Due to the high ﬂexibility, wide communication coverage,
+and light-of-sight (LoS), unmanned aerial vehicles (UAVs)
+can transmit data to ground devices [6]. Through air-toground (A2G) and air-to-air (A2A) communications, UAVs
+can be adopted to build air-ground networks with high quality.
+Therefore, the application of UAVs is an effective solution
+to assist UGVs-based networks in disaster areas. UAVs can
+utilize the bandwidth shared by UGVs to serve the ground
+communication equipment. However, there are still several
+challenges for UAVs and UGVs to build an efﬁcient emergency
+communication network. First, each UGV has no idea about
+the capacity of bandwidth it should share with UAVs. Second,
+UAVs usually select a UGV sharing a large bandwidth capacity
+in order to maximize the transmission rate, which will result
+in a UGV selected by too many UAVs at the same time. Furthermore, the bandwidth is limited under disaster situations.
+Therefore, it is necessary to design an efﬁcient scheme to
+allocate bandwidth in the disaster relief network.
+In this paper, we propose a game theoretical bandwidth
+allocation in UAV-UGV collaborative disaster relief network
+to transmit rescuing data. Firstly, we jointly employ the UAVs
+and UGVs to develop a UAV-UGV collaborative disaster
+relief network architecture. Secondly, in order to solve the
+problem of delivering data with limited bandwidth resources,
+
+1498
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:46 UTC from IEEE Xplore. Restrictions apply.
+
+2
+
+we devise a game-based bandwidth allocation framework.
+Thirdly, an iterative algorithm based on backward induction
+is developed to obtain the Stackelberg equilibrium. Finally,
+extensive simulation results prove that our scheme has better
+performance than conventional counterparts on the utilities of
+both UAVs and UGVs. In a nutshell, the main contributions
+of this work are as follows:
+• Disaster Relief Network Architecture: We novelly develop a UAV-UGV cooperative disaster relief network
+architecture based on UAVs and UGVs equipped with
+communication modules. The UGVs move along the
+roads damaged slightly and deicide the shared bandwidth
+capacity. Then, the UAVs access the UGVs to use the
+shared bandwidth to serve the disaster communication
+devices.
+• Bandwidth Allocation Scheme: In order to transmit
+rescuing data between UGVs and UAVs with limited
+bandwidth, we investigate a game-based bandwidth allocation framework. The Stackelberg game is used to model
+the interactions between UGVs and UAVs, where UGVs
+are leaders who decide the shared bandwidth capacity and
+UAVs are followers who adjust access selection strategy.
+Besides, we utilize the non-cooperative game to represent
+the competition among UGVs and the evolutionary game
+to indicate the access selection of UAVs. Furthermore,
+through the backward induction method, an iterative algorithm is proposed to attain the Stackelberg equilibrium.
+• Simulation Evaluation: We evaluate the effectiveness
+and efﬁciency of our proposed scheme with plenty of
+simulations. The results prove that our scheme can motivate participants to select access points legitimately,
+effectively allocate bandwidth resources, and bring higher
+utilities for both UAVs and UGVs than the conventional
+counterparts.
+The rest of this paper is organized as follows. We describe
+related work in Section II. Section III presents the system
+model. In Section IV, the problem formulation is described in
+detail. Section V shows the game analysis of UGVs and UAVs.
+Simulation results are shown in Section VI and we conclude
+the paper in Section VII.
+II. R ELATED WORK
+Recently, UAVs are widely adopted for post-disaster rescue
+in the affected areas. Yang et al. [7] formulated data transmission problem by utilizing multi-UAVs in disaster areas
+and optimized the trajectories of UAVs, task completion time,
+and energy consumption. An adaptive arrangement scheme of
+UAVs was proposed by Nan et al. to resolve the coverage problem in UAV-aided GNs communication networks to achieve
+the maximum coverage [8]. In [9], Wang et al. proposed that
+the emergency information can be transferred from the UAVs
+to ground users in a multicast mechanism in the disaster relief
+network.
+There are several resource allocation schemes in communication networks. Li et al. ﬁrst express the signiﬁcance
+of allocating bandwidth appropriately for stream-reservation
+trafﬁc under the Credit-Based Shaping and construct a general
+
+A2G
+A2G
+
+A2G
+
+B
+
+Base Station
+
+UGV
+
+UAV
+
+A2G
+
+Slightly damage Severely damage Obstacles
+
+UAV Group
+
+Fig. 1. UAVs and UGVs cooperated emergency communication network in
+the disaster area.
+
+schema for its bandwidth allocation in [10]. A stochastic
+optimization problem of jointly selecting client and allocating
+bandwidth with energy constraints of long-term client was proposed in [11]. Besides Xu et al. [11] developed an algorithm
+that employs available wireless channel information currently
+but guarantee long-term performance. In [12], a bandwidth
+allocation methodology was proposed with considering the
+inter-beam interference by Kawamoto et al. to allocate the
+resources of the satellite communication system.
+However, most of bandwidth allocation schemes can not be
+applied in the disaster relief network directly. Some of above
+networks are established only by UAVs. Due to the limitation
+of battery capacity and communication power, it’s not practical
+that UAVs working for a long time and transmit data to
+remote control center. Others heavily rely on terrestrial base
+stations, which can be damaged seriously due to the natural
+disaster. In our work, we build the disaster relief network
+with UAVs and UGVs. UGVs equipped with communication
+modules are introduced to take over the work of base stations.
+The advantages of these two kinds of unmanned vehicles
+complement each other.
+III. S YSTEM M ODEL
+In this section, we present the system model including
+UGVs motion model, UAVs motion model and communication
+model. UGVs equipped with communication modules can be
+deployed in the disaster areas. UAVs can provide communication services to the ground devices.
+A. UGVs Motion Model
+As shown in Fig. 1, we consider the disaster relief network
+consisting I UGVs and J UAVs. Let I = {1, 2, ...i, ..., I} to
+
+1499
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:46 UTC from IEEE Xplore. Restrictions apply.
+
+3
+
+denote the set of UGVs. UGVs can drive automatically along
+the predeﬁned and damaged slightly path in the disaster area.
+Here, we adopt a time slot model [13] [14], each time slot is
+equal and the length is τ . tk represents k-th slot. At time slot
+tk , the velocity of i-th UGV is v i,k . And the maximum and
+minimum velocity of UGV i are vimax and vimin , respectively.
+Since there exist some puddles and cracks on the roads,
+UGVs should avoid these obstacles. The length of road with
+η lanes that UGV i travels along is Li . The area of road Li is
+Si . Similar to [15], the spatial distribution of obstacles follows
+a Poisson Point Process (PPP) distribution with a constant
+density λ. Hence, the number of obstacles on each lane is
+λSi
+η . In the moving process, UGVs would follow a circular
+path to avoid obstacles with radius Ri (Ri > 0). In order to
+simplify the calculations, the impact of obstacles avoidance on
+the time of UGVs is transformed into the impact on UGVs’
+velocities accordingly:
+v ′i,k =
+
+v i,k ηL
+.
+[L + (πRi − 2Ri )] λSi
+
+(1)
+
+The trajectory of i-th UGV can be expressed as q i =
+[qi,0 , qi,1 , qi,2 , ..., qi,k , ...], where the beginning position is
+qi,0 = (Xi,0 , Yi,0 , 0). And qi,k = (Xi,k , Yi,k , 0) denotes the
+position of i-th UGV at time slot tk . The movement of UGV
+i satisﬁes the following constraints:
+ qi,k − qi,k−1 = τ v ′i,k , ∀i ∈ I,
+
+(2)
+
+vimin ⩽ v i,k ⩽ vimax , ∀i ∈ I.
+
+(3)
+
+B. UAVs Motion Model
+UAVs can connect to the ground UGVs through Orthogonal
+Frequency Division Multiplexing Access (OFDMA) technology. Each UAV connects to at most one UGV in each time slot,
+but one UGV can be accessed by multiple UAVs simultaneously. The set of UAVs is denoted as J = {1, 2, ..., j, ..., J}.
+We can divide all UAVs into many groups according to
+different mission features [17]. Let G = {1, 2, ..., g, ..., G}
+denote the set of UAV groups, where the number of UAV
+groups is G. There are Ng UAVs in g-th UAV group. The
+g
+working altitude of UAV j in group g is Hj,k
+, the cruising
+velocity is v gj,k , the maximum and minimum velocity are vjmax
+g
+g
+g
+g
+and vjmin , respectively. We denote qj,0
+= Xj,0
+, Yj,0
+, Hj,0
+g
+as
+of j-th UAV in group g and qj,k =
+
+ beginning position
+g
+g
+g
+, Yj,k
+, Hj,k
+as the position of j-th UAV in group g
+Xj,k
+at time slot
+ tk . The trajectory of j-th UAV is expressed
+g
+g
+g
+g
+by q j = qj,0
+, qj,1
+, qj,2
+, ..., qj,k
+, ... . Therefore, the motion
+constraints of j-th UAV can be expressed by
+g
+g
+ qj,k
+− qj,k−1
+= τ v gj,k , ∀j ∈ J,
+
+(4)
+
+vjmin ⩽ v gj,k ⩽ vjmax , ∀j ∈ J.
+
+(5)
+
+C. Communication Model
+UAVs and UGVs connect with each other through the airto-ground (A2G) link. Since UAVs utilize the bandwidth of
+UGVs to provide communication services, each UAV needs
+
+to connect to a UGV. The distance between UGV i and UAV
+j can calculated by
+
+g
+2 .
+(6)
+dgi,j,k =  qi,k − qj,k
+
+At the k-th time slot, the connection status between UAVs
+and UGVs can be denoted as ai,j,k , which is a binary
+parameter. If a connection is established between the i-th UGV
+and j-th UAV, ai,j,k = 1, otherwise ai,j,k = 0. Therefore, we
+I
+can obtain i=1 ai,j,k ⩽ 1.
+The transmission power of each UAV is Pj . There is no
+co-channel interference among UAVs in the different groups
+accessing the same UGV. Therefore, the signal-to-noise ratio
+(SNR) is
+g
+Pj βij,k
+(7)
+hi,j,k =
+,
+σ2
+g
+= gβ0 2 is channel gain, σ 2 means the additive
+where βi,j,k
+(di,j,k )
+white Gaussian noise at the receiver, and β0 represents the
+channel gain when the reference distance is 1m.
+Supposing that each UGV is equipped with a single antenna,
+and the bandwidth capacity that UGV i decides to share
+is Bi . In order to ensure fairness, each UGV divides the
+bandwidth equally among the connected UAVs. Therefore, the
+transmission rate between i-th UGV and j-th UAV is
+Bi
+g
+ri,j,k
+= ai,j,k
+log2 (1 + hi,j,k ) ,
+(8)
+Ni,k
+where Ni,k represents the number of UAVs connecting to
+i
+UGV i at time slot tk . Additionally, we have NBi,k
+⩾ bmin > 0,
+where bmin is the bandwidth threshold.
+IV. P ROBLEM F ORMULATION
+In this section, we propose a bandwidth allocation scheme
+among UAVs and UGVs. Firstly, a bandwidth allocation
+framework is introduced. Secondly, we formulate the utility
+functions of each player. Then, we show the details of the
+resource allocation based on the Stackelberg game.
+A. Bandwidth Allocation Framework
+In the disaster area, UGV i decides the capacity of bandwidth Bi for sharing to UAVs in the emergency communication network, and then announces its decision to UAVs.
+Meanwhile, according to the shared bandwidth capacity, UAVs
+select their own access points, i.e. UGVs.
+To enable UAVs and UGVs cooperate with each other to
+maximize the transmission data rate for the entire communication network, a bandwidth allocation framework is presented.
+Speciﬁcally, the interaction between UGVs and UAVs can be
+formulated by a two-layer Stackelberg game. Firstly, UGVs
+determine the capacity of bandwidth resources shared and
+announce them to UAVs. Note that, the capacity of resource
+which has a great impact on both network performance and
+overall cost should be considered carefully. If the shared
+bandwidth capacity of a UGV is too large, a great number
+of UAVs will select it as the access point and the network
+performance will be degraded. Then, after obtaining the information of shared bandwidth capacity , each UAV can select an
+appropriate UGV as the access point for the sake of maximal
+network performance.
+
+1500
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:46 UTC from IEEE Xplore. Restrictions apply.
+
+

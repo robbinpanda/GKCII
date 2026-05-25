@@ -1,0 +1,68 @@
+
+ssh car@192.168.0.119
+
+run commands from https://github.com/car/car-launcher/blob/main/getting-started.md
+
+## Building the core packages
+
+sudo su
+systemctl stop car-core
+source /opt/ros/foxy/setup.bash 
+source /opt/intel/openvino_2021/bin/setupvars.sh
+mkdir -p ~/car_ws
+cd ~/car_ws
+git clone https://github.com/car/car-launcher.git
+cd ~/car_ws/car-launcher
+./install_dependencies.sh
+rosws update
+sudo rosdep init
+rosdep update
+colcon build
+
+## Running the latest packages
+
+sudo su
+source /opt/ros/foxy/setup.bash 
+source /opt/intel/openvino_2021/bin/setupvars.sh
+source ~/car_ws/car-launcher/install/setup.bash  
+ros2 launch car_launcher car_launcher.py
+
+
+## Edit car_launcher.py to remove camera packages
+
+
+
+nano car_launcher.py
+
+```
+   camera_node = Node(
+        package='camera_pkg',
+        namespace='camera_pkg',
+        executable='camera_node',
+        name='camera_node',
+        parameters=[
+            {'resize_images': True}
+        ]
+    )
+```
+
+
+
+
+
+
+
+##  Edit car-ctrl-pkg/blob/main/ctrl_pkg/src/ctrl_node.cpp
+
+cd car-ctrl-pkg/blob/main/ctrl_pkg/src/ctrl_node.cpp
+
+nano ctrl_node.cpp
+
+modify the void init() function
+
+
+
+
+
+
+

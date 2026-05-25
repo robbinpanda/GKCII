@@ -1,0 +1,497 @@
+2024 9th International Conference on Control, Robotics and Cybernetics
+
+A hybrid bio-inspired optimization algorithm for
+UAV-UGV cooperative path planning
+Zhe Zhang
+
+Ju Jiang*
+
+Keck Voon Ling
+
+2024 9th International Conference on Control, Robotics and Cybernetics (CRC) | 979-8-3315-1748-9/24/$31.00 ©2024 IEEE | DOI: 10.1109/CRC63701.2024.10949893
+
+School of Electrical and Electronic Engineering
+College of Automation Engineering
+College of Automation Engineering
+Nanyang Technological University
+Nanjing University of Aeronautics and Astronautics Nanjing University of Aeronautics and Astronautics
+Singapore City, Singapore
+Nanjing, China
+Nanjing, China
+ekvling@ntu.edu.sg
+jiangju@nuaa.edu.cn
+zhangzhe1205@nuaa.edu.cn
+*Corresponding author
+
+to their adaptability and efficiency, have demonstrated strong
+performance in collaborative path planning, such as ant colony
+optimization (ACO) [11], particle swarm optimization (PSO)
+[12], pigeon-inspired optimization (PIO) [13], and genetic
+algorithm (GA) [14]. Duan et al. [15] proposed a dynamic
+discrete pigeon-inspired optimization algorithm that achieves
+multi-UAV cooperative task allocation and path planning.
+However, significant challenges remain when dealing with
+more complex constraints and threats.
+To address this gap, this paper develops a UAV-UGV
+cooperative path planning model incorporating multiple complex threats and constraints. Considering the limitations of
+traditional bio-inspired optimization algorithms, we propose
+a hybrid bio-inspired optimization-based approach to achieve
+optimal, collision-free paths for UAVs and UGVs while effectively handling various constraints. Finally, we evaluate the
+performance of our model and algorithm and discuss their
+potential in practical applications. The contributions of this
+paper can be summarized as follows.
+1) We establish a UAV-UGV cooperative path planning
+model under multiple constraints with predictive paths as
+variables, better reflecting real-world UAV-UGV scenarios.
+2) To settle the cooperative path planning model and obtain
+optimal, collision-free path, we propose the HAPCO algorithm
+to improve global search capability, and effectively address the
+problem of getting trapped in local optima.
+3) The effectiveness and optimality of the model and
+HAPCO algorithm are verified by designing simulations in
+complex scenarios. Compared to conventional bio-inspired
+algorithms, our method demonstrates faster convergence and
+meets the mission demand for autonomous systems.
+
+Abstract—This paper investigates a path planning approach
+for cooperative unmanned aerial vehicle (UAV) and unmanned
+ground vehicle (UGV) systems. Considering the position error
+corrections (PEC) of UAV, threats, and other complex constraints,
+a UAV-UGV cooperative path planning model is developed to
+minimize the total cost. Then, a Hybrid Ant-Pigeon Cooperative Optimization (HAPCO) algorithm is presented to address
+issues in existing bio-inspired optimization algorithms. A new
+pheromone update strategy and adaptive inertia weight are
+designed to optimise the performance. the performance of the
+Ant Colony Optimization (ACO) algorithm and Pigeon-inspired
+Optimization (PIO) algorithm. Moreover, the two algorithms
+are integrated to perform a full-cycle search. Simulation results reveal that the HAPCO algorithm outperforms ACO and
+PIO regarding path quality, cooperation cost, convergence, and
+computational efficiency, further demonstrated the validity and
+superiority of our algorithm.
+Index Terms—path planning, unmanned autonomous systems,
+bio-inspired optimization, obstacle avoidance
+
+I. I NTRODUCTION
+Artificial intelligence-enhanced unmanned autonomous systems are capable of performing tasks in complex environments.
+They are employed extensively in military, industrial, and
+civilian contexts [1]–[4]. In particular, the capacity of UAV
+and UGV to undertake tasks collaboratively has introduced
+novel tactical advantages to contemporary military operations.
+Effective collaboration between UAV and UGV not only
+enhances the efficiency of task execution but also improves
+operational flexibility and safety.
+Path planning, as a key technology for the cooperative
+task execution of UAVs and UGVs, has recently emerged
+as a prominent area of research [5], [6]. Ropero et al. [7]
+proposed a path planning method that combines the Voronoi
+diagram and gravitational optimization for UAV-UGV cooperative exploration tasks. Zhang et al. designed a series
+of improved A-Star algorithms to achieve proactive threat
+avoidance for aircraft [8]–[10]. However, these methods are
+characterised by high computational complexity and limited
+flexibility when dealing with high-dimensional optimization
+problems. Inversely, bio-inspired optimization algorithms, due
+
+II. P ROBLEM F ORMULATION AND S YSTEM M ODEL
+A. Problem Formulation
+In military operations, UAVs perform wide-area reconnaissance, surveillance, and penetration missions, while UGVs
+carry out ground tasks like target search and material transport.
+Cooperative path planning between UAVs and UGVs is crucial
+for improving task execution efficiency and combat effectiveness. This section considers a cooperative system involving
+one UAV and multiple UGVs. A schematic diagram of the
+UAV-UGV cooperative path planning is depicted in Fig. 1.
+
+This work was supported by the National Natural Science Foundation of
+China (No. 71971115), the Postgraduate Research and Practice Innovation
+Program of Jiangsu Province, China (No. KYCX22 0366), China Scholarship
+Council program (No. 202306830099).
+
+979-8-3315-1748-9/24/$31.00 ©2024 IEEE
+
+49
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:37 UTC from IEEE Xplore. Restrictions apply.
+
+the detection radius of the k-th radar. Q is the number of nofly zones. ds is the distance from the UAV to the surface of the
+s-th no-fly zone.  is a minimal positive number. α0 and β0
+are threat coefficient of radars and no-fly zones, respectively.
+D. The Search Mission of the UGV
+Considering the path, threat, and position coordination costs
+with the UAV. The objective function for the UGV is as
+
+Q
+h 
+M
+X
+X
+X
+d
+β1
+− Rik
+2
+k
++ β2 kx − xi k
++
+S=
+Di +
+α1 e
+d +ε
+s=1 is
+i=1
+k=1
+(4)
+where Di is the path cost of the i-th UGV, h is the number of
+UGV. dik is the distance from the i-th UGV to the center of
+the k-th radar. The second and third terms are similar to those
+2
+in Eq.(3). β2 kx − xi k represents the coordination cost. dis is
+the distance from the i-th UGV to the surface of the s-th no-go
+zone. x is the position vector of UAV, xi is the position vector
+of the i-th UGV. α1 , β1 , and β2 are the threat coefficient of
+radar, no-go zone and collaborative cost, respectively.
+
+Fig. 1. A schematic diagram of cooperative path planning for the UAV-UGVs.
+
+B. Kinematics
+The kinematic model of the UAV is given by [16]
+
+ẋ = v cos θ cos ψ
+
+
+
+
+ẏ = v cos θ sin ψ
+
+
+ ż = v sin θ
+ψ̇ = (r cos φ + q sin φ)/ cos θ
+
+
+
+
+φ̇ = p + tan θ(r cos φ + q sin φ)
+
+
+
+θ̇ = q cos φ − r sin φ
+
+(1)
+
+E. UAV-UGV Cooperative Path Planning Model
+According to Eqs. (1) to (4), the UAV-UGV cooperative
+path planning model is given by
+
+where (x, y, z) is the position of the UAV in the ground
+coordinate system. v is the velocity. ψ is the yaw angle. φ
+is the roll angle. θ is the pitch angle. r, p, q represent the yaw
+rate, roll rate, and pitch rate, respectively.
+Similarly, the kinematic of UGV is given by
+
+ẋ = vi cos θi
+
+
+ i
+ẏi = vi cos θi
+(2)
+
+
+ θ̇i = vi tan γ
+L
+
+C. The Penetration Mission of UAV
+The UAV needs to fly from the starting point to the endpoint
+to execute its mission. Due to inherent positioning errors,
+it must continuously correct these errors during the flight.
+Additionally, the UAV must avoid radar threats to ensure the
+successful completion of the mission. The objective function
+for the UAV performing the penetration mission is given by
+n X
+n
+X
+
+(5)
+
+ n n
+P P
+
+
+xij ≤ 1
+
+
+
+i=1 j=1
+
+
+n P
+n
+ P
+
+
+eij ≤ δ
+
+
+ i=1 j=1
+ψmin ≤ ψ ≤ ψmax
+
+
+
+φmin ≤ φ ≤ φmax
+
+
+
+
+θ
+≤ θ ≤ θmax
+
+ min
+
+
+d
+,
+d
+≥ Rk , ds , dis > 0
+
+ k ik
+ω1 + ω2 = 1
+
+(6)
+
+Subject to
+
+where xi , yi is the position of the UGV, θi is the heading angle,
+L is the distance between the wheels. γ is the steering angle.
+
+where δ is the upper bound of the error. ω1 and ω2 are the
+cost weights for the UAV and UGV, respectively.
+III. H YBRID A NT-P IGEON C OOPERATIVE O PTIMIZATION
+A LGORITHM F OR PATH P LANNING
+In this section, we propose a hybrid ant-pigeon cooperative
+optimization (HAPCO) algorithm to solve the UAV-UGV
+cooperative path planning model and obtain an optimal and
+collision-free path. Moreover, ACO and PIO is integrated to
+enhances the global search capability and efficiency, preventing it from becoming trapped in local optima.
+
+
+ X
+Q
+M
+X
+d
+− k
+xij dij + pf eij +
+α0 e Rk +
+
+β0
+d
++ε
+s=1 s
+i=1 j=1
+k=1
+(3)
+where the first term is the path cost of the UAV, the second
+term denotes the cost of position error corrections (PEC), and
+the sum of the last two terms is the threat cost. n is the number
+of waypoints of the UAV. xij ∈ {0, 1} is whether the UAV
+chooses to take the path from point i to point j. dij is the
+distance between i and j. eij ∈ {0, 1} is whether the error
+correction for the path from point i to point j fails, pf is the
+probability of failure. M is the number of radars. dk is the
+distance from the UAV to the center of the k-th radar. Rk is
+U=
+
+J = min (ω1 U + ω2 S)
+
+A. The Analysis of ACO and PIO Algorithm
+Ant colony optimization (ACO) algorithm is a probabilisticbased bio-inspired optimization algorithm [17]. The state
+transition probability on the map is given by
+β
+α
+τij
+(t)ηij
+(t)
+Pijk (t) = P
+α (t)η β (t)
+τis
+is
+s∈C
+
+50
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:37 UTC from IEEE Xplore. Restrictions apply.
+
+(7)
+
+where C is the set of following nodes that the ant j can choose.
+α
+τij
+(t) is the pheromone concentration for the ant moving from
+point i to point j. α is the pheromone influence factor. β is
+−1
+the heuristic influence factor. ηij = (Dij + DjG )
+is the
+heuristic value for moving from point i to point j. Dij is the
+distance between point i and point j. DiG is the distance from
+the point j to the destination G. The pheromone of ant is as
+τij (t + 1) = (1 − ρ)τij (t) +
+
+Na
+X
+
+k
+∆τij
+(t)
+
+individual differences. Over time, the PIO algorithm may fall
+into the trap of local search. To further enhance the global
+search capability of the PIO algorithm in the initial phase, we
+designed an adaptive inertia weight that can dynamically adjust
+based on the fitness differences among different pigeons,
+thereby improving the speed at which the flock converges to
+the optimal solution. The adaptive inertia weight is defined as
+ −Vm (t−1)Rt
+2vmin
+
+
+e −Fit(Xm )Rt , if Vm (t − 1) < vmin
+ω(t) = e Fit(Xg ) ,
+if vmin ≤ Vm (t − 1) ≤ vmax
+
+
+max Rt
+ −v
+e Vm (t−1) ,
+otherwise
+(11)
+Then, a new pheromone update strategy is introduced to
+improve the search capability of the ACO algorithm and
+enhance the convergence speed of the algorithm in the later
+stages. The increment of pheromone on the current path is as
+
+(8)
+
+k=1
+
+where ρ is the pheromone evaporation coefficient. Na is the
+k
+number of ants. ∆τij
+(t) = Qa /Lk denotes the additional
+pheromone concentration deposited by ant k. Qa is the
+pheromone intensity. Lk is the path length of ant k.
+The pigeon-inspired optimization (PIO) algorithm is a bioinspired algorithm that mimics the homing behavior of pigeons. In the two homing phases, pigeons rely on a map and
+compass operator in the early stage and a landmark operator
+in the later stage to approach the destination [18]. In the initial
+phase, the pigeon uses the map and compass operator for
+searching, and the number of iterations is Nc .
+The velocity Vm (t) and position Xm (t) is as
+(
+Vm (t) = Vm (t − 1)e−Rt + rand (Xg − Xm (t − 1))
+Xm (t) = Xm (t − 1) + Vm (t)
+(9)
+where R ∈ [0, 0.1] is the map and compass operator. Xg is
+the position of the best pigeon in the flock during the iteration
+cycle. rand(·) ∈ (0, 1) is a random number.
+When the pigeons is close to the destination, their navigation
+relies on the landmark operator due to the influence of the
+surrounding environment. The state update strategy is as
+
+
+
+Np (t − 1)
+
+ Np (t) = ceil
+
+
+2
+
+
+
+NP
+
+p (t)
+
+
+Xm (t) Fit (Xm (t))
+(10)
+i=1
+X
+(t)
+=
+
+c
+
+NP
+p (t)
+
+
+
+
+Np (t)
+Fit (Xm (t))
+
+
+m=1
+
+
+Xm (t) = Xm (t − 1) + rand (Xc − Xm (t − 1))
+
+k
+∆τij
+(t) =
+
+Lbest − Lk
+Lbest
+
+(12)
+
+where Lbest is the length of the optimal path.
+In the new pheromone update strategy, the pheromone
+concentration on the current optimal path can be dynamically
+adjusted based on the conditions of the paths searched by
+the ants. When a better path exists, a significant difference
+between Lk and Lbest , which indicates that the proportion of
+ants traversing the current optimal path is tiny. Therefore, the
+intensity of the pheromone on the current optimal path can be
+dynamically increased to attract more ants by using Eq. (12).
+As the iterations progress, the pheromone concentration on
+the current optimal path will continuously increase, causing
+more and more ants to tend to cluster along this path. At
+this point, the pheromone concentration will subsequently
+decrease. When the pheromone concentration reaches zero, the
+pheromone evaporation occurring solely on the current optimal
+path will weaken the pheromone, effectively preventing the
+ACO algorithm from getting trapped in local optima.
+A negative pheromone concentration can reduce the accumulated pheromone concentration on the path and shorten the
+time required to search for the optimal path. This dynamic
+pheromone updating strategy allows the pheromone concentration to play a full role on the current optimal path, while
+preventing the algorithm from stagnating due to an excessive
+increase in its concentration.
+Furthermore, we integrate the ACO algorithm and the PIO
+algorithm. Based on Eqs. (5) and (6), the HAPCO algorithm is
+applied to solve the path planning model. The implementation
+of the HAPCO algorithm is outlined as follows.
+Step 1. Initialization: Input the starting point and destination of the UAV and UGV. Set the relevant parameters for the
+PIO and ACO algorithms.
+Step 2. Global path search based on the PIO algorithm:
+In the initial phase, update the speed and position of the UAV
+and UGV according to Eqs. (9) and (11). Record the global
+optimal solutions Xg and update the global optimal cost S.
+Then, continue executing the PIO algorithm.
+
+where Xc (t) is the position of the central pigeon in the flock.
+Fit (Xm (t)) is the fitness value of each pigeon. Np (t) is the
+number of pigeons. ceil(·) denotes the ceiling function.
+B. Design Scheme of the HAPCO Algorithm
+Despite the advantages of the ACO algorithm in local
+search and pheromone guidance, it exhibits weak global search
+capabilities and is prone to getting trapped in local optima.
+PIO algorithm excels in global search and rapid convergence
+but cannot find acceptable local searches under complex constraints [19]. To overcome the limitations, a HAPCO algorithm
+is developed to tackle global and local optimization challenges.
+Firstly, in the PIO algorithm with a fixed number of pigeons
+Np , the inertia weight ω(t) = e−Rt in Eq. (9) implies that
+each pigeon is assigned the same weight, which fails to reflect
+
+51
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:37 UTC from IEEE Xplore. Restrictions apply.
+
+

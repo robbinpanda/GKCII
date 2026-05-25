@@ -1,0 +1,418 @@
+4906
+
+IEEE INTERNET OF THINGS JOURNAL, VOL. 8, NO. 6, MARCH 15, 2021
+
+Cooperative Path Planning of UAVs & UGVs for a
+Persistent Surveillance Task in Urban Environments
+Yu Wu , Shaobo Wu, and Xinting Hu
+
+Abstract—There have been many applications of drones in
+urban environments, such as delivery, rescue, and surveillance.
+In a persistent surveillance task, the drones sometimes cannot
+complete it independently when some regions are required to be
+covered on the ground. For this purpose, unmanned aerial vehicles and unmanned ground vehicles (UAVs & UGVs) system is
+introduced to perform such a task in this article, and the goal
+is to generate the circular paths for the drones and the UGVs,
+respectively, to minimize their travel time of realizing a complete coverage. First, the cooperative path planning problem of
+UAVs & UGVs is formulated into a large-scale 0-1 optimization
+problem, in which the on–off states of the discrete points are to
+be optimized. Second, a hybrid algorithm integrating the estimation of distribution algorithm (EDA) and the genetic algorithm
+(GA) algorithm is proposed to solve the problem. The advantages
+of EDA and GA in the global and local search are fully taken
+considering the demands in different phases of the iterative process. A simple sweep-based approach is employed to determine
+the optimal sequence of passing the open points. Then, an online
+local adjustment strategy is also applied to address the changes of
+the requirements on covering the ground area. Simulation results
+demonstrate that the UAVs & UGVs system can enhance the efficiency of the task. The hybrid EDA-GA algorithm can greatly
+improve the performance of EDA and GA in terms of the quality
+and the stability of solutions. The online adjustment strategy is
+effective to maintain a complete coverage while minimizing the
+impact on the circular paths.
+Index Terms—Drones, cooperative path planning, hybrid EDAGA algorithm, persistent surveillance, UGV, urban environments.
+
+I. I NTRODUCTION
+MALL unmanned aerial vehicles (UAVs, usually called
+drones) have received a lot of attention in recent years and
+have been applied in people’s daily life and public services.
+On the one hand, the advantages of easy operation and low
+
+S
+
+Manuscript received June 27, 2020; revised August 21, 2020 and September
+23, 2020; accepted October 7, 2020. Date of publication October 13, 2020;
+date of current version March 5, 2021. This work was supported in part by
+the Chongqing Research Program of Basic Research and Frontier Technology
+under Grant cstc2020jcyj-msxmX0602; in part by the Fundamental Research
+Funds for the Central Universities under Project 2020 CDJ-LHZZ-066; and
+in part by the China Scholarship Council under Project 201906055030.
+(Corresponding author: Yu Wu.)
+Yu Wu is with the College of Aerospace Engineering, Chongqing
+University, Chongqing 400044, China, and also with the School of Mechanical
+and Aerospace Engineering, Nanyang Technological University, Singapore
+639798 (e-mail: cquwuyu@cqu.edu.cn).
+Shaobo Wu is with the Automation School, Beijing University
+of Posts and Telecommunications, Beijing 100876, China (e-mail:
+wushaobo@bupt.edu.cn).
+Xinting Hu is with the School of Air Traffic Management,
+Civil Aviation University of China, Tianjin 300300, China (e-mail:
+2018031027@cauc.edu.cn).
+Digital Object Identifier 10.1109/JIOT.2020.3030240
+
+price attract more people to use drones for work and entertainment. On the other hand, the policy of opening the low-altitude
+airspace encourages more applications of drones in urban environments [1]. Among the various applications, delivery, rescue,
+target tracking, and surveillance are the most popular ones,
+and the drone is required to complete the task by flying along
+the specified path [2]. Therefore, the path planning problem
+becomes the key issue to realize the autonomous flight of the
+drone [3]. The path planning problems in the above tasks can
+be classified into two groups according to their characteristics.
+In the first group, the drone is required to reach the specified target, such as in the delivery [4] or the target tracking
+task [5]. An optimal path from the start point to the destination
+is needed. The second type of tasks is less common, in which
+a complete coverage of a specified area is expected, and the
+goal is usually to minimize the flying distance, flying time,
+or fuel consumptions of drone [6], [7]. Aerial photography,
+data collection, surveillance, and patrol belong to this group
+of tasks.
+In the existing studies, the surveillance task is usually performed by a single or multiple UAVs, and the unmanned
+ground vehicle (UGV) is rarely involved in such a task. In
+those studies, the shortest path of finishing a complete coverage of the specific area is usually focused on, but the
+corresponding circular path is often ignored [8]. Even if the
+circular path is considered in some studies, there is no or only
+a few obstacles distributed in the area [9], which is quite
+different from the situation in urban environments. Besides,
+the vision field and the shooting resolution of the drone are
+affected by its flight height, and the blocking of buildings
+should be considered when calculating the actual coverage
+area. As for the ground area to be covered, there are different
+requirements on the shooting resolution for subareas, and some
+subareas are even prohibited to be visited designedly [10].
+However, the ground area is sometimes required to be covered with high accuracy or is hard to be covered (due to
+the blocking of buildings), such as in the task of precise
+observation or photographing on the ground objects. In those
+tasks, the shooting resolution of camera on UAVs can hardly
+meet the requirements, and the introduction of UGVs is a
+good way to solve the problem. Furthermore, UGVs can
+cooperate with UAVs to share the work, thus improving the
+efficiency of performing the task. In this article, the cooperative path planning problem of the unmanned aerial vehicles
+and unmanned ground vehicles (UAVs & UGVs) system in
+a persistent surveillance task is focused on, and the goal is
+to find two circular paths for UAVs and UGVs, respectively,
+
+c 2020 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+2327-4662 
+See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:33 UTC from IEEE Xplore. Restrictions apply.
+
+WU et al.: COOPERATIVE PATH PLANNING OF UAVs & UGVs FOR PERSISTENT SURVEILLANCE TASK IN URBAN ENVIRONMENTS
+
+which can minimize their travel time of realizing a complete
+coverage of the ground area.
+The main contributions of this work can be summarized as
+follows.
+1) A UAVs & UGVs system is introduced to complete the
+persistent surveillance task in urban environments. In
+the established cooperative path planning model, various factors affecting the vision field and the shooting
+resolution of drone are considered to reflect the real
+requirements on the task. The problem is finally formulated into a large-scale 0-1 optimization problem,
+including the outer and inner loops.
+2) A hybrid algorithm integrating the estimation of distribution algorithm (EDA) and genetic algorithm (GA)
+(named as the EDA-GA-based algorithm for convenience) is developed to solve the cooperative path
+planning problem. In the outer loop, the on–off states of
+the discrete points for the travels of drones and UGVs
+are optimized by the hybrid EDA-GA algorithm. In the
+inner loop, the sequences of passing those open points
+are determined by a simple sweep-based approach to
+generate the circular paths for the drones and the UGVs,
+respectively, which can realize a complete coverage.
+3) An online adjustment strategy on the circular paths is
+designed considering the changes of demands on the
+coverage area. A local modification is imposed on the
+points of the circular path, which are influenced by
+the increase or decrease of the inaccessible subareas. The
+path points are added or deleted to maintain a complete coverage while having the minimal impact on the
+existing circular paths.
+II. R ELATED W ORKS
+There have been many studies concentrating on the path
+planning problems of drones for different civil applications,
+such as the sowing, fertilization, and pollination in agriculture [11], the inspection around the high building [12], and
+the rescue in the fire fighting [13]. However, as the short flight
+endurance and the relatively low shooting resolution of drone
+may fail to satisfy the demand in many tasks, it is not always
+an effective way to deploy a team of drones to complete the
+complicated tasks. Therefore, UGVs are introduced to cooperate with UAVs, such as in exploration and mapping task [14],
+target localization [15], and environmental protection [16].
+The UAVs & UGVs system is a typical kind of multiagent
+system with heterogeneous vehicles, and similar systems are
+composed by unmanned surface vehicles (USVs), unmanned
+underwater vehicles (UUVs), and unmanned aerial-aquatic
+vehicles (UAAVs), such as UAVs & USVs system [17], UAVs
+& UUVs system [18], UAV & USV & UUV system [19],
+and UAAV & UUV system [20]. In those systems, the heterogeneous vehicles can take their respective advantages and
+compensate for each other. In a UAVs & UGVs system, UGV
+can locate or detect the objects on the ground with higher
+accuracy and make up the weakness of UAVs. Besides, UGVs
+have a larger payload capability and a powerful computational
+ability, and they can also charge for the UAVs. As for the
+
+4907
+
+UAVs, they can fly with high velocity and have a wide field
+of vision, which is beneficial to guide the UGVs to avoid
+obstacles [21]. In [22] and [23], a UAV equipped with a camera serves as the eye in the airspace and collects the ground
+images. Then, after some processing, such as denoising and
+correction, the ground map can be constructed to assist the
+UGV in planning its path to the destination. A hybrid path
+planning algorithm is proposed in [23]. GA works as the
+outer loop to conduct the global path planning, and the rolling
+optimization is applied in the inner loop to optimize the results
+obtained from GA locally. Considering the different dynamics
+characteristics of UAV and UGV, an improved artificial physics
+approach is developed in [24] to coordinate UAVs and UGVs
+to reach the same target. In the proposed approach, random
+forces are introduced to make the UAVs and UGVs avoid the
+local optimum and head for the target. The UAVs & UGVs
+system also can be applied in a wilderness search and rescue
+task [25]. The UAVs and UGVs carry out an aerial search
+and a ground search, respectively, and the targets detected by
+UAVs must be identified by a UGV again to ensure the accuracy. Isoprobability curves are used to search the target by
+both UAVs and UGVs, and the new approach allows UAVs
+to cover all possible target motions while also avoiding the
+search redundancies considering the paths of UGVs.
+In other cases, UGVs serve as moving platforms, and they
+can both charge for the UAVs and carry the UAVs to voyage
+longer distance [26]. Under this work mode, there are usually multiple places to be visited in a task, and those places
+cannot be reached directly by the UGVs. First, UAVs are carried by the UGVs to arrival at some areas near the places
+and then fly to the destination to finish the “last mile” of
+the visit task [27]. According to the above descriptions, the
+process can be formulated into a traveling salesman problem
+(TSP), and many variations of the basic TSP are studied in the
+existing literatures. A package delivery task is completed by
+a UAV & UGV system in [28], and the packages must reach
+the customers located at different places. The path of UGV
+is restricted to the road network, and a two-stage strategy is
+proposed to optimize both the paths of UAV and UGV. An
+improved ant colony optimization (ACO) algorithm is used to
+obtain the optimal path of UGV that can make the UAV visit
+more targets, and the GA algorithm is then applied to optimize
+the path of UAV. Similarly, a UAV & UGV system is introduced to explore a planetary surface, and the goal is to visit a
+number of target points while minimizing the travel distance
+in [29]. In this task, UGV is regarded as a moving charging
+station for the UAV, and the UAV is responsible for reaching
+the target points. A cooperative exploration routing algorithm
+is proposed to solve the problem. The charging stops where
+the UGV can carry the UAV is optimized first, and the path of
+UAV is calculated by solving the TSP. UGVs also can serve
+as mobile charging stations in a persistent surveillance task of
+a partitioned environment, and the paths of UAVs and UGVs
+and the charging schedule of UAVs need to be optimized to
+minimize the time interval between two consecutive visits to
+regions [30]. Several UAVs & UGV teams are uniformly distributed over a cyclic path to execute the surveillance task of
+a partitioned region, and the UAVs are being recharged by the
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:33 UTC from IEEE Xplore. Restrictions apply.
+
+4908
+
+IEEE INTERNET OF THINGS JOURNAL, VOL. 8, NO. 6, MARCH 15, 2021
+
+(a)
+Fig. 2.
+
+Fig. 1. Scenario of performing the persistent surveillance task by the UAVs
+& UGVs system.
+
+UGV while they are transported from the current partition to
+the next one. With this strategy, the large-scale optimization
+problem is simplified into optimizing a supercycle of partitions for a single team composed by several UAVs and one
+UGV.
+In most cases, a team of UAVs is qualified for the persistent surveillance task in urban environments [31]. However,
+when there are special requirements of the shooting resolution
+on the ground area, the UAVs may not be able to fulfill the
+task, and the introduction of UGVs can address this problem
+and improve the efficiency of performing the task at the same
+time. To the best of our knowledge, there are few publications
+reporting the studies on cooperative path planning of persistent
+surveillance task performed by the UAVs & UGVs system.
+III. C OOPERATIVE PATH P LANNING M ODEL FOR THE
+UAV S & UGV S S YSTEM IN THE P ERSISTENT
+S URVEILLANCE TASK
+To facilitate the operation of air traffic management for
+drones, the low-altitude airspace in urban environments is
+divided into a number of cubes with the same size, like the
+operation of traffic management in civil aviation [32]. The
+vertexes of the cubes are the possible path points which the
+drone can fly across. Accordingly, the ground area is modeled
+as a structure composed by many 2-D grids, which are the
+projections of corresponding cubes on the horizontal plane.
+The UGV can only pass the vertexes of the 2-D grids on the
+ground. Under the proposed operation framework, the contents of establishing the cooperative path planning model are
+depicted.
+A. Description of the Persistent Surveillance Task and the
+Travel Rules of Vehicles
+In urban environments, there are many buildings distributed
+in the low-altitude airspace, and the space occupied by the
+buildings is denoted by the cubes. Drones must avoid those
+buildings when they are flying, and the UGVs also need to
+keep certain distance away from the buildings. Besides, there
+are some obstacles on the ground, and the UGVs must avoid
+them. To perform the persistent surveillance task of the whole
+ground area, two circular paths must be obtained for the travel
+of drones and UGVs, respectively, as shown in Fig. 1.
+
+(b)
+
+Travel rules for the (a) drone and (b) UGV.
+
+In Fig. 1, the coordinate system OXYZ is established to
+describe the locations of grids, buildings, drones, and UGVs.
+The cubes denote the buildings with different heights, and
+there are four special types of 2-D grids.
+1) Inaccessible grids that are forbidden to be covered by
+the drone or the UGV.
+2) Grids must be covered with special requirements on the
+shooting resolution, which means the drone must reduce
+its flight height to achieve a valid coverage.
+3) Grids must be covered on the ground, and they only can
+be covered by the UGVs.
+4) Grids which are occupied by obstacles, and the UGV
+must bypass them.
+All the 2-D grids must be covered to realize a complete
+coverage except for the inaccessible grids and the grids occupied by the buildings and obstacles. There are several drones
+and UGVs located at the circular paths in the air and on the
+ground, respectively, with the same interval, which can balance
+the workload of each vehicle and ensure the normal operation
+of the persistent surveillance task.
+The travel rules for the drone and the UGV are defined as
+follows. The drone located at one vertex can choose the vertex
+of a connected edge, a face diagonal, or a body diagonal in one
+neighboring cube as the next path point, and it is assumed to
+fly along the straight line between two neighboring path points.
+As for the UGV, it can select the vertex of a connected edge
+or a face diagonal in one neighboring 2-D grid as the next
+path point. The above travel rules are shown in Fig. 2.
+In Fig. 2, l is the length of an edge both for a cube and a
+2-D grid. According to the above descriptions, the equations
+expressing the motion of the drone and the UGV are presented,
+respectively, in
+⎧ i
+i
+i
+i
+x (n + 1) = xD
+(n) + dDx
+(n), xD
+(n)  {0, l, 2l, . . . , Xmax }
+⎪
+⎪
+⎪ yD
+i
+i
+i
+i
+⎪
++
+1)
+=
+y
++
+d
+y
+ {0, l, 2l, . . . , Ymax }
+(n
+(n)
+(n),
+(n)
+⎪
+D
+D
+Dy
+D
+⎨ i
+i
+i
+i
+{l, 2l, . . . , Zmax }
+zD (n
++
+1)
+=
+z
++
+d
+z
+
+(n)
+(n),
+(n)
+D
+Dz
+D
+ i
+i
+i
+⎪
+d
+d
+d
+
+{−l,
+0,
+l}
+⎪
+(n),
+(n),
+(n)
+⎪
+Dz
+ 
+⎪ s.t.  Dx
+ Dy
+
+⎪
+⎩
+di (n) + di (n) + di (n) = 0
+Dx
+Dy
+Dz
+(1)
+⎧ j
+j
+j
+j
+⎪
+⎪ xG (m + 1) = xG (m) + dGx (m), xG (m)  {0, l, 2l, . . . , Xmax }
+⎪
+⎪
+⎨ yj (m + 1) = yj (m) + dj (m), yj (m)  {0, l, 2l, . . . , Ymax }
+G
+G
+Gy
+G
+j
+j
+d
+
+{−l,
+0,
+l}
+d
+(m),
+(m)
+⎪
+⎪
+
+ Gx
+ Gy
+
+⎪
+⎪
+⎩ s.t. dj (m) + dj (m) = 0
+Gx
+Gy
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:33 UTC from IEEE Xplore. Restrictions apply.
+
+(2)
+
+

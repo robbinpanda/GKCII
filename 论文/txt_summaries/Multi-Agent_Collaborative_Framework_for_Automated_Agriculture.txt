@@ -1,0 +1,311 @@
+2021 15th International Conference on Advanced Computing and Applications (ACOMP) | 978-1-6654-0639-0/21/$31.00 ©2021 IEEE | DOI: 10.1109/ACOMP53746.2021.00011
+
+2021 15th International Conference on Advanced Computing and Applications (ACOMP)
+
+Multi-Agent Collaborative Framework for Automated Agriculture
+Kumar Ankit∗ , Shishir N.Y. Kolathaya† , and Debasish Ghose‡
+∗ Robert Bosch Center for Cyber Physical Systems (RBCCPS)
+† Dept. of Computer Science & Automation and RBCCPS
+† Dept. of Aerospace Engineering and RBCCPS
+Indian Institute of Science, Bangalore, India
+
+Abstract—The use of internet-connected devices, especially
+small multi-rotor Unmanned Aerial Vehicles (UAVs), in scientific data gathering and applications is quite widespread. But
+due to limited intervention capability, the UAVs alone fail to
+automate agricultural tasks completely. Thereby, we propose
+a centralized framework capable of handling a heterogeneous
+mixture of UAVs and UGVs to cater to the needs of automating
+agriculture efficiently. The framework’s core is a novel heuristic
+decision module that creates new tasks by visually analyzing
+the farm and solves a vehicle routing problem to allocate it to
+agents optimally. It is also equipped with supporting modules
+to monitor their operation and, in case of failures, help them
+recover autonomously based on the task and agent assessment.
+The framework is used in three significant agricultural applications, namely yield prediction and drought stress detection
+in a simulated environment using ROS and Gazebo, and 3D
+mapping of a real farm. These applications demonstrate the
+use of the multi-agent collaborative framework in identifying
+agricultural tasks on a farm and executing them.
+
+Figure 1.
+
+and controlled to carry out tasks jointly. In this work, we
+propose a heterogeneous multi-agent framework employed
+in an agricultural setup with UAVs and UGVs to carry out
+precision agriculture tasks autonomously.
+UAVs and UGVs are being deployed for a diverse range
+of applications in precision agriculture. Reduction in waste
+and chemical emissions, increased overall efficiency, and
+profitability is some of the best-achieved results. In [1], the
+authors use a quadrotor with an onboard RGB camera for
+crop monitoring, health assessment, and spraying. Software
+architecture built to promote reuse, support farms of various
+sizes is proposed in [2]. A framework named SmartFarm
+[3] integrates environmental sensors present in farms with
+a private cloud infrastructure that provides farmers with
+a secure, easy-to-use, and cost-effective data analysis system. Similarly, an autonomous multi-sensor UAV system is
+proposed for remote sensing, which is adequate for small
+fields [4]. An architecture for collective field monitoring by
+a group of UAVs is realized in [5]. A swarm of UAVs is
+deployed in [6] for spraying fertilizers over agricultural land.
+Yield prediction of coffee crops using images from UAVs is
+also made in [7]. Indices such as the Normalized difference
+vegetation index, which depicts the produce’s health, are
+derived from the UAV’s multispectral imagery [8].
+We see that the heterogeneous use of both UAVs and
+UGVs is a promising combination to be applied that has
+been utilised as mobile robot UGVs are used to serve
+as a transport and recharge station for the UAVs in [9].
+Collaborative mapping of construction sites [10] using both
+UAV and UGV is also being done. The use of a heterogeneous swarm of edge UAVs for remote sensing is used in
+[11]. Infrastructure-free cooperative relative localisation in
+GPS-denied environments [12] can also be realised when
+collaborating. A novel collaborative 3D map registration
+
+Keywords-Multi-UAS collaboration; Vision based pick and
+place; Task planning; Fault Handling
+
+I. I NTRODUCTION
+The world’s population in 2015 stood at 7.3 billion people
+and is expected to increase to 8.5 billion by 2030. It requires
+a sustainable and efficient farming method to meet the food
+demands with constantly decreasing farmlands. Sustainable
+farming, also known as precision agriculture, has been in
+the limelight in academia since long back but lacks focus
+on a completely autonomous solution. With the expansion of
+internet-connected devices, new ways to measure and analyze agricultural processes in real-time came into the picture.
+Internet of Things (IoT) in agriculture can be considered a
+viable solution as it needs constant monitoring and intervention. Using IoT in agriculture needs appropriate software
+architecture that plays a prominent role in optimizing the
+gain. In the case of IoT, a drone can act as a mobile data
+collector and transfer it to a remote station for processing.
+In practice also, an aerial vehicle is generally deployed
+for data collection and surveillance, whereas most of the
+heavy-duty farm operations are carried out by UGVs. Due
+to the complexities involved with autonomous agriculture, an
+aerial or ground vehicle alone is not sufficient to carry out
+agricultural tasks. Hence a common autonomous platform is
+necessary that can serve as a framework in which multiple
+heterogeneous IoT devices and systems can be incorporated
+
+978-1-6654-0639-0/21/$31.00 ©2021 IEEE
+DOI 10.1109/ACOMP53746.2021.00011
+
+a) Original Farm (Left) b) Simulated Farm (Right)
+
+30
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:42 UTC from IEEE Xplore. Restrictions apply.
+
+II. C OLLABORATIVE M ULTI -AGENT F RAMEWORK
+
+pipeline is presented in [13] for agricultural applications.
+Although collaboration among such a heterogeneous agents
+has its pitfalls. It needs complex mathematical modelling
+approaches to appropriately capture heterogeneity and use
+them to plan and allocate tasks optimally. A partitioning
+algorithm capturing the heterogeneity of robots in agricultural settings in terms of the speed and onboard power can
+be seen in [14]. Then comes the planning of tasks and
+navigation of multiple robots, which has been rigorously
+studied in recent decades from different perspectives in the
+research communities of robotics, control and artificial intelligence. In general, they fall into two types of categories —
+centralised and decentralised. Centralised architectures are
+prevalent in literature as they guarantee optimality and are
+easy to be formalised but suffers exponential computational
+complexity whereas, decentralised ones are hard to realise
+and sub-optimal but are significantly scalable [15]. Literature
+shows decentralised bidding algorithms as in [16] to provide
+a fast approximate solution for large-scale systems such as
+precision agriculture.
+The framework proposed in this paper uses a centralised
+architecture with the master as a base station and agents as
+slaves. The framework’s core is a heuristic decision module
+that creates new tasks, decides, and optimally allocates it to
+agents. It monitors the farm and its operations by recording
+imagery of the complete farm periodically using agents,
+which is then used to detect action zones. Action zones can
+be a pest infected area, which requires spraying of pesticides.
+This can be carried out by breaking the action of spraying
+pesticides into series of trivial sequential tasks like reaching
+the spot, detecting infected patch and finally spraying a
+calculated volume of chemical. The framework is composed
+of modules such as path planner, task scheduler, etc., and
+it can be easily integrated with specific modules depending
+upon the tasks. This allows the framework to be applied
+to most primary agriculture operations, from sowing seed
+to harvesting the produce. To demonstrate the framework, a
+plantation setting with low-hanging fruits is assumed with
+sufficient spacing facilitating effortless traversal of both
+aerial and ground vehicles. The collaboration among agents
+is currently limited to mapping the farm and carrying out
+the tasks simultaneously. More active collaboration scenarios
+such as estimating the yield or spraying pesticides cooperatively in real-time can also be made possible using this
+framework which will be part of future iterations of the
+work. The framework has been deployed in a simulated
+agricultural environment based on the actual farm layout,
+as shown in Fig. 1.
+We discuss our proposed framework in Section 2. Section
+3 provides an experimental evaluation to highlight the efficacy of our approach and value due to simplicity. In Section
+4, we consider two of the use-cases and simulated the same
+in Section 5. Finally, we conclude the paper in section 6
+with remarks and discussion on future work.
+
+In this section, we describe the framework and its functional modules:
+A. Objective of the Framework
+Given n UAVs and m UGVs, the aim is to detect action
+zones and deploy these n+m agents to jointly perform their
+desired functions in those action zones. The UAVs are
+equipped with a camera to capture images. The UGV carries
+a 6-DOF manipulator with a sprayer and camera at the endeffector. Periodically, one of the n UAVs and m UGVs are
+sent to capture farm’s images cooperatively in an exhaustive
+flight path (for example, in a lawnmower pattern) such that
+they cover the farm completely. They streams the captured
+images back to the central base station, which in our case is
+the master. It processes the aerial and ground imagery and
+produces a common 3D reconstruction of the farm to detect
+action zones and plans the agents’ paths according to the
+zone’s requirements and capabilities, creating a route plan.
+This generated plan is sent to the task-scheduler module,
+which then schedules the tasks and allocates them to all the
+agents. The agent then performs the task and creates a report
+about the progress and status of the vehicle. The report is
+sent to the master to decide and schedule the next task for
+the agent.
+Furthermore, this framework is also designed to handle
+minor faults such as communication loss, agent or task
+failure. In such cases, a fault handler module is invoked
+on both master and slave to help restore the system. The
+architecture and modules are described in detail in the
+section below.
+B. Components of the Framework
+1) Slave Architecture: The proposed architecture (see
+Fig. 2) with the necessary modules for agents or slave in
+our case is described below:
+1) Communication Module: It is responsible for monitoring communication between the master and the agent.
+For this, it constantly checks the timestamp of the sent
+and received messages to detect any interruptions. If
+the connection is broken, the module calls the fault
+handler for further help to restore the connection.
+2) Agent Handler: It monitors the status of the agent. It
+gathers information from various on-board sensors and
+generates the status which includes position, battery
+health and resources on-board the agent. A tabular
+description of agent report is shown in Table 1. The
+sub-modules associated with the agent handler are:
+a) Localization Module: It fuses the inertial and
+global measurements using an extended Kalman
+filter to get an estimate of the pose and orientation of the agent.
+b) Vision Module: It handles the image stream
+captured by the camera sensor and streamed
+
+31
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:42 UTC from IEEE Xplore. Restrictions apply.
+
+Figure 2.
+
+Slave architecture and its modules
+
+back to the master for further rigorous image
+processing to detect the action zones. Image
+processing algorithms are designed depending
+upon the application.
+c) Status/Health Monitoring: It checks whether the
+sensors and actuators are operational by going
+through some basic calibration routines. It also
+monitors the on-board resources such as battery
+charge and fertilizer volume.
+
+UGV has to travel across the rows in grid-wise
+manner. This sub-module gets the location of
+the action zones and helps the agent traverse
+the environment while avoiding obstacles and
+forbidden zones.
+c) Spray: It is designed to precisely spray a controlled volume of water or chemical at a particular area using the on-board camera. Spraying
+is done using a 6-DOF manipulator on UGV
+with sprayer and camera at the end-effector. It
+is actuated based on the visual feedback of the
+camera solving an inverse kinematics problem.
+
+Table I
+AGENT R EPORT D ESCRIPTION
+Particular
+Pose
+Orientation
+Status
+Battery Charge
+Actuator State
+Sensor State
+Resource Status
+
+Information
+[x, y, z]
+[roll, pitch, yaw]
+[free/engaged/failed]
+Battery Left (%)
+Operational or not
+Operational or not
+Quantity Left
+
+Data Type
+[3x1] Array
+[3x1] Array
+String
+Integer
+Bool
+Bool
+Float
+
+Table II
+TASK R EPORT D ESCRIPTION
+Particular
+Task Code
+Task Position
+Task Progress
+
+3) Task Handler: It is responsible for handling the tasks
+sent to the agents. It receives the task and a location
+depicting the action zone. Then it uses one of the
+below-mentioned task-modules in a sequential manner
+to deploy the agent on the task. After which it reports
+an assessment back to the master. A tabular description
+of task report is shown in Table 2. The sub-modules
+associated with the task handler are:
+a) Record: It helps the agent record or map a
+particular bounded region on the farm. It records
+the geo-tagged and timestamped images at an
+optimal distance from the crops so as to have the
+highest resolution. The recorded imagery is then
+streamed back to the master for further analysis.
+b) Travel: The UAV can traverse from point to
+point at a particular height in air whereas, the
+
+Task Report
+Information
+Record/Travel/Spray
+[x, y, z]
+Percentage(%)
+
+Data Type
+[3x1] Array
+[3x1] Array
+Integer
+
+4) Fault Handler: This is invoked onboard when the agent
+has lost or has failed. It helps the agent to restore
+the communication link or recover from the failure.
+The module is in an elementary state where the failure
+is fixed by homing the agent and rebooting it. When
+rebooted, the agent tries to restore the communication
+and is fed with the last incomplete task to resume.
+2) Master Architecture: The proposed architecture (see
+Fig. 3) with the necessary modules for base station or master
+is described below:
+1) Communication Module: It operates in the same manner in both the master and the slave architecture.
+2) Agent Handler: It handles the information received
+from the agent about its health and status. Based on
+the report received, it decided whether the agent is
+
+32
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:42 UTC from IEEE Xplore. Restrictions apply.
+
+

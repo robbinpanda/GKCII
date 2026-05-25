@@ -1,0 +1,382 @@
+2024 32nd Signal Processing and Communications Applications Conference (SIU) | 979-8-3503-8896-1/24/$31.00 ©2024 IEEE | DOI: 10.1109/SIU61531.2024.10601087
+
+İHA ve İKA'lar için Akıllı Yer Kontrol İstasyonu ve
+Otomatik Pilot Mimarilerinin Geliştirilmesi
+Development of Intelligent Ground Control Station
+and Autopilot Architectures for UAVs and UGVs
+Emre Çintaş*1,2, Barış Özyer1
+Bilgisayar Mühendisliği Bölümü, Atatürk Üniversitesi, Erzurum, Türkiye
+{emrecintas, baris.ozyer}@atauni.edu.tr
+2
+Bilgisayar Mühendisliği Bölümü, Erzurum Teknik Üniversitesi, Erzurum, Türkiye
+emre.cintas@erzurum.edu.tr
+1
+
+Özetçe—Çok rotorlu İnsansız Hava ve Kara Araçları
+(İHA/İKA)’nın yüksek çevikliği, mekanik basitliği, kontrol
+kolaylığı ve otonom yetenekleri; askeri ve sivil alanda; keşif,
+haritalama, denetim, hedef imha, gözetleme ve lojistik uygulama
+amaçlarıyla kullanılmaktadır. Gelişen teknoloji ile birlikte İHA
+ve İKA, yerleşik bilgisayarlar tarafından veya yer kontrol
+istasyonunda (YKİ) bir pilot tarafından otonom olarak uzaktan
+kontrol
+edilebilmektedir.
+Bu
+yerleşik
+bilgisayarların
+İHA/İKA’lara entegre edilmesiyle birlikte insansız araçların
+sahip oldukları farklı modüller ile YKİ arasında bilgi akışı
+sağlanabilir hale gelmiştir. Ancak bu bilgi akışının literatürde
+yapılan YKİ yazılım çalışmalarında geleneksel olarak işlenmesi
+sebebiyle farklı ve akıllı YKİ yazılım ve oto pilot tasarım
+yaklaşımlarına ihtiyaç duyulmaktadır. Bu çalışmada yapay zekâ
+özelliğine sahip, yetmişten fazla nesneyi gerçek zamanlı
+tanıyabilen, konumlandırabilen ve İHA/İKA’ları uzaktan
+komuta ve kontrol edebilen akıllı bir yeni YKİ tasarlanmıştır.
+Çalışmada kodlama işlemleri için açık kaynak Java
+programlama dili, İHA/İKA ile YKİ üzerinden haberleşmek için
+ise MAVLink (Micro Air Vehicle Link) protokolü kullanılmıştır.
+Gerçek zamanlı nesne tespiti ve nesne konumlandırmak için ise
+literatürdeki hızlı ve yüksek doğruluğa sahip algoritmalardan
+birisi olan SSD Mobilenet v2 kullanılmış ve YKİ ile Flask API
+aracılığıyla entegre edilmiştir. Elde edilen sonuçlar, başlangıç
+motivasyonu ile yazılım çıktıları arasındaki uygunluğu göstermiş
+ve açık kaynak geliştirilebilir bir akıllı YKİ yazılımı ve otomatik
+pilot tasarlanmıştır.
+Anahtar Kelimeler —İnsansız hava ve kara aracı; Akıllı yer
+kontrol istasyonu; Bilgisayarlı görme; Otomatik pilot; MAVLink.
+Abstract— Multi-rotor Unmanned Aerial and Ground
+Vehicles (UAV/UGV) are utilized for various military and
+civilian purposes such as detection, mapping, surveillance, target
+destruction, observation, and logistical applications due to their
+high agility, mechanical simplicity, ease of control, and
+autonomous capabilities. With advancing technology, UAVs and
+UGVs can be remotely controlled autonomously by onboard
+computers or by a pilot at a ground control station (GCS).
+Integrating these onboard computers into UAVs/UGVs enables
+information flow between the different modules they possess and
+the GCS. However, due to the traditional processing of this
+information flow in GCS software studies in the literature, there
+
+is a need for different and intelligent GCS software and autopilot
+design approaches. In this study, an intelligent new GCS capable
+of remotely commanding and controlling UAVs/UGVs has been
+designed, equipped with artificial intelligence features, capable of
+real-time recognition, positioning of more than seventy objects,
+and communication with UAVs/UGVs. The open-source Java
+programming language was used for coding operations, and the
+MAVLink (Micro Air Vehicle Link) protocol was utilized for
+communication between UAVs/UGVs and the GCS. For real-time
+object detection and localization, one of the fast and highly
+accurate algorithms in the literature, SSD MobileNet v2, was
+used and integrated with the GCS via Flask API. The obtained
+results demonstrated the consistency between the initial
+motivation and the software outputs, leading to the development
+of an open-source intelligent ground control station software and
+autopilot.
+Keywords — Unmanned aerial and ground vehicle; Intelligent
+ground control station; Computer vision; Autopilot; MAVLink.
+
+I.
+
+GİRİŞ
+
+Son yıllarda insansız hava ve kara araçlarının (İHA/İKA)
+yarışma, eğlence, güvenlik, ticari ve askeri uygulamalarda
+yaygın olarak kullanımı, sensör sistemleri, kontrol kartları,
+mikro denetleyiciler gibi elektronik bileşenlerin maliyetlerinin
+giderek azalması ve devasa açık kaynakların mevcudiyeti
+nedeniyle sürekli artmaktadır [1], [2]. İHA ve İKA’lar insan
+desteği olmadan otonom çalışabilmesine rağmen, çoğunlukla
+bilgisayarlar veya uzaktan kumanda ile yer istasyonları
+aracılığıyla kontrol edilebilmektedir [3]. İHA ve İKA’ların
+yaygın kullanımına paralel olarak son yıllarda yapay zekâ
+teknolojisinin hızla gelişmesi ile birlikte ticari veya açık
+kaynak tabanlı oto pilot sistemleri hızla yayılmaya başlamıştır
+[4], [5]. Çoğu kapalı ticari sistem, yazılım veya donanım
+üzerinde değişiklik yapma imkânı sunmazken, açık kaynak
+tabanlı sistemler araştırma ve geliştirme imkânı sunduklarından
+dolayı araştırmacılar tarafından tercih edilmektedir [6]. Bu açık
+kaynak tabanlı otonom sistemler, işgücünün azaltılması, hata
+olasılıklarının azaltılması ve olası kaza risklerinin en aza
+indirilmesi açısından önemlidir [7]. İHA ve İKA'ların bir diğer
+teknolojik yönü de oto pilot yer istasyon yazılımında kullanılan
+
+979-8-3503-8896-1/24/$31.00 © 2024 IEEE
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:51 UTC from IEEE Xplore. Restrictions apply.
+
+yapay zekâ ve kontrol algoritmalarının entegrasyonu ve
+geliştirilmesidir. Bu sebeple İHA ve İKA’ların uygulama alanı
+kadar yer istasyon yazılımının arkasındaki teori ve teknikler de
+çeşitlilik gösterebilmektedir [8].
+Literatürde önceki yıllarda tasarlanan ve geliştirilen açık
+kaynak YKİ yazılımları genellikle geleneksel komut
+yaklaşımını [9], [10] benimsemekteydi. Bu geleneksel
+komutlar ise basitçe hız artır, sağa dön, sola dön komutlarını
+gerçekleştirir. Ancak İHA ve İKA’lardan belirli bir görevi
+akıllı ve otonom olarak da gerçekleştirebilmesi beklendiğinden
+bu problem hala güncelliğini korumaktadır [5].
+
+•
+•
+
+•
+
+YKİ, operatör tarafından belirlenen yol planına göre
+insansız aracı otonom olarak yönlendirebilmelidir.
+Operatörün seçtiği, “Eve Dön”, “Olduğun Yere
+İn/Dur”, “Seçilen Nesneyi Tanı ve Konumlandır”,
+“Hedefe Kilitlen” veya “Manuel Moda Geç” gibi
+komutları, YKİ yerine getirebilmelidir.
+YKİ, İHA ve İKA’nın niteliklerine uygun PID
+(Proportional Integral Derivative), LQR (Linear
+Quadratic Regulator) vb. bir kontrol algoritmasına
+sahip olmalıdır.
+
+Günümüzde ise açık kaynak yer kontrol istasyonu (YKİ)
+yazılımlarında görüntü işleme algoritmaları kullanılmaktadır
+[11], [12]. Görüntü işleme tabanlı yöntemler [13], [14]
+kontrollü koşullarda oldukça başarılı olsa da kontrolsüz
+koşullarda yetersiz kalmaktadırlar. Bundan dolayı yapay zekâ
+teknolojilerinin gelişmesiyle [15] birlikte yeni, geliştirilebilir
+ve entegre edilebilir açık kaynak yer istasyonlarına ihtiyaç
+duyulmaktadır.
+Bu çalışmada Şekil 1’de Jetson Nano yerleşik bilgisayar
+donanımına sahip özgün ürettiğimiz İHA ve İKA’nın yerden
+otonom bir şekilde kontrol edilebilmesi de dikkate alınarak
+açık kaynak akıllı bir YKİ yazılımı tasarlanmıştır. Tasarlanan
+yazılıma, çift çekirdek ve üzeri işlemci üzerinde gerçek
+zamanlı çalışabilmesinden dolayı derin öğrenme mimarisine
+sahip SSD Mobilenet v2 modeli entegre edilmiştir [16]. Bu
+model sayesinde akıllı YKİ’nin düşük maliyetli ekran kartlı bir
+bilgisayar üzerinde de çalıştırılabilmesi amaçlanmıştır. Ayrıca
+yazılımın açık kaynak ve platform-bağımsız çalışabilmesi için
+Netbeans IDE1 8.2 geliştirme platformu, Java2 programlama
+dili, MAVLink3 protokolü ve Flask API [17] kullanılmıştır.
+Akıllı YKİ tasarımındaki ana amaç, İHA ve İKA’yı yerden
+komuta eden operatörün iş yükünü belirli bir seviyenin altında
+tutmak ve insansız aracın uzaktan komuta ve kontrolünü
+basitleştirmektir. YKİ, operatör tarafından belirlenen görevleri
+yerine getirmek için otomatik pilot tarafından kontrol edilecek
+şekilde tasarlanmıştır. Ek olarak, mimari tasarımda aşağıdaki
+motivasyonlar dikkate alınmıştır4:
+•
+
+•
+
+•
+
+YKİ, insansız aracın durumundan haberdar olmak
+için gereken Batarya, Motor, Telemetri, GPS, IMU
+(Inertial Measurement Unit) bilgilerini ve diğer
+sensörlerden gelen tüm bilgileri görüntülemeli ve
+işlemelidir.
+YKİ, insansız araç kamerasının video aktarımıyla
+ilgili bir sorun veya düşük pil seviyesi gibi sistemin
+çalışması sırasında meydana gelebilecek farklı
+olaylara yanıt olarak görsel uyarılar sağlamalıdır.
+YKİ, log kaydı tutmalı ve kontrol edilen insansız
+aracın gidebilecek maksimum menzilini; pil
+seviyesine, aerodinamik parametrelere ve hız
+bilgisine göre anlık olarak tahmin etmelidir.
+1
+
+https://netbeans.apache.org/front/main/
+2
+https://www.java.com
+3
+https://github.com/dronefleet/mavlink
+4
+https://www.teknofest.org/tr/
+
+Şekil 1: Özgün olarak üretilen dört rotorlu insansız hava ve kara aracı.
+
+Bildirinin geri kalanı aşağıdaki şekilde organize edilmiştir:
+Bölüm II'de, İHA ve İKA ile bağlantısı kurulan akıllı YKİ için
+uygulama adımları; Bölüm III'te ise elde edilen sonuçlar
+sunulmuştur.
+II.
+
+MATERYAL VE YÖNTEM
+
+A. Quadrotor (Dört Rotorlu İnsansız Hava Aracı)
+Drone (Quadrotor) olarak da bilinen İHA’lar dört pervaneli
+bir hava aracıdır ve bir operatör veya YKİ tarafından verilen
+görevleri sırayla takip ederek otonom bir şekilde
+ilerleyebilmektedir. Günümüzde bu hava araçları, havada
+sabitlenebilme, dikey olarak iniş ve kalkış yapabilme ve stabil
+bir uçuş deneyimi sunabilme kabiliyetleri ile öne çıkmaktadır.
+Bu hava araçları, kolay kullanım sağlamaları, genellikle
+hafif ve taşınabilir olmaları ve çeşitli kamera ve sensörler ile
+entegre edilebilme yetenekleri nedeniyle popülerdir.
+Bu sebeple çalışmada daha önce laboratuvar ortamında
+özgün olarak üretilen ve YKİ ile haberleşmesi yapılan bir dört
+rotorlu Şekil 1’de verilen İHA kullanılmıştır. İHA üzerinde 4
+adet 16x6 karbon fiber pervane, 4 adet X4110S-400KV motor,
+4 adet 80A ESC, 6S 6200 mAh 40C lipo pil, Pixhawk 2.4.8
+kontrol kartı, Jetson Nano yerleşik bilgisayar, USB kamera,
+3DR 915 MHz telemetri, M8N GPS, alüminyum kompozit
+gövde ve karbon fiber malzemeler kullanılmıştır.
+B. Dört Rotorlu İnsansız Kara Aracı
+İnsansız kara araçları (İKA), bir operatör tarafından
+kumanda ile kontrol edilebilen veya insan müdahalesi olmadan
+YKİ tarafından verilen görevleri otonom olarak yapabilen
+araçlardır. Bu araçlar, keşif, gözetleme, lojistik, hedef
+belirleme, tarım, arama kurtarma ve haritalama amaçlarıyla
+günümüzde kullanılmaktadır. Teknolojinin gelişmesiyle
+birlikte İKA’lar, insan hayatını kolaylaştırmak, korumak,
+erişilmesi zor veya tehlikeli görevleri yerine getirmek için
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:51 UTC from IEEE Xplore. Restrictions apply.
+
+tasarlanmıştır. Gelecekte ise İHA ve İKA’ların işbirlikçi
+(collaborative) bir şekilde beraber ortak çalışmalarının
+sağlanması amacıyla daha fazla araştırma yapılacağı
+öngörülmektedir.
+Dolayısıyla işbirlikçi bir çalışma alt yapısının
+sağlanabilmesi amacıyla bu bildiride daha önce laboratuvar
+ortamında özgün olarak üretilen ve YKİ ile haberleşmesi
+yapılan bir dört rotorlu İKA kullanılmıştır (Şekil 1). İKA
+üzerinde de benzer donanımlar kullanıldığından dolayı İHA ve
+İKA, YKİ üzerinden potansiyel işbirlikçi senaryoların kolayca
+uygulanması
+açısından
+ortak
+görevler
+yürütebilme
+potansiyeline sahiptir. Üretilen İKA üzerinde 4 adet 146 RPM
+12V enkoderli DC motor, 4 adet havalı teker, 2 adet motor
+sürücü, 3S 6200 mAh 45C lipo pil, Pixhawk 2.4.8 kontrol kartı,
+Jetson Nano yerleşik bilgisayar, 3DR 915 MHz telemetri, M8N
+GPS, USB kamera ve alüminyum kompozit gövde
+kullanılmıştır.
+C. Yer Kontrol İstasyonu (YKİ)
+İnsansız bir araç, bir pilot tarafından bir YKİ üzerinde
+kontrol edilebilir veya pilotsuz olarak gömülü sistemler
+tarafından otonom kontrolü sağlanabilir [7,18,19]. Yer
+istasyon yazılımları olarak açık kaynak veya yerli olarak
+mevcutta ondan fazla farklı YKİ yazılımı bulunmaktadır.
+İşletim sistemlerinin masaüstü uygulaması şeklinde olanlar
+(APM Planner 2, Mission Planner, MAVProxy, UgCS ve
+QGroundControl) uygulamalarıdır. Tablet / akıllı telefonlarda
+ise ArduPilot ile iletişim kurmak için kullanılan DroidPlanner
+3, AndroPilot, MAVPilot ve SidePilot uygulamaları vardır.
+Ancak bu uygulamalar geleneksel komutlara bağlı
+çalışmaktadır ve yapay zekâ özellikleri bulunmamaktadır. Bu
+sebeple bu çalışmada Şekil 2’de blok diyagramı verilen
+platform bağımsız akıllı bir YKİ geliştirilmiştir.
+D. Önerilen Yöntem ve Deneyler
+Çalışma kapsamında geliştirilen yazılım ağırlıklı olarak
+Java programlama dili ile gerçekleştirilmiştir. YKİ’nin yapay
+zekâ ile nesne tespiti ve konumlandırma yapabilen bilgisayarlı
+görme algoritması (SSD Mobilenet v2) [20] ile entegrasyonu
+ise Python programlama dili kullanılarak Flask API [17]
+aracılığıyla sağlanmıştır. SSD Mobilenet v2, Jetson Nano
+yerleşik bilgisayar üzerinde çalışmakta olup işlenen imgeleri ve
+verileri Flask API aracılığıyla yer istasyonuna aktarmaktadır.
+Bu sayede genel olarak Python ile çalışan ve işlenen yapay
+zekâ algoritmaları başka bir programlama dilinde çalışan
+sisteme bu işlenen verileri aktarabilmektedir. İHA ve İKA'da
+yerleşik bilgisayar bulunması sebebiyle yüksek işlem gücü
+gerektiren bilgisayarlı görme algoritma hesaplamaları yerinde
+gömülü olarak yapılıp sadece işlenmiş verilerin YKİ'ye
+gönderilmesinin hızlı aksiyon alma gibi avantajları
+bulunmaktadır. Ayrıca önerilen yöntem sayesinde Jetson Nano
+hesaplama gücü devre dışı bırakılarak YKİ üzerinde de yapay
+zekâ tabanlı görüntü işleme yapılabilmektedir. Ancak bu
+özelliğin kısa da olsa gecikme süresi gibi dezavantajı
+bulunmaktadır. Yaklaşık 2 metre mesafede yapılan İHA-İKAYKİ haberleşmesi deneysel ölçümünde basit komut (eve dön)
+bazında ortalama 0.7 saniye haberleşme gecikmesi (latencylag) bulunmuştur. Yöntemin geliştirilmesinde İHA ve İKA ile
+haberleşmenin sağlanması için Pixhawk 2.4.8 kontrol kartı ve
+
+MAVLink [21] protokolü kullanılmıştır. Çalışmada MAVLink
+protokolü aracılığıyla YKİ’den Pixhawk kontrol kartı entegre
+edilmiş İHA ve İKA üzerine, aşağıda Tablo 1'de
+örneklendirilen komutlar gönderilebilmektedir.
+TABLO I.
+Komut
+
+MAVLİNK KOMUTLARINDAN ÖRNEK BİR KESİT
+Değer
+
+Açıklama
+
+MAV_CMD_
+COMPONENT_
+ARM_DISARM
+
+1
+(ARM)
+
+Güvenlik gereği aracın motorlarını çalıştırma ve
+aracı kullanmaya hazır hale getirme işlemidir.
+
+MAV_CMD_
+DO_SET_
+MODE
+
+4
+(GUIDED)
+
+İnsansız araç “GUIDED” moduna alınarak
+Pixhawk içerisinde hazır bulunan katmanlı
+(cascade) PID kontrolcü algoritmasının
+(hız/oran/pozisyon) kullanılması sağlanır. Bu
+sebeple araç otonom olarak YKİ tarafından
+verilen görevleri daha stabil bir şekilde yerine
+getirir.
+
+gpsRawInt.
+getPayload().lat()
+
+-
+
+Aracın anlık GPS enlem bilgisini geri döndürür.
+
+attitude.
+getPayload().roll()
+
+-
+
+Aracın anlık roll (yalpalama) Φ açısını geri
+döndürür.
+
+Ayrıca İHA ve İKA üzerinde bulunan yerleşik (gömülü)
+bilgisayar (Jetson Nano) üzerinde gerçek zamanlı olarak
+çalıştırılan ve kendi veri setimizle insan ve araba sınıfları için
+tekrar eğitilen SSD Mobilenet v2 nesne tespit algoritmasına ait
+ortalama başarım ve hassasiyet skorları Tablo 2’de verilmiştir.
+TABLO II. YERLEŞİK BİLGİSAYAR ÜZERİNDE GERÇEK ZAMANLI
+ÇALIŞTIRILAN ALGORİTMANIN ORTALAMA PERFORMANSI
+Sınıf
+İnsan
+Araba
+
+Başarı (%)
+70.28
+69.24
+
+Hassasiyet (%)
+84.42
+93.36
+
+Hız (fps)
+18.07
+
+Şekil 2: Akıllı yer kontrol istasyonu blok diyagramı.
+
+Bu işlemler sonucunda, üretilen İHA ve İKA’ların
+geliştirilen platform bağımsız akıllı YKİ tarafından otonom
+olarak yönetilebildiği gözlemlenmiştir. Çalışma kapsamında
+insansız araçlar için YKİ tarafından verilen; “Eve Dön”,
+“Olduğun Yere İn/Dur”, “Seçilen Nesneyi Tanı ve
+Konumlandır”, “Hedefe Kilitlen”, “Otonom Görev” veya
+“Manuel Moda Geç” gibi komutlar test edilmiş ve yazılım
+çıktılarının uyumlu sonuçlar verdiği görülmüştür. Ayrıca akıllı
+YKİ ile farklı İHA-İHA, İHA-İKA, İKA-İKA işbirlikçi
+çalışmaları uyarlanabilmektedir. Literatürdeki geleneksel ve
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:51 UTC from IEEE Xplore. Restrictions apply.
+
+

@@ -1,0 +1,548 @@
+12712
+
+IEEE TRANSACTIONS ON INTELLIGENT TRANSPORTATION SYSTEMS, VOL. 26, NO. 8, AUGUST 2025
+
+Optimal Load Balancing of Cooperative UAV–UGV
+Parcel Pickup to Minimize Completion Time
+Soobin Yoon and Kisong Lee
+
+Abstract— In this study, we investigate an optimal load balancing of
+cooperative parcel pickup between an unmanned aerial vehicle (UAV)
+and an unmanned ground vehicle (UGV). By considering practical
+aspects, such as the movement characteristics of each vehicle and the
+avoidance of no-fly zones for the UAV, we aim to optimize the threedimensional trajectories and pickup strategies of the two vehicles to
+identify the shortest route to minimize pickup completion time. To deal
+with the nonconvex optimization problem, we employ a successive convex
+approximation to convert the original problem into a convex form
+for optimization variables, and we also use a penalty convex-concave
+procedure to retain the binary natures of the control parameters that
+are required to design the pickup strategy. We also propose a twostage iterative algorithm based on interior-point methods to solve the
+relaxed convex problem to find suboptimal solutions. The simulation
+results confirm that the proposed scheme can successfully allow the UAV
+and UGV to follow the shortest effective path and thus improve pickup
+completion time through load balancing, while outperforming the baseline
+schemes under various scenarios.
+Index Terms— UAV–UGV cooperation, load balancing, 3D
+trajectory, pickup design, nonconvex optimization.
+
+I. I NTRODUCTION
+Recent years have seen significant advancements in the development and production of cost-effective unmanned aerial vehicles
+(UAVs), which has led to the increasing versatility of UAVs across
+a wide range of applications, including military, surveillance, and
+delivery services [1]. Most notably, Amazon launched a UAV delivery
+service in the UK in December 2016 that allows parcels weighing
+up to five pounds to be delivered within 30 minutes of ordering [2].
+Accordingly, there have been various studies aiming to identify the
+optimal strategy for UAV-enabled parcel delivery [3], [4], [5], [6],
+[7]. In [3], a collision-free path planning algorithm was proposed
+to find the shortest path on a dynamic graph. In [4], an Internet of
+Things-based UAV delivery system was developed to provide UAVs
+with the ability to autonomously fly in mixed indoor and outdoor
+environments. Moreover, the dynamic meal-order task scheduling
+problem was explored to minimize total tardiness in a UAV-enabled
+on-demand meal delivery system [5]. The authors of [6] jointly
+optimized the trajectory of the UAV and parcel pickup strategy with
+the aim of maximizing total item value while avoiding no-fly zones
+(NFZs). In [7], a simulated-annealing-based two-phase optimization
+approach was designed to solve the scheduling and routing problems
+for UAV package pickup and delivery systems.
+Along with UAVs, unmanned ground vehicles (UGVs) which can
+move and operate autonomously have been leveraged for delivery
+Received 7 March 2024; revised 23 January 2025; accepted 17 June 2025.
+Date of publication 4 July 2025; date of current version 6 August 2025.
+This work was supported by the National Research Foundation of Korea
+(NRF) through Korean Government (MSIT) under Grant RS-2022-NR070834
+and Grant RS-2024-00343262. The Associate Editor for this article was
+E. Kaisar. (Corresponding author: Kisong Lee.)
+The authors are with the Department of Information and Communication
+Engineering, Dongguk University, Seoul 04620, South Korea (e-mail:
+kslee851105@gmail.com).
+Digital Object Identifier 10.1109/TITS.2025.3582942
+
+applications [8], [9]. In [8], the authors discussed the application of
+UGVs as delivery robots and developed autonomous UGV delivery
+systems. In [9], a dynamic algorithm was proposed that allowed
+a UGV to continuously optimize its route while performing the
+same task repeatedly. There has also been some recent research
+examining cooperation between UAVs and UGVs by combining
+their respective strengths [10], [11], [12], [13], [14], [15]. In [10],
+a computer vision-based framework was presented for a cooperative
+UAV–UGV system for path planning. In [11], an obstacle avoidance
+algorithm was designed that could guide UAVs and UGVs in pathfollowing tasks. The authors of [12] formulated a model involving
+cooperative UAV–UGV-enabled emergency resource delivery and
+suggested a three-stage method to solve the nested vehicle routing
+problem. In [13], the circular paths for UAVs and UGVs were
+optimized to minimize travel time while achieving complete coverage
+for surveillance tasks. Finally, a low-complexity parcel delivery
+scheduling policy was proposed for a UAV-vehicle collaboration
+system in [14], and collaborative pickup and delivery tasks between
+trucks and UAVs were optimized to minimize operational costs
+in [15].
+Although existing studies have investigated cooperative strategies
+for UAV–UGV delivery [10], [11], [12], [13], they have not
+considered the actual movement characteristics of each vehicle that
+may occur in real-world scenarios. With this background, we design
+an optimal load balancing for cooperative UAV–UGV parcel pickup
+that can be applied in practice in real-world scenarios. The specific
+contributions of our study can be summarized as follows:
+• Taking into account the distinct movement characteristics of
+each vehicle, such that the UAV can fly freely in threedimensional (3D) space but cannot access NFZs whereas the
+UGV can only move in either the horizontal or vertical direction
+at any given moment, we design a mathematical model for a
+cooperative parcel pickup scenario. Based on this model, we aim
+to jointly optimize the UGV movement direction indicator,
+pickup indicator, 3D trajectory, and lengths of time slots for the
+two vehicles to identify the shortest route to minimize pickup
+completion time, which has not been done to this point.
+• To approximate suboptimal solutions from the formulated nonconvex problem, we employ successive convex approximation
+(SCA) to convert the original constraints into convex sets and
+leverage interior-point methods to solve the transformed convex
+problem iteratively. We also use the penalty convex-concave
+procedure (PCCP) to maintain the binary characteristics of the
+optimization variables concerning the pickup strategy, although
+they are relaxed to have continuous values to solve the problem.
+Finally, we propose a two-stage iterative algorithm to derive the
+UAV–UGV cooperative strategy.
+• The results of extensive simulations conducted under a variety of
+scenarios confirm that the proposed scheme not only minimizes
+the pickup completion time but also forms the shortest route
+without violating NFZs through two-stage optimization. It also
+outperforms the baseline schemes in terms of completion time
+
+1558-0016 © 2025 IEEE. All rights reserved, including rights for text and data mining, and training of artificial intelligence
+and similar technologies. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:16 UTC from IEEE Xplore. Restrictions apply.
+
+IEEE TRANSACTIONS ON INTELLIGENT TRANSPORTATION SYSTEMS, VOL. 26, NO. 8, AUGUST 2025
+
+12713
+
+in each time slot, which can be represented by
+sG [n] ∈ {0, 1}, ∀n,
+
+(4)
+
+∥qG [n]−qG [n −1]∥ ≤ sG [n]VGh δG [n], ∀n,
+(5)
+v
+∥z G [n]−z G [n −1]∥ ≤ (1−sG [n])VG δG [n], ∀n,
+(6)
+2 [n], ∀n,
+∥qU [n]−qU [n −1]∥2 +(zU [n]−zU [n −1])2 ≤ VU2 δU
+(7)
+∥zU [n]−zU [n −1]∥ ≤ VUv δU [n], ∀n.
+
+Fig. 1.
+
+System model of a cooperative parcel pickup.
+
+by jointly optimizing the control parameters of the UAV and
+UGV in an efficient manner.
+The rest of this paper is organized as follows. Section II describes
+the system model for cooperative UAV–UGV delivery and formulates
+the corresponding optimization problem. Section III details the
+proposed two-stage iterative algorithm for UAV–UGV cooperation.
+Section IV presents simulation results that evaluate the performance
+of the proposed scheme against baseline methods under various
+system settings. Finally, Section V concludes the paper with a
+summary of key findings.
+II. S YSTEM M ODEL AND P ROBLEM S TATEMENT
+We consider a cooperative parcel pickup scenario where one UAV
+and one UGV depart from a warehouse, pick up a total of K parcels,
+and return to the warehouse with the collected parcels, as depicted in
+Fig. 1. Let Tm denote the period required for vehicle m to complete
+parcel pickup, where m ∈ M = {U, G} is an indicator of the vehicle,
+i.e., U for UAV and G for UGV. Moreover, Tm is discretized
+into
+PN
+δm [n]
+N time slots of different lengths δm [n], such as Tm = n=1
+with n ∈ N = {1, 2, . . . , N }. At the beginning of time slot n,
+the horizontal and vertical coordinates of vehicle m are denoted as
+qm [n] = (xm [n], ym [n]) and z m [n], respectively. The UAV should fly
+U and H U , except when
+at the allowed flight altitude between Hmin
+max
+landing to pick up a parcel, and to avoid collisions, the distance
+between the vehicles must be greater than the minimum distance,
+dmin , in every time slot. We can then build the following constraints.
+2 , ∀m, n ∈ {0, N },
+∥qm [n]−qstr ∥2 +(z m [n]−z str )2 ≤ Rstr
+
+(1)
+
+2 , ∀n ∈ {1, N −1},
+∥qU [n]−qstr ∥2 ≤ Rstr
+2 , ∀n,
+∥qU [n]−qG [n]∥2 +(zU [n]−z G [n])2 ≥ dmin
+
+(2)
+(3)
+
+where (qstr , z str ) is the horizontal and vertical coordinates of the
+warehouse and Rstr is the radius of the warehouse with Rstr ≥ dmin .
+Note that constraint (2) prevents the UAV from deviating from the
+allowed flight altitude when taking off or landing from the warehouse.
+It should be noted that, whereas the UAV can fly freely in 3D
+space, the UGV can only move either horizontally or vertically
+using elevators at any given moment. Accordingly, we can design
+the mobility constraints for both vehicles as follows: Let VU
+and VUv denote the maximum flight velocity of the UAV in the
+3D space and the vertical direction, respectively, where VUv is
+generally smaller than VU [16]. Also, let VGh and VGv denote the
+maximum horizontal and vertical velocities of the UGV, respectively.
+Moreover, sG [n] is a UGV movement direction indicator, i.e.,
+sG [n] = 1 indicates that the UGV is moving in the horizontal
+direction, otherwise sG [n] = 0. These maximum velocities limit
+the maximum allowable distance that each vehicle can travel
+
+(8)
+
+We also consider L nonoverlapping NFZs of cylindrical shape
+that the UAV is not allowed to access but the UGV is. Using
+the concept of an expanded NFZ introduced in [17], we can build
+the following additional constraint for the UAV to completely avoid
+the NFZs during a continuous trajectory.
+
+
+VU δU [n] 2
+∥qU [ j]−cl ∥2 ≥ Rl2 +
+, ∀l, n, j ∈ {n −1, n},
+(9)
+2
+where cl = (xl , yl ) and Rl are the coordinate center and radius of
+NFZ l with l ∈ L = {1, 2, · · · , L}.
+To design the pickup of parcels, let αm,k [n] denote a binary
+pickup indicator for parcel k by vehicle m at time slot n, i.e.,
+αm,k [n] = 1 indicates that parcel k is picked up by vehicle m at time
+slot n, and αm,k [n] = 0 otherwise. Parcel k weighs wk and vehicle
+m has a maximum load Wm that it can carry, so the total weight of
+the parcel being carried by vehicle m must be less than or equal to
+the maximum allowable weight for every time slot. Therefore, the
+following constraints can be constructed.
+αm,k [n] ∈ {0, 1}, ∀m, k, n,
+N
+X X
+
+αm,k [n] ≤ 1, ∀k,
+
+m∈M n=1
+K
+X
+
+αm,k [n] ≤ 1, ∀m, n,
+
+(10)
+(11)
+
+(12)
+
+k=1
+
+wm [n] =
+
+K X
+n
+X
+k=1
+
+
+αm,k [ j] wk ≤ Wm , ∀m, n.
+
+(13)
+
+j=1
+
+Here, constraint (11) implies that parcel k must be picked up by only
+one vehicle during the entire time slot and constraint (12) represents
+that vehicle m can pick up only one parcel at each time slot.
+U ,
+When picking up a parcel, the UAV can descend below Hmin
+U
+U
+which is outside the allowed altitude range between Hmin and Hmax .
+G when picking up a
+The UGV can also move vertically within Hmax
+parcel at a high altitude. These constraints can be expressed as
+
+
+K
+X
+U ≤ z [n] ≤ H U , ∀n,
+1−
+αU,k [n] Hmin
+(14)
+U
+max
+k=1
+G , ∀n,
+0 ≤ z G [n] ≤ (1 − sG [n]) Hmax
+
+
+K
+X
+G , ∀n.
+0 ≤ z G [n] ≤ 
+αG,k [n] Hmax
+
+(15)
+(16)
+
+k=1
+
+Note that, for the UGV to move up, one of αG,k [n] ∀k is set to 1,
+and at the same time sG [n] is set to 0 at time slot n.
+To pick up parcel k, each vehicle needs to have access to a circular
+pickup zone with a tolerance of Rk . The UAV (UGV) must be within
+this pickup zone both when retrieving the parcel and while descending
+(ascending) to pick up the parcel and ascending (descending) after
+picking up the parcel. Consequently, the vehicles must be in the
+pickup zone during the time slot before and after the parcel is picked
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:16 UTC from IEEE Xplore. Restrictions apply.
+
+12714
+
+IEEE TRANSACTIONS ON INTELLIGENT TRANSPORTATION SYSTEMS, VOL. 26, NO. 8, AUGUST 2025
+
+up; this can be formulated as follows:
+αm,k [n](∥qm [n]−uk ∥2 +(z m [n]−z k )2 ) ≤ R2k ,
+αm,k [n](∥qm [ j]−uk ∥2 ) ≤ R2k ,
+∀m, k, n ̸ = N , j ∈ {n −1, n +1},
+
+(17)
+(18)
+
+where uk = (xk , yk ) and z k are the horizontal center and vertical
+coordinates of the k-th pickup zone, respectively.
+The constraint for indicating the pickup of all parcels, i.e.,
+completion of the mission, is represented by
+K X
+N
+X X
+
+αm,k [n] ≥ K .
+
+(19)
+
+m∈M k=1 n=1
+
+In this study, we aim to optimize the UGV movement
+direction indicator (S ≜ {sG [n], ∀n}), pickup indicator (A ≜
+{αm,k [n], ∀m, k, n}), horizontal and vertical trajectories of the
+vehicles (Q ≜ {qm [n], ∀m, n} and Z ≜ {z m [n], ∀m, n}), and lengths
+of the time slots (1 ≜ {δm [n], ∀m, n}) with the aim of minimizing
+pickup completion time while ensuring
+P that there
+ are no violations
+N
+of NFZs. Defining η = maxm∈M
+δ
+[n]
+, we can formulate
+m
+n=1
+the optimization problem as follows:
+(P0):
+s. t.
+
+min
+
+η
+
+η≥
+
+δm [n], ∀m,
+
+S, A, Q, Z, 1
+N
+X
+
+r [n])2 +s [n](1−2s r [n]) ≤ ρ[n], ∀n,
+(sG
+G
+G
+
+(25)
+
+r [n])2 +α
+r
+(αm,k
+m,k [n](1−2αm,k [n]) ≤ λm,k [n], ∀m, k, n.
+
+(26)
+
+Here, ρ[n] ≥ 0 and λm,k [n] ≥ 0 are nonnegative slack variables used
+for PCCP, which increase the initial feasible region for an efficient
+r [n] and αr [n]
+update to optimize sG [n] and αm,k [n]. Further, sG
+m,k
+are the values of sG [n] and αm,k [n] updated for the r -th iteration.
+To address the nonconvexity of (3), we use the first-order Taylor
+expansion to derive the lower bound on the LHS of (3) because it is
+convex w.r.t. the optimization variables. Then, constraint (3) can be
+converted into the following convex set.
+∥qU [n]−qG [n]∥2 +(zU [n]−z G [n])2 ≥ −∥qrU [n]−qrG [n]∥2
+T
+r [n]−z r [n])2
++ 2 qrU [n]−qrG [n] (qU [n]−qG [n])−(zU
+G
+
+r
+r
+2
++ 2 zU [n]−z G [n] (zU [n]−z G [n]) ≥ dmin , ∀n,
+(27)
+where qrm [n] and z rm [n] are the values of qm [n] and z m [n] updated
+for the r -th iteration with m ∈ {U, G}.
+2
+G [n]) −
+Given that sG [n]δG [n] can be replaced with (sG [n]+δ
+2
+2 [n]+δ 2 [n]
+sG
+G
+, we can convert (5) into the equivalent form, as follows:
+2
+
+∥qG [n]−qG [n −1]∥+VGh
+
+n=1
+
+(1) − (19).
+
+expansion at any point [19], we can modify (23) and (24) by deriving
+their respective upper bounds, as follows:
+
+(20)
+
+Problem (P0) is a nonconvex mixed-integer nonlinear programming
+(MINLP) because S and A are the sets of binary variables and
+constraints (3), (5), (6), (7), (9), (17), and (18) are not convex
+sets with respect to (w.r.t.) the relevant optimization variables.
+It is therefore difficult to mathematically derive a globally optimal
+solution.
+III. P ROPOSED A LGORITHM
+To overcome the challenges stemming from the nonconvex
+constraints in problem (P0), we use SCA to convert them into
+convex sets for optimization variables. This enables the use of wellestablished convex optimization solvers, such as CVX, which utilizes
+interior-point methods [18], to efficiently obtain solutions. We also
+apply a relaxation approach to the binary variables S and A, thus
+allowing them to take continuous values, and we utilize PCCP
+to preserve the essential binary nature of these variables. Lastly,
+we introduce a two-stage iterative algorithm to solve the relaxed
+convex problem. The specific procedure we use to address each
+nonconvex constraint is detailed below.
+To deal with the binary constraints (4) and (10), we transform
+sG [n] and αm,k [n] into the equivalent forms, as follows:
+0 ≤ sG [n] ≤ 1, ∀n,
+
+(21)
+
+0 ≤ αm,k [n] ≤ 1, ∀m, k, n,
+
+(22)
+
+sG [n] (1−sG [n]) ≤ 0, ∀n,
+
+αm,k [n] 1−αm,k [n] ≤ 0, ∀m, k, n,
+
+(24)
+
+(23)
+
+where constraints (23) and (24) guarantee that the binary nature of
+sG [n] and αm,k [n] is preserved. However, it is difficult to address
+these constraints because they are nonconvex sets and have a tight
+search space. Based on the fact that the left-hand side (LHS)
+of (23) and (24) is concave w.r.t. sG [n] and αm,k [n], respectively,
+and that a concave function is upper-bounded by its first-order Taylor
+
+!
+2 [n]+δ 2 [n]
+sG
+G
+2
+!
+
+(sG [n]+δG [n])2
+≤ VGh
+, ∀n.
+2
+
+(28)
+
+Applying the first-order Taylor expansion to the right-hand side
+(RHS) of (28), we can make (28) a convex set as follows.
+!
+2 [n]+δ 2 [n]
+sG
+G
+h
+≤ VGh
+∥qG [n]−qG [n −1]∥+VG
+2
+!
+r [n]+δr [n])2
+(sG
+G
+r
+r
+×−
++(sG [n]+δG [n])(sG [n]+δG [n]) , ∀n,
+2
+(29)
+r [n] is the value of δ [n] updated for the r -th iteration.
+where δG
+G
+Using a similar approach, (6) and (7) can be transformed into the
+following convex sets.
+!
+(sG [n]+δG [n])2
+v
+∥z G [n] −z G [n −1]∥+VG
+−VGv δG [n] ≤ VGv
+2
+!
+r [n])2
+(s r [n])2 +(δG
+r [n]s [n]+δr [n]δ [n] , ∀n,
+× − G
++sG
+G
+G
+G
+2
+
+(30)
+∥qU [n]−qU [n −1]∥2 +(zU [n]−zU [n −1])2
+
+
+r [n]2 +2δr [n] δ [n]−δr [n] , ∀n,
+≤ VU2 δU
+U
+U
+U
+
+(31)
+
+r [n] is the value of δ [n] updated for the r -th iteration.
+where δU
+U
+The LHS of (9) is convex w.r.t qU [ j], so we can apply the firstorder Taylor expansion to it to get a lower bound. Using this lower
+bound, we can replace constraint (9) with the following convex set.
+
+∥qrU [ j]−cl ∥2 +2(qrU [ j]−cl )T (qU [ j] − qrU [ j])
+
+
+VU δU [n] 2
+≥ Rl2 +
+, ∀l, n, j ∈ {n −1, n}.
+2
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:16 UTC from IEEE Xplore. Restrictions apply.
+
+(32)
+
+

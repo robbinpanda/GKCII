@@ -1,0 +1,564 @@
+2021 World Automation Congress (WAC), Online, August 1-5
+
+UGV-UAV Coordination: Takeoff, Landing and
+Formation Control
+Arindam Singha, Anjan Kumar Ray, and Arun Baran Samaddar
+Department of Electrical and Electronics Engineering
+National Institute of Technology Sikkim, Ravangla 737139, India
+arindamsingha008@gmail.com, akray.nits@gmail.com, absamaddar@yahoo.com
+
+Abstract—This article presents a formation control paradigm
+between an Unmanned Ground Vehicle (UGV) and an Unmanned
+Aerial Vehicle (UAV). The objective for the UGV is to track
+the desired trajectory and the UAV coordinates with the UGV
+for autonomous takeoff and landing. The aspects of landing
+of the UAV as well as taking off from the moving UGV are
+explored. The stability of the proposed controllers for both UGV
+and UAV is verified through the Lyapunov stability criterion.
+The effectiveness of the proposed controllers are shown through
+extensive simulation results including a circular, a sinusoidal, and
+an eight shaped trajectories. The comparative study also shows
+the effectiveness of the proposed work.
+Index Terms—Unmanned Ground Vehicle, Unmanned Aerial
+Vehicle, Heterogeneous System, Trajectory Tracking, Formation
+Control, Dynamic Modelling
+
+I. I NTRODUCTION
+Controlling of an Unmanned Aerial Vehicle (UAV) has
+become an important aspect of research in the recent time.
+An UAV is useful in many applications like surveillance, map
+building, delivery in emergency situations (food, medicines
+in natural catastrophe), or delivery of e-commerce items.
+Now, there are several constraints which restrict the UAV to
+manueveur for long time like battery capacity or fuel. So, to
+recharge the battery or refuelling, the UAV needs to land and
+it has to take off from that ground station. The ground station
+could be stationary or moving. The ground station could be
+an Unmanned Ground Vehicle (UGV) also. So, this problem
+needs special attention due to its complexity and wide scope
+of applications.
+A distributed formation controller was proposed in [1]. The
+authors developed two controllers for the UGV and the UAV
+respectively. The UAV maintained a desired formation with
+the UGV while moving on a desired trajectory. It showed that
+the UAV was able to land on and takes off from the UGV. A
+sliding mode controller based guidance of an UAV for landing
+and taking off on a stationary and moving ground vehicle
+was described in [2]. A vision based formation controller
+design of a heterogeneous system was given in [3]. In [4], the
+authors developed a time-varying formation controller based
+on the dynamic modeling of the UGV and the UAVs. The
+formation controller of a heterogeneous system consisting of
+the UGV and the UAV was also proposed in [5]. A coordinated
+This work is supported by the Visvesvaraya Ph.D. Scheme, Digital India
+Corporation (formerly known as the Media Lab Asia) for the project entitled
+“Intelligent Networked Robotic Systems”.
+
+air-ground vehicle was described in [6]. In [7], the authors
+proposed a formation protocol design for a heterogeneous
+system. The agents were communicated through directed graph
+and in leader-follower approach. Similar to that, another
+formation controller was proposed in [8] for a heterogeneous
+system where the network topology was a weighted directed
+graph. In [9], a distributed time-varying formation controller
+was proposed for a class of heterogeneous linear multi-agent
+systems. The multi-agent system contained a virtual leader,
+multi leaders, and followers. The simulation results validated
+the effectiveness of the proposed distributed time-varying
+controller. The authors in [10] developed an observer based
+adaptive time-varying formation controller for a heterogeneous
+system. The proposed observer was able to estimate the state
+matrix of the leader agent in finite time. In article [11],
+consensus tracking of a group of heterogeneous agents was
+presented. To achieve the objective, an interdependent model
+of the heterogeneous system was built. A formation controller
+was proposed in [12] for a class of nonholonomic robots
+with docking capability. The robots were capable of dynamic
+formation to avoid the collision with obstacles.
+This paper contributes on these following aspects
+1) A formation controller is proposed for both the UGV
+and the UAV.
+2) The UAV generates the control input based on information regarding the state of the UGV.
+3) The simulation results show that the proposed controller
+is effective and guides the UAV for successful taking off
+and landing from/on the UGV.
+4) The effectiveness of the proposed controller is validated
+through a comparative study.
+The rest of article is organized as follows: the modelling of
+both the UGV and the UAV is described in section II, followed
+by the design of controllers for both the systems in section III
+and IV respectively. Section V refers to the simulation results
+of the proposed controller. Section VI discusses about the
+conclusion and possible scope of extensions of the proposed
+work.
+II. M ODELLING OF THE HETEROGENEOUS SYSTEM
+The modelling of both the UGV and the UAV is presented
+here.
+
+Authorized licensed use limited to: Shanghai
+University.
+978-1-68524-111-7/21/$31.00
+©2021 Jiaotong
+TSI Press
+Inc.Downloaded
+302 on May 25,2026 at 05:49:18 UTC from IEEE Xplore. Restrictions apply.
+
+2021 World Automation Congress (WAC), Online, August 1-5
+
+A. Modelling of an Unmanned Ground Vehicle
+This section describes the model of the UGV system. The
+UGV parameters are taken from [13]. The linear and angular
+velocities of the UGV are denoted as ug and ωg . uref and
+ωref are the control inputs to the system. The model of the
+UGV is presented through equation (1) [13], [14].
+
+  ug cos ψg − aωg sin ψg  
+00
+ẋg
+ug sin ψg + aωg cos ψg   0 0  
+ ẏg  
+
+ 
+
+  
+
+  0 0  uref
+ωg
+ψ̇g  = 
+(1)
++ 1 
+θ3g 2
+θ4g
+  
+ 
+ ωref
+ u̇g  
+θ1g ωg − θ1g ug
+  θ1g 0
+θ5
+θ6
+0 θ21
+ω̇g
+− g ug ωg − g ωg
+θ2g
+
+θ2g
+
+g
+
+xg and yg represent the position of the UGV. ψg is the
+heading angle of the UGV. θg is a vector, represented as
+θg = [θ1g θ2g θ3g θ4g θ5g θ6g ]T [13]. a is the distance between
+the centre of two wheels and point of interest of the UGV [13].
+B. Modelling of an Unmanned Aerial Vehicle
+The positional and the attitude subsystems can be represented separately as p = [x, y, z]T and ϑ = [φ, θ, ψ]T with
+respect to the earth frame and body frame respectively. φ, θ
+and ψ are the Euler angles representing the roll, pitch, and
+yaw angles of the UAV. The velocity and acceleration of
+the UAV are denoted as ṗ = [ẋ, ẏ, ż]T and p̈ = [ẍ, ÿ, z̈]T
+respectively. The angular velocity and acceleration of the UAV
+with respect to the body frame are denoted as ϑ̇ = [φ̇, θ̇, ψ̇]T
+and ϑ̈ = [φ̈, θ̈, ψ̈]T respectively. The UAV model and the
+parameter values are taken from [15]. The model of the UAV
+is described in equation (2) [15].
+
+
+ẍ = Ux Um1
+
+
+
+
+ÿ = Uy Um1
+
+
+
+
+C C
+
+z̈ = φmθ U1 − g
+I −I
+(2)
+φ̈ = θ̇ψ̇ yIx z − JIxr θ̇ω + Ilx U2
+
+
+
+
+
+
+
+x
+
+θ̈ = φ̇ψ̇ IzI−I
++ JIyr φ̇ω + Ily U3
+
+y
+
+
+
+
+
+ψ̈ = φ̇θ̇ Ix −Iy + 1 U4
+Iz
+
+Iz
+
+where, Ux
+=
+(Cφ Sθ Cψ + Sφ Sψ ) and Uy
+=
+(Cφ Sθ Sψ − Sφ Cψ ), here S(.) = sin (.) and C(.) = cos (.).
+The values of the roll, pitch, and yaw angle are from
+φ ∈ (− π2 , π2 ), θ ∈ (− π2 , π2 ), and ψ ∈ (−π, π) respectively
+and ω = ω2 + ω4 − ω1 − ω3 [15]. ω1 , ω2 , ω3 , ω4 are the speed
+of the rotors. Ix , Iy and Iz are the moment or inertia along
+the respective axes. m is the mass of the UAV, and l is the
+distance between center of the UAV to the center of the rotor.
+g stands for the gravitational acceleration. Jr represents the
+total moment of inertia along the propeller axis. U1 , U2 , U3 ,
+and U4 are the control inputs along z-axis, and roll, pitch,
+yaw angle respectively.
+III. C ONTROLLER FOR THE UGV
+This section describes the steps to design the tracking
+controller for the UGV and formation controller for the UAV.
+The model of the UGV described in equation (1) can be
+
+divided into its kinematic and dynamic model. The design
+of both kinematic and dynamic controller is given in the next
+section.
+A. Kinematic controller
+The kinematic model of the UGV system is described in
+equation (3).
+  
+
+ẋg
+cos ψg − a sin ψg  
+ ẏg  =  sin ψg a cos ψg  ug
+(3)
+ωg
+0
+1
+ψ̇g
+Now considering the linear motion of the UGV, it can be
+expressed as h = [xg yg ]T . Hence,
+  
+ 
+ẋ
+cos ψg − a sin ψg ug
+ḣ = g =
+(4)
+ẏg
+sin ψg a cos ψg
+ωg
+The inverse kinematics of the UGV is given by,
+ 
+  
+cos ψg sin ψg
+ẋg
+ug
+=
+ωg
+− a1 sin ψg a1 cos ψg ẏg
+
+(5)
+
+The kinematic control laws for the linear (ucref ) and the
+c
+rotation (ωref
+) velocities are expressed as
+
+
+ c  
+xd2g + kxg exg
+uref
+cos ψg sin ψg
+(6)
+=
+c
+ωref
+− a1 sin ψg a1 cos ψg yd2g + kyg eyg
+xd2g and yd2g are the desired velocities of the UGV along the
+x and y axes respectively. kxg and kyg are the positive constant
+gains. Similarly, exg and eyg are positional errors of the UGV
+along x and y axes respectively. The objective of designing
+this controller is to generate a reference control input for the
+dynamic controller.
+Stability analysis: The stability of the proposed controller
+is ensured using the Lyapunov stability criteria. In order to
+minimize the velocity errors, this condition must be followed
+ c   
+uref
+u
+= g
+(7)
+c
+ωref
+ωg
+So,
+  
+  
+ėxg
+k e
+0
++ xg xg =
+ėyg
+kyg eyg
+0
+
+(8)
+
+where, ėxg and ėyg are the velocity errors along the respective
+axes of the UGV. Now considering eh = [exg eyg ]T . Equation
+(8) can be rewritten as
+ 
+
+
+ė
+k e
+ėh = xg = − xg xg
+(9)
+ėyg
+kyg eyg
+Now defining a Lyapunov function as
+1 T
+e eh
+2 h
+The time derivative of equation (10) can be written as
+V1 =
+
+V̇1 = −kxg (exg )2 − kyg (eyg )2
+
+(10)
+
+(11)
+
+while kxg and kyg are positive constant values then V̇1 ≤ 0.
+So it can be concluded that, the proposed controller is stable.
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded
+303 on May 25,2026 at 05:49:18 UTC from IEEE Xplore. Restrictions apply.
+
+2021 World Automation Congress (WAC), Online, August 1-5
+
+B. Dynamic controller
+In this section, the design of controller considering the
+dynamic model of the UGV is explained. The dynamic model
+of the UGV can be expressed as
+ "
+
+#
+θ4g
+θ3g 2
+ 
+
+1
+ω
+−
+u
+0 uref
+g
+g
+u̇g
+θ
+θ
+θ
+1
+1
+1
+g
+g
+
++
+(12)
+=  θ5gg
+θ6
+ωref
+ω̇g
+0 θ21
+− θ2 ug ωg − θ2g ωg
+g
+g
+
+g
+
+Defining the the error along linear velocity eug as
+eug = ucref − ug
+
+(21)
+
+ez2 = z2 − zd2
+
+(22)
+
+zd2 = żd1 − kz1 ez1
+
+(23)
+
+kz1 is a positive constant. Now taking the time derivative of
+equation (21), yields,
+(14)
+
+Now, the controller along linear motion uref is designed as
+
+
+θ3
+θ4g
+ug − g ωg2 + u̇cref + ku sgn(eug )
+(15)
+uref = θ1g
+θ1g
+θ1g
+Stability analysis: This section provides the necessary proof
+of stability of the controller which is designed for stable
+operation of the UGV. Considering a Lyapunov function V2
+as
+1
+(16)
+V2 = (eug )2
+2
+The time derivative of equation (16) yields,
+
+
+θ3
+θ4
+uref
+V̇2 = eug u̇cref − g ωg2 + g ug −
+(17)
+θ1g
+θ1g
+θ1g
+Now replacing the value of uref from equation (15) in
+equation (17) it becomes,
+V̇2 = −ku |eug |
+
+ez1 = z1 − zd1
+
+where, zd1 represents the desired position of the UAV and zd2
+is the virtual control, which is expressed as
+
+(13)
+
+The time derivative of the equation (13) yields,
+ėug = u̇cref − u̇g
+
+Now, ż1 and z̈1 are velocity and acceleration along the z-axis
+respectively of the UAV. The positional and velocity tracking
+errors ez1 and ez2 are defined as
+
+(18)
+
+while ku > 0, then V̇2 ≤ 0. Hence, the proposed controller
+of the UGV is asymptotically stable. Following this similar
+approach, the stability of the proposed controller can be
+validated for the UGV along the angular motion. The angular
+motion controller ωref can be designed as
+
+
+θ6
+θ5g
+c
+ωref = θ2g
+ug ωg + g ωg + ω̇ref
++ kω sgn(eωg )
+θ2g
+θ2g
+(19)
+IV. C ONTROLLER FOR THE UAV
+This section describes, the steps to design the controllers for
+both the positional and the attitude subsystems for the UAV to
+track the desired trajectory and taking off and landing from/on
+the UGV.
+A. Controller for the positional subsystem
+The design of controller along positional subsystem is
+described here for the z-axis. A similar steps need to be taken
+to design the controllers along the x and y axes. Lets, z1 = z
+and z2 = ż1 , so the dynamics of the UAV along the z axis
+can be rewritten as follows
+U1
+−g
+(20)
+z̈1 = ż2 = (cos φ cos θ)
+m
+
+ėz1 = z2 − żd1
+
+(24)
+
+The derivative of the velocity error ez2 with respect to time
+yields,
+ėz2 = ż2 − żd2
+
+(25)
+
+Now, defining the functions edz and êz as
+edz = |zg − z1 | + ez1 − δz
+
+(26)
+
+êz = ez2 + edz
+
+(27)
+
+zg is the position of the UGV along the z-axis. δz is the
+desired distance between the UGV and UAV along the z-axis.
+The Lyapunov based control input U1 is designed as
+U1 =
+
+m
+(żd2 − ėdz + g − kz2 sgn(êz ))
+cφ cθ
+
+(28)
+
+The stability of the control input is explained in the next
+section.
+Stability analysis of the positional subsystem: The stability
+of the proposed positional controller along z-axis is ensured
+by the Lyapunov stability criteria. Now, a Lyapunov function
+is defined as
+Vz =
+
+1
+2
+(êz )
+2
+
+The time derivative of equation (29) gives,
+
+
+U1
+− g − żd2 + ėdz
+V̇z = êz (cos φ cos θ)
+m
+
+(29)
+
+(30)
+
+Substituting the value of U1 in equation (30), yields
+V̇z = −kz2 |êz |
+
+(31)
+
+while, kz2 is a positive constant, so V̇z ≤ 0. Hence, it can be
+concluded that the controller along the z-axis is stable. The
+controllers along the x and the y axes can also be designed
+following the similar approach. The control inputs Ux and Uy
+are given as
+m
+(ẋd2 − ėdx − kx2 sgn(êx ))
+U1
+
+m
+Uy =
+ẏd2 − ėdy − ky2 sgn(êy )
+U1
+
+Ux =
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded
+304 on May 25,2026 at 05:49:18 UTC from IEEE Xplore. Restrictions apply.
+
+(32)
+(33)
+
+

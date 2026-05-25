@@ -1,0 +1,339 @@
+2024 IEEE 7th International Conference and Workshop Óbuda on Electrical and Power Engineering (CANDO-EPE) | 979-8-3315-3111-9/24/$31.00 ©2024 IEEE | DOI: 10.1109/CANDO-EPE65072.2024.10772992
+
+CANDO-EPE 2024 • IEEE 7th International Conference and Workshop in Óbuda on Electrical and Power Engineering • October 17–18, 2024 • Budapest, Hungary
+
+Conceptual Design of a UAV-UGV Autonomous
+Collaborative Robot System
+György Molnár
+Trefort Ágoston Center for Engineering
+Pedagogy
+Óbuda University
+Budapest, Hungary
+ORCID: 0000-0001-5238-5078
+molnar.gyorgy@kvk.uni-obuda.hu
+
+Róbert Szabolcsi
+Institute of Electronic and
+Communication Systems
+Óbuda University
+Budapest, Hungary
+ORCID: 0000-0002-2494-3746
+szabolcsi.robert@kvk.uni-obuda.hu
+
+Abstract—Collaborative robots (cobots) are in the focus of
+attention since many years being applied widely in different
+fields of the industry and national economies. In classical
+meaning and content of the word, cobots are cooperating with
+human operators in shared space working for the common
+purpose of the effective production of goods or other products.
+This article will extend the meaning of the word cobot to the
+collaboration of two autonomous robot systems, such as ground
+and air robots working together in close and shared space to
+execute different safety and security missions.
+Keywords—collaborative,
+UAV/UAV, UGV
+
+robots,
+
+autonomous
+
+systems,
+
+I. INTRODUCTION
+Recent collaborative robots (cobots) and robot systems are
+designed to work in the friendly and well-known environment,
+working together with human operators in joint missions.
+The cobots are often substituting some missing human
+resources in the manufacturing and national economies.
+Moreover, use of cobots makes the production less expensive,
+more reliable and predictable.
+In many cobot applications the level of the complexity of
+the tasks delivered to cobots is still not so high; however, there
+are several privileges of the cobot applications like high level
+of accessibility, high power in actions, safe functioning, fast
+movements allowing high production rate in the production
+process.
+Collaborating robot systems are mostly pre-programmed
+ones with given level of autonomy. In shared space with
+humans they are able to execute their missions they designed
+and prepared for. One of the major weakness of the industrial
+cobots is the lack of autonomy in its very broad meaning.
+The cobots can be used both for the private, non-state and
+for the state purposes. The private, non-state use of cobots is
+widely spread in the manufacturing and in national
+economies.
+
+Tibor Wührl
+Institute of Electronic and
+Communication Systems
+Óbuda University
+Budapest, Hungary
+ORCID: 0000-0002-7522-3511
+wuhrl.tibor@kvk.uni-obuda.hu
+
+challenges at the battlefield can be handled by autonomous
+cobots.
+II. MOTIVATION AND PROBLEM FORMULATION
+The main goal of this paper is to formulate the conceptual
+design of the autonomous cobot system based upon two
+subsystems like ground autonomous unmanned vehicle
+(UGV) and the autonomous unmanned aerial vehicle system
+(UAV) collaborating in joint ground and air missions.
+The basic idea behind these co-operating system is a
+synergistic and holistic approach in cobot system design
+eliminating weaknesses and disadvantages of both of the
+collaborating systems and strengthening advantages of both of
+the co-operating systems.
+In this article, in the framework of the international cobot
+system design competition, the main purpose is to solve
+different problems of the 2D and 3D path design and
+navigation, re-charge of batteries and battery packs; searching,
+finding and gripping of ground objects based on smart vision
+systems.
+The scenario of the cobot system design is described to be
+solved in a cobot competition arena (CAA) designed for the
+unique purpose of the competition.
+III. LITERATURE REVIEW
+Undoubtedly, the collaborative robots (cobots) had have
+gained unavoidable role in different fields of the industrial
+manufacturing.
+In [1] a thorough literature review is shown to give an
+overview of the recent state-of-the-art application of the
+cobots, focusing on Industry 4.0 challenges of the past decade
+when a human and a robot work together in the joint work
+cells. The use of cobots was always a challenge due to their
+human acceptance, or negligence.
+The ‘human-robot’ collaboration acceptance model was
+elaborated and introduced in [2] leaning on data gained from
+different countries. This study has set up a new cobot
+acceptance model able to express also the cross-cultural
+differences.
+
+The state applications of cobots can cover both military
+and non-military applications. The non-military applications
+of cobots are in disaster relief and in industrial catastrophe
+missions, when the cobot mission replaces human activity in
+the dirty, dull and dangerous missions when humans are under
+threat of different dangerous events.
+
+The more complex industrial scenario is described in [3],
+when one has to investigate interactions between cobots, or
+between human and robots.
+
+The military applications of cobots today are at quiet low
+level executing mostly logistical tasks. However, many
+
+This article gives new content to the human-robot
+interactions enhancing robot performances via better
+
+979-8-3315-3111-9/24/$31.00 ©2024 IEEE
+
+000207
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:13 UTC from IEEE Xplore. Restrictions apply.
+
+R. Szabolcsi et al. • Conceptual Design of a UAV-UGV Autonomous Collaborative Robot System
+
+understanding of the human. Signals like facial animation,
+hand gesture and arm motion.
+
+Significant research reports and case studies [16] [17] have
+also been published on cooperative robot collaboration.
+
+The modern mass-production often require to run
+collaborating assembly lines operating simultaneously to
+multiple production rate. In the production different kinds of
+asymmetries in the human-robot interactions might appear.
+
+IV. THE UAV-UGV COLLABORATIVE ROBOT SYSTEM
+
+In [4] for production line balancing an optimization
+method has been introduced. In the study of the European
+Parliament [5] risks and opportunities have been evaluated for
+cobot market development.
+In spite of the deep penetration of the cobots into national
+economies, cobots can be used very effectively in shared
+spaces.
+Moreover, in some disaster management tasks to
+strengthen efficacy of the first aid delivered to people snake
+robots were used [6].
+The article [7] focuses on industrial cobots evaluating
+challenges of the manufacturers when to implement them.
+Several factors have been involved when industrial
+applicability of the cobots was evaluated.
+According to [8], also in the modern production and
+manufacturing systems different human factors like
+ergonomics, mental workload, trust, acceptance and usability
+are crucially important to take into consideration when to
+design human operators’ workplace.
+Recently the automotive industry is a segment of the
+national economies, which is widely lean on cobots in solution
+of welding tasks reducing or eliminating human interactions
+in the production [9].
+
+In this regard, the autonomous UAV-UGV system serves
+the purpose to conduct an aerial recconnaissance using UAV
+to find different objects made of different materials and
+colours on the arena ground, to identify them, to pick them
+up with grippers, and to carry them into designated area. The
+more objects are found and placed ino designated area the
+best results are gained.
+V. THE AUTONOMOUS UAV (AUAV) SYSTEM
+The autonomous multirotor AUAV is of any kind
+equipped with electric propulsion system. The UAV MTOW
+is 2 kg, including its payload.
+The AUAVs are also prepared for the wireless recharge
+of the batteries they use aboard. Before the first run the
+AUAV is put into its landing zone (LZ) segregated inside the
+arena manually.
+After all flight missions, or after any mission aborted the
+UAV shall return to its LZ and shut down its propulsion. If
+the AUAV is leaving or reaching the segregated LZ it shall
+be signalized with flashing navigation lights during 2.5
+seconds with 2Hz of frequency.
+Further, any signalization provided by the AUAV means
+flashing navigation lights during 2.5 seconds with 2Hz of
+frequency.
+The AUAV shall own proper gripping systems able to
+pick up targets from the floor. In case of necessity, the AUAV
+is prepared for change of the gripping system it owns. Any
+gripper change manoeuvre shall be conducted in the LZ area.
+VI. THE AUTONOMOUS UGV (AUGV) SYSTEM
+
+The control and monitoring of cobots is a crucial issue to
+ensure safety and security both of the workcell and the human
+operator. For this purpose, in [10] a new software system is
+elaborated to control a cobot’s gripper position.
+
+The autonomous AGV is a multipurpose ground rover
+with omnidirectional drive system carrying battery pack for
+wireless recharge of the batteries of the AUAVs.
+
+The competitiveness of any cobot solution is a core
+criterion for all applications. In [11] a case study is shown for
+an automotive supplier priorities based upon skills distribution
+between cobots and operators.
+
+It also represents a catapult system able to throw target
+devices from its magazine installed aboard into the arena in
+three different directions previously selected by the teams for
+the distance of 2 metres, as the minimum.
+
+The article [12] addresses some useful results of the
+interview made to evaluate human satisfaction with cobots in
+manufacturing and production.
+
+The magazine bay is normally closed with doors, and
+opens at proper signalization prior to throw targets onto the
+arena floor.
+
+Cobots are also used very effectively in construction
+industry. However, it is important to be familiar with the
+trends in construction cobot developments and to have precise
+and reliably forecast how the market of construction cobots
+will develop. In this field, article [13] gives trends in safe
+construction cobot development.
+
+In the AUGV default home position, in the rover corner
+(RC), it rests in the dock supplied with 230V/50Hz electricity
+serving purpose of the wireless recharging of the battery pack
+of the AGV.
+
+Any substitution of human operator using cobots in
+production process is motivated by different reasons. In article
+[14] an example is given to calculate efficiency and cost
+effectiveness of the cobot based production system leading to
+an inevitable decision to substitute human.
+In the case of cooperative robot systems, the movement
+accuracy of individual robots must be maintained even in the
+case of changing mass. [15] A change in load cannot cause
+significant deviations in the system, because this hinders
+cooperation and can sometimes be a source of accidents.
+
+The maximum weight of the rover is 10 kg with
+maximums of 40*40*40 centimetres of length, with and
+height, respectively.
+The top of the rover is a temporary landing zone of the
+AUAVs serving simultaneously the wireless recharge of the
+AUAV batteries used aboard.
+The LZ mounted on the top of the AUGV might have
+sizes differing from the rovers’ main sizes, but shall not
+exceed of the size of 50*50 cm.
+Signalization provided by the AUGV means both the
+siren and flashing lights active during 2.5 seconds with 2Hz
+of frequency.
+
+000208
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:13 UTC from IEEE Xplore. Restrictions apply.
+
+CANDO-EPE 2024 • IEEE 7th International Conference and Workshop in Óbuda on Electrical and Power Engineering • October 17–18, 2024 • Budapest, Hungary
+
+VII. THE COMPETITION ARENA (CA)
+The indoor Competition Arena (CA) has natural and
+artificial lighting, depending of the time.
+The CA has sizing of 7*7 metres. The floor inside of the
+CA is covered with commercial OSB plates.
+The CA has 30 cm high walls made of OSB plates, too,
+continued in 1 metres high plastic nets.
+The top of the arena is also covered with light fishing
+plastic nets to avoid any unwanted and uncontrolled runaway
+flight of the UAV.
+
+A. Task No1
+The AUAV takes off for its first flight mission and starts
+to hover over the LZ for minimum 10 seconds at 0.5 m of
+altitude.
+After, the AUAV leaves the LZ to the RA. The leave of
+the LZ shall be signalized. The UAV reaches the RA, which
+shall be signalized.
+After, the AUAV returns to its LZ, lands and shuts down
+its propulsion. The reach of the LZ is signalized by the UAV.
+
+At 60 cm there is metallic strip of 2 cm width glued onto
+the OSB plate. LZ: a squared area with 60*60 cm of
+dimensions.
+At 60 cm there is red plastic strip of 2 cm width glued
+onto the standard OSB plate. Warehouses (W1, W2 and W3):
+a squared area with 70*70 cm of dimensions.
+At 70 cm there are black plastic stripes of 2 cm width
+glued onto the OSB plate.
+The Rendez-Vous Area (RA): is a squared area of the CA
+sized with 1.5*1.5 metres, and designated on the floor with
+blue coloured plastic strip of 2 cm width glued onto the OSB
+plate.
+Point ‘A’ is a square-shaped centre of the RA sized with
+0.7*0.7 metres, and encircled with the Al-strip of 2 cm width.
+Touch points (TP): B and C are touch points on the wall
+of the CA located at 15 cm height as a square with 10*10 cm
+sizes. Any reach of any TP shall be signalized like AUGV
+used to do it.
+Fig. 2. Representing the first task (Task No1) in CA
+
+B. Task No2
+The AGV conducts his first autonomous run to reach
+firstly the A point of the RA with proper signalization.
+At point A the AGV continues to manoeuvre to the next
+TP, with touching the wall at point B with signalization.
+After leaving point B the UGV starts to manoeuvre to
+point C via point A.
+On the way from point B to point C, at point A, the AGV
+stops, and randomly fires out the target items carried by it.
+The reach of point A is signalized.
+Further, the AGV leaves point A and continues his run to
+point C. The AGV touches point C, which is signalized.
+After this, the AUGV returns back to the RC area. The
+reach of the RC is signalized by the AGV.
+
+Fig. 1. The Competition Arena from top view
+
+VIII. THE SCENARIO AND COMPETITION TASKS
+TO BE SOLVED
+
+The cobot system designed for the competition has to
+solve following tasks:
+000209
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:13 UTC from IEEE Xplore. Restrictions apply.
+
+

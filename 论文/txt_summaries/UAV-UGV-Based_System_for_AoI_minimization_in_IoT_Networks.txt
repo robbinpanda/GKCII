@@ -1,0 +1,360 @@
+2023 IEEE International Conference on Communications (ICC): IoT and Sensor Networks Symposium
+
+UAV-UGV-based System for AoI minimization in
+IoT Networks
+Kaddour Messaoudi1 , Omar Sami Oubbati2 , Abderrezak Rachedi2 , and Tahar Bendouma1
+1 Laboratory of Computer Science and Mathematics, University of Laghouat, Algeria
+2 LIGM CNRS-UMR 8049, University Gustave Eiffel, Champs-sur-Marne 77420, France.
+
+ICC 2023 - IEEE International Conference on Communications | 978-1-5386-7462-8/23/$31.00 ©2023 IEEE | DOI: 10.1109/ICC45041.2023.10279435
+
+{ka.messaoudi,t.bendouma}@lagh-univ.dz, {omar-sami.oubbati,abderrezak.rachedi}@univ-eiffel.fr
+
+Abstract—Most of the recent Internet of Things (IoT)
+applications are highly dependent on the freshness of collected
+data from IoT devices. Therefore, the concept of Unmanned
+Aerial Vehicle (UAV) assisted IoT has received a lot of interest
+where UAVs are deployed as data collectors and can effectively
+meet the requirement of IoT applications in terms of reducing
+the Age of Information (AoI) metric of collected data. However,
+as it is widely known, UAVs are energy-constrained devices with
+limited computational and communication capacities, preventing
+them from timely completing their missions. This energy issue
+can be addressed by deploying fixed charging stations, but this
+option would interrupt UAVs from their missions, and they should
+regularly return to these stations to charge their batteries. In
+this paper, a UAV data collector is dispatched to serve a set
+of IoT devices while being permanently followed and supported
+by an Unmanned Ground Vehicle (UGV) as a mobile charging
+station. Considering an unknown dynamic IoT environment,
+the problem of AoI minimization is reformulated as a Markov
+Decision Process (MDP). Indeed, we employ the multi-agent deep
+Q-network (MADQN) method called AGAIN to minimize the
+average AoI of IoT devices, timely recharge the UAV using UGV,
+and optimize the UGV trajectory on the ground by considering
+the terrestrial obstacles and the IoT movements. A series of
+simulations are run to demonstrate the efficiency of the proposed
+method in reducing the AoI of IoT devices compared to baseline
+methods.
+Index Terms—Unmanned Aerial Vehicle (UAV), Wireless
+Power Transfer (WPT), Unmanned Ground Vehicle (UGV), Data
+Collection, Internet of Things (IoT), Age of Information (AoI).
+
+I. I NTRODUCTION
+The evolution of IoT systems over the past few years has
+rapidly advanced to support many elements of our everyday
+life. With the increasing amount of generated data by Internet
+of Things (IoT) devices, it has become necessary to timely
+collect this data and forwards it to a centralized entity for
+processing and appropriate decision-making. In the current
+state-of-the-art [1], it has been shown that Unmanned Aerial
+Vehicles (UAVs) are characterized by their low deployment
+costs and could be a promising solution for optimally serving
+IoT devices and performing data collection (DC). Moreover,
+UAVs could support real-time IoT applications with freshly
+collected data by minimizing the IoT devices’ Age of
+Information (AoI) metric. However, the use of UAVs has been
+hampered by a few technical issues, including their limited
+energy capacity, restricted transmission power to forward data,
+and the need to continuously update their trajectories for
+optimally serving IoT devices.
+
+978-1-5386-7462-8/23/$31.00 ©2023 IEEE
+
+To ensure the proper functionality of real-time IoT
+applications, UAV data collectors need to continuously gather
+fresh information. The AoI metric is used to assess the
+freshness of gathered data, which is the period of time between
+the time the data was generated at the source and the current
+time, and its reception by the UAV data collector [2]. In
+the literature, the AoI minimization problem has attracted
+significant attention from the research community in various
+domains, such as vehicular networks, edge computing, and
+UAV-assisted communications. For instance, Zhang et al. [3]
+proposed a cluster-based IoT with an AoI-based data collection
+paradigm where the UAV trajectory and hovering points
+are jointly optimized. In [4], the AoI minimization problem
+in UAV-aided mobile edge computing networks has been
+investigated by considering revealed channel access attacks.
+The authors of [5] designed a UAV-aided AoI-aware data
+gathering strategy across IoT networks where various metrics
+are optimized, such as IoT transmission power, hovering
+locations, bandwidth allocation, and UAV flight speed. As
+a drawback, most of the earlier studies, including those
+discussed above, did not consider possible UAV failures in
+long-term missions because to their low energy capacity. To get
+around this issue, some works adopted fixed charging stations
+to charge UAVs’ batteries and enable them to effectively carry
+out their missions. In [6], the UAV trajectory is optimized to
+collect data from cluster-based IoT devices, where charging
+stations are massively installed in each cluster to wirelessly
+power the UAV. To support UAV data collectors with energy,
+the authors of [7] deployed a set of flying energy sources
+that also need to charge their batteries by going back to a
+fixed charging station. However, installing charging stations
+could cause various issues, such as interrupting UAVs from
+their missions, reserving a huge deployment budget, and
+synchronizing of charging schedule.
+All the issues mentioned above motivate us to design
+a new UAV-based DC system for AoI minimization while
+overcoming the limited energy capacity of the UAV data
+collector by deploying an Unmanned Ground Vehicle (UGV)
+as a mobile charging station. In detail, the UAV trajectory
+is optimized to optimally serve IoT devices, minimize the
+expected average AoI, and reduce its energy consumption. It is
+known that the UAV energy capacity cannot satisfy long-term
+missions; therefore, we also deployed a UGV and optimized its
+trajectory, so it always has to follow the UAV data collector
+
+4743
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:40 UTC from IEEE Xplore. Restrictions apply.
+
+2023 IEEE International Conference on Communications (ICC): IoT and Sensor Networks Symposium
+
+Fig. 1: Motivating scenario.
+
+and appropriately support it with energy. Since the ground
+environment is supposed to be unknown, dynamic, and full
+of obstacles, the AoI minimization problem is reformulated as
+a Markov Decision Process (MDP), and the multi-agent deep
+Q-network (MADQN) approach is used to reduce the average
+AoI of collected data, timely charge the UAV using UGV, and
+optimize the UGV trajectory on the ground by considering the
+terrestrial obstacles and the IoT movements.
+The remainder of this study is outlined as follows. Section
+II describes on the system concept and formulates the
+problem statement. Section III provides a brief description
+of reinforcement learning background and details the adopted
+MADQN algorithm. The numerical outcomes are covered in
+Section IV. The paper is finally concluded in Section V.
+
+that at each time slot, UAVs appear to be roughly stationary.
+The instantaneous position of each ground devices, including
+UGV is denoted by pj [n] = [xj (n), yj (n)]N at time-slot n,
+where n ∈ N , {n = 1, 2, . . . , N }, and j ∈ K ∪ {g}. The
+UAV location projected onto the horizontal plane is defined as
+pa [n] = [xa (n), ya (n)]N . It is important to note that the UAV
+altitude ha is fixed at a certain value. The following formula
+can be used to determine the instantaneous distance between
+the UAV data collector and any terrestrial devices:
+dja [n] =
+
+q
+
+kpa [n] − pj [n]k2 + h2a , ∀j ∈ K ∪ {g}
+
+(1)
+
+Table I provides a summary of the key notations used in this
+work.
+
+II. S YSTEM M ODEL
+Consider a UAV-based DC system. As depicted in Fig. 1,
+the system is composed of one UAV data collector denoted
+as UAVa and one UGV denoted as UGVg playing the role
+of mobile charging station, which are both controlled by a
+centralized entity in the form of a base station and human
+operator. All these elements are deployed to serve a groupe
+of K dynamic IoT devices represented mathematically by
+K , {k = 1, 2, . . . , K} randomly moving over a specific
+area not free of obstacles to sense a variety of physical
+phenomenon. The UAV data collector needs to continuously
+cover and collect all information about IoT devices, including
+produced data (e.g., AoI and positions) and report them to
+the centralized entity for decision-making. The system is
+analyzed within a certain period T denoted as t ∈ [0, T ].
+The parameter T is split into N equal time-slots of length
+δ, i.e., N = Tδ . The selected value of δ is small enough such
+
+TABLE I: List of notations.
+Notation
+
+Description
+
+dja [n]
+pi [n]
+
+Distance between UAVa and a ground node j ∈ K ∪ {g}
+Position of node i projected onto the horizontal plane
+Residual energy level of node i ∈ {a, g}
+Amount of harvested energy from UGVg to UAVa
+Amount of consumed energy by node i ∈ {a, g}
+Activity status of charging process of node i ∈ {a, g}
+Age of Information (AoI) of IoTk
+Expectation by taking into account random IoT mobility
+Instantaneous speed of node i ∈ {a, g}
+Activity status of node i ∈ {a, g}
+Reward obtained by node i ∈ {a, g}
+Environment state observation of node i ∈ {a, g}
+Action made by node i ∈ {a, g}
+Network Q’s value at state si after conducting action ai
+Exploration coefficient
+
+Ei [n]
+Eag [n]
+ECi
+CPi [n]
+Ak [n]
+E[.]
+spi [n]
+Ψi [n]
+ri [n]
+si [n]
+ai [n]
+Qi (si , ai )
+ε
+
+4744
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:40 UTC from IEEE Xplore. Restrictions apply.
+
+2023 IEEE International Conference on Communications (ICC): IoT and Sensor Networks Symposium
+
+A. Communication Model
+As illustrated in Fig.2, when the UAV needs to recharge its
+battery, it firstly sends a charging request to the UGV. Then,
+the UGV transmits the beamforming energy to the UAV.
+
+functionality of the DC process, we suppose that UAVa can
+serve maximum one IoTk per each sub-slot k. According to
+[10], if the transmission power of each IoTk is Pk , where
+k ∈ K, the instantaneous rate of IoTk in a time-slot n is
+expressed as:
+
+
+
+
+Rtak [n] = UIak [n]Bka log2 1 +
+
+
+
+Pk Gak [n]
+
+,
+K+g
+
+P
+Fq,a + σ 2
+
+(5)
+
+q=1,q6=k
+
+where UIak [n] ∈ {0, 1} indicates that IoTk is connected to
+UAVa if UIak [n] = 1, and 0 otherwise. Bka and Gak [n] denote
+the allocated bandwidth and the channel gain between IoTk
+K+g
+P
+and UAVk , respectively.
+Fq,a and σ are respectively
+q=1,q6=k
+
+Fig. 2: A UAV-enabled energy harvesting steps.
+For this purpose, we suppose that UAVa has two antennas
+that operate on orthogonal frequency bands, one for energy
+harvesting and the other for data transmission to avoid
+interference. Besides, we suppose that the UGV is outfitted
+with an antenna dedicated to requests gathering from the UAV
+as well as another phase-array directional antenna made up of
+M antenna elements. Each IoT device has a single antenna
+devoted to data transmission. We represent the Beamforming
+energy signal by S ∈ BM ×1 , where BM ×1 stands for the space
+of M complex matrices. Therefore, the signal S is derived by
+referring to the models in [8]:
+p
+S = Pg v,
+(2)
+where Pg denotes the transmission power of the antenna array.
+v is the beamforming vector. It is calculated with the help
+of an estimated channel matrix as v = kλλ11 k , where λ1 is
+defined as an eigenvector matching the maximum eigenvalue
+% of the co-variance matrix U = uuH and H is the conjugate
+transpose. In this work, we adopt a normalized vector, i.e.,
+kvk22 = 1. The harvested energy by the UAV depends on the
+distance that separates it from the UGV. Hence, according to
+[9], the harvested energy at time-slot n is given by:
+ξδPg %
+Eag [n] = g
+da [n]
+
+(3)
+
+where 0 < ξ ≤ 1 represents the energy conversion efficiency,
+which should be constant, and δ is the time-slot duration. To
+get concrete results, we presume that the UAV’s maximum
+energy capacity is set to Eamax . Therefore, the UAV residual
+energy Ea [n] at time-slot n following UGV energy harvesting
+is expressed as follows:
+Ea [n] =
+
+(
+Eamax , if Ea [n − 1] + Eag [n − 1] ≥ Eamax
+Ea [n − 1] + Eag [n − 1], Otherwise
+
+(4)
+
+As for the DC process, we adopt a Time Division Multiple
+Access (TDMA). Indeed, every time-slot n is split into K
+sub-slots, each of which has a duration of µnk and is dedicated
+to a given IoTk under the coverage of UAVa . For the proper
+
+the overall interference power at UAVa and the gaussian noise.
+Let Ck [n] = µnk × Rtak [n] be the amount bits transmitted by
+IoTk to UAVa at time-slot n. Therefore, the evolution of the
+AoI metric Ak [n] for each IoTk is both illustrated in Fig. 1
+and expressed with the following equation:
+(
+1,
+if Ck [n − 1] > Ckmin ∧ Rtak [n] > 0
+Ak [n] =
+Ak [n − 1] + 1, Otherwise
+(6)
+When an update is successfully received, Ak [n] is reset to 1,
+otherwise Ak [n] increases by 1.
+B. UGV and UAV Energy Consumption
+Since the major goal of this work is to allow the UAV
+energy capacity to meet long-term missions, we solely examine
+the energy consumption of the UAV and UGV. Therefore,
+IoT energy consumption is out of the scope of this paper.
+Furthermore, the UGV is supposed to be deployed in a flat
+and not inclined area. Thus, the UGV consumes energy at
+each time-slot n according to the model proposed in [11] as
+follows:
+ECg [n] = spg (n)(Res × W ei + M ass × acc(n) + IRes)
+(7)
++ b + (n),
+where spg (n) is the UGV’s velocity. Res and IRes represent
+the road rolling resistance and internal resistance coefficients,
+respectively. W ei and M ass indicate the weight and mass
+of the UGV, respectively. acc(n) represents the UGV’s
+acceleration, b(n) denotes the consumed energy through
+onboard equipment, and (n) is defined as the model error.
+It is worth noting that the UGV is also executing the wireless
+energy transfer to power the UAV using its internal energy.
+There are two distinct modes: (i) αg [n] = 1 indicates that UGV
+is undergoing a charging process and (ii) αg [n] = 0 otherwise.
+Therefore, the UGV energy consumption until time-slot n is
+given by:
+Z n
+Z n
+αg [n]Pg dn
+Cong ({αg [n], pg [n]}, n) =
+ECg [n]dn +
+0
+0
+{z
+}
+|
+{z
+}
+|
+M ovement energy
+
+energy transf er
+
+4745
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:51:40 UTC from IEEE Xplore. Restrictions apply.
+
+(8)
+
+

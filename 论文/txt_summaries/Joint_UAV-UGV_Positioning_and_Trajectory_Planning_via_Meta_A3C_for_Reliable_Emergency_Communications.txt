@@ -1,0 +1,403 @@
+GLOBECOM 2025 - 2025 IEEE Global Communications Conference | 979-8-3315-7781-0/25/$31.00 ©2025 IEEE | DOI: 10.1109/GLOBECOM59602.2025.11432753
+
+2025 IEEE Global Communications Conference: Mobile and Wireless Networks
+
+Joint UAV-UGV Positioning and Trajectory
+Planning via Meta A3C for Reliable Emergency
+Communications
+Ndagijimana Cyprien* , Mehdi Sookhak* , Hosein Zarini* , Chandra N Sekharan* , and Mohammed Atiquzzaman†
+*
+Department of Computer Science, Texas A&M University-Corpus Christi, Tx, USA
+†
+School of Computer Science, University of Oklahoma, Norman, OK USA
+Emails: cndagijimana@islander.tamucc.edu; (mehdi.sookhak, chandra.sekharan)@tamucc.edu); atiq@ou.edu
+
+Abstract—Joint deployment of unmanned aerial vehicles
+(UAVs) and unmanned ground vehicles (UGVs) has been shown
+to be an effective method to establish communications in areas
+affected by disasters. However, ensuring good Quality of Services
+(QoS) while using as few UAVs as possible also requires optimal
+positioning and trajectory planning for UAVs and UGVs. This
+paper proposes a joint UAV-UGV-based positioning and trajectory planning framework for UAVs and UGVs deployment that
+guarantees optimal QoS for ground users. To model the UGVs’
+mobility, we introduce a road graph, which directs their movement along valid road segments and adheres to the road network
+constraints. To solve the sum rate optimization problem, we
+reformulate the problem as a Markov Decision Process (MDP)
+and propose a novel asynchronous Advantage Actor Critic
+(A3C) incorporated with meta-learning for rapid adaptation to
+new environments and dynamic conditions. Numerical results
+demonstrate that our proposed Meta-A3C approach outperforms
+A3C and DDPG, delivering 13.1% higher throughput and 49%
+faster execution while meeting the QoS requirements.
+Index Terms—Unmanned Aerial Vehicle (UAV), Unmanned
+Ground Vehicle (UGV), Reinforcement learning, Meta-learning.
+
+I. I NTRODUCTION
+Unmanned Ground Vehicles (UGVs) have been proposed as
+a promising solution to provide backhaul links to Unmanned
+Aerial Vehicles (UAVs) in case terrestrial base stations (BSs)
+are compromised [1], [2]. In these recovery scenarios, UGVs
+are deployed to provide stable, high-capacity links to the
+UAVs acting as flying base stations and also to provide mobile
+wireless coverage to ground users. Owing to their enhanced
+payload capacity and extended energy supplies, UGVs enable
+the mounting of advanced communication equipment while
+maintaining continuous ground operations, thereby enabling
+fast restoration of critical network infrastructure [3], [4].
+The UGV-UAVs combined framework is vital for rapidly
+deployable and resilient networks that can be adaptive to
+dynamic emergency scenarios and QoS requirements.
+However, the energy efficiency (EE), optimal positioning,
+mobility, and trajectory planning remain significant challenges
+for UGV-UAV wireless networks. To tackle these issues,
+substantial research has concentrated on optimal positioning
+[5]–[9], trajectory planning [10], [11], and resource allocation
+strategies [12]. An efficient 3D positioning algorithm was
+
+proposed to minimize the number of UAVs required while
+optimizing their deployment positions [13]. In [14], a deep
+reinforcement learning (DRL) approach was proposed to
+jointly optimize the 3D trajectory of UAVs and minimize UAV
+propulsion energy. Addressing user-side power constraints,
+the authors in [15] proposed a safe Deep Q-Network (DQN)based UAV trajectory optimization framework aimed at maximizing uplink throughput while ensuring energy efficiency.
+Moreover, authors in [16] proposed a deep supervised learning
+approach for joint optimization of UAV caching and trajectory planning, and authors in [17] proposed a semidefinite
+relaxation-based method for 3D trajectory optimization.
+Despite these advancements, the integration of UGVs to
+improve the backhaul connectivity of UAVs has not been
+thoroughly investigated. Particularly, the joint optimization
+of positioning and trajectory for both UAVs and UGVs
+remains an underexplored area. This work aims to develop
+an intelligent framework for joint optimal positioning and
+trajectory design of UAVs and UGVs to maximize network
+throughput, while satisfying QoS requirements for users in
+disaster-affected areas. Although prior studies have addressed
+UAV positioning and trajectory planning, they typically do not
+consider the joint operation of UAV-UGV systems in dynamic
+environments that involve UAV-to-UGV-to-user communication links [18], [19].
+The key distinction of our work lies in the simultaneous optimization of UAV and UGV positioning and trajectories, and the novel integration of meta-learning with
+the Asynchronous Advantage Actor-Critic (A3C) algorithm.
+This combination enables rapid adaptation to environmental
+dynamics. Specifically, our proposed unified communication
+framework among UAVs, UGVs, and users, augmented with
+trajectory optimization, is designed to deliver optimal system
+performance and improved QoS in real-time, dynamically
+changing environments. To the best of our knowledge, this is
+the first work to present an integrated framework that jointly
+optimizes the positioning and trajectories of both UAVs and
+UGVs in a dynamic communication environment, with the
+goal of maximizing network performance and user QoS. The
+contributions of this paper are as follows:
+• We jointly formulated an optimization problem to
+
+1724
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:50 UTC from IEEE Xplore. Restrictions apply.
+
+2025 IEEE Global Communications Conference: Mobile and Wireless Networks
+
+maximize the sum rate by optimizing UGV-UAV and
+UAV-user associations, while ensuring constraints on
+distance, altitude, speed, UAV separation, and UGV
+movement within the defined road network.
+• Due to the non-convexity and the complexity of our
+optimization problem, we carefully reformulate the
+problem into a Markov Decision Process (MDP) to
+enable dynamic modeling of the system’s behavior.
+• We then introduce an A3C-based framework for UAV
+and UGV positioning and trajectory planning, designed
+to ensure that the QoS requirements of ground users are
+consistently met.
+• To enable real-time deployment in emergency response
+scenarios, we integrate a meta-learning approach with
+the A3C model, facilitating rapid adaptation to dynamic
+channel conditions and evolving user demands.
+• Finally, simulated results demonstrated that the proposed Meta-A3C approach achieves 13.1% higher
+throughput than A3C and 30.1% than DDPG methods
+with low complexity.
+The remainder of this paper is arranged as follows: Section
+II provides the system model and problem formulation, while
+Section III presents the Meta-A3C approach. Evaluation results are discussed in Section IV, and the conclusion is given
+in Section V.
+II. S YSTEM M ODEL AND P ROBLEM F ORMULATION
+A. Mathematical Modeling of UGV Trajectories
+
+∥pm [n] − pm [n − 1]∥
+≤ Vmmax ,
+∆
+
+B. Mathematical Modeling of UAV Trajectories
+Considering a system where a set of UAVs provides
+wireless connectivity to K ground users, denoted by a
+set K = {1, 2, . . . , K}. We define the position of the
+uth UAV and k th user for each time slot n as q u [n] =
+[xu [n], yu [n], zu [n]] and pk [n] = [xk [n], yk [n], 0], respectively. Moreover, the initial position uth UAV is q u [0] =
+[xu [0], yu [0], zu [0]] and trajectory in each time slot n is
+q u = [q u [1], q u [2], ..., q u [n], .., q u [N ]], ∀n ∈ N . We consider
+that the uth UAV moves with a velocity vu [n], constrained by
+its maximum velocity such that:
+∥q u [n] − q u [n − 1]∥
+≤ Vumax , ∀n ∈ N
+(2)
+∆
+where ∥ · ∥ denotes the Euclidean norm. Under the condition
+q u [0] = q u [N ], each UAV must return to its initial position
+once tasks are completed.
+vu [n] =
+
+We consider multi-UGV-UAV cooperative networks deployed in an emergency management scenario, as illustrated
+in Figure 1. The system consists of M UGVs denoted by
+a set m ∈ M = {1, 2, ..., M } which establish a backhaul
+connectivity to U UAVs, denoted by a set U = {1, 2, . . . , U }.
+The total operational time T is divided into N discrete time
+slots, each of duration ∆ seconds, so that T = N ∆. We
+consider geographical features of the road network modeled
+as a graph representation denoted as G = [V, E]. The nodes
+V = {V1 , V2 , ..., VQ } represents intersections where Q is
+the number of intersections on the road network. The edges
+E = {Eij = (Vi , Vj )}, ∀i, j ∈ Q, denotes the set of road segments. For each time step n ∈ N = {1, 2, ..., N }, the position
+of mth UGV is defined as pm [n] = [xm [n], ym [n], 0] ∈ E
+with initial position pm [0] = [(xm [0], ym [0], 0)] for Eij ∈ E.
+The mth UGV trajectory for each time slot n is given
+by pm = [pm [1], pm [2], ..., pm [n], .., pm [N ]]. In addition,
+the mth UGV’s velocity along Eij edge is constrained by
+max
+0 ≤ vm [n] ≤ min(vij
+, Vmmax ) such that:
+vm [n] =
+
+Fig. 1: UAV-Assisted Wireless Networks with UGV in an
+Emergency Situation.
+
+(1)
+
+max
+where 0 ≤ vm [n] ≤ min(vij
+, Vmmax ), ∀i, j ∈ {1, 2, ..., Q},
+max
+vij is the road segment speed limit and Vmmax is the maximum UGV’s velocity. We impose the condition pm [N ] =
+pm [0], requiring UGV to return to its initial position after
+completing the mission tasks.
+
+C. G2A and A2G Wireless Channel Models
+The wireless channels between mth UGV and uth UAV
+and between uth UAV and k th ground user are predominantly
+influenced by the transmission distances, propagation environments, and elevation angles. We model both links for G2A
+using a probabilistic path loss approach, accounting for LoS
+and NLoS components as expressed by [20]:
+
+
+4πfc dm,u [n]
+LoS
+Γm,u [n] = 20 log10
++ β LoS
+(3)
+c
+
+
+4πfc dm,u [n]
+NLoS
+Fm,u
+[n] = 20 log10
++ β NLoS
+(4)
+c
+where fc is the carrier frequency, c = 3 · 108 m/s is the
+speed of light and dm,u [n] = ∥q u [n] − pm [n]∥ is the G2A
+distance from mth UGV to uth UAV. Accordingly, the A2G
+links are modeled using the same method. The probability of
+establishing the LoS link from mth UGV to uth UAV as well
+as uth UAV to k th user can be given by:
+1
+los
+Pm,u
+[n] =
+,
+(5)
+1 + η1 exp (−η2 [ψm,u [n] − η1 ])
+los
+Pu,k
+[n] =
+
+1
+,
+1 + β1 exp (−β2 [ψu,k [n] − β1 ])
+
+1725
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:50 UTC from IEEE Xplore. Restrictions apply.
+
+(6)
+
+2025 IEEE Global Communications Conference: Mobile and Wireless Networks
+
+where η1 and η2 are environment
+dependent variables,
+
+zu [n]
+−1
+180
+ψu,k [n] = π sin
+is the elevation angle between
+du,k [n]
+k th user and uth UAV, where du,k [n] = ∥q u [n] − pk [n]∥ is
+the A2G distance. The probability of path losses for G2A and
+A2G links is given by:
+loS
+NLoS
+NloS
+Lm,u [n] = ΓloS
+m,u [n]Pm,u [n] + Fm,u [n]Pm,u [n]
+
+(7)
+
+loS
+NLoS
+NloS
+Lu,k [n] = ΓloS
+u,k [n]Pu,k [n] + Fu,k [n]Pu,k [n]
+
+(8)
+
+Therefore, the received signal-to-interference plus noise ratio
+(SINR) at the k-th user from u-th UAV is given by:
+SINRu,k = P
+u′ ̸=u
+
+Pu [n]10−Lu,k [n]/10
+, ∀u′ ∈ U, (9)
+Pu′ [n]10−Lu′ ,k [n]/10 + σk2
+
+where 0 ≤ Pu [n] ≤ Pumax , Pu [n] is the transmit power per
+UAV and σk2 is the noise power at the k user, B denotes the
+available bandwidth. Then the achievable data rate at the k-th
+user from the u-th UAV is calculated as follows:
+Ru,k [n] = αu,k [n]B log2 (1 + SINRu,k ) , ∀k ∈ K,
+
+(10)
+
+where αu,k [n] is the user association binary variable,
+αu,k [n] = 1 if k-th user is associated to uth UAV, and 0
+otherwise. Moreover, we define a binary variable xm,u [n],
+where xm,u [n] = 1 when mth UGV is associated with uth
+UAV, and 0 otherwise.
+D. Problem Formulation
+We aim to maximize the sum rate for our system by jointly
+optimizing the UAV and UGV positioning and trajectory,
+ensuring QoS requirements for both UAVs and users, as
+formulated below:
+max
+
+{q},{p},{x},{α}
+
+Rsum =
+
+K
+U X
+X
+
+Ru,k [n]
+
+u=1 k=1
+
+Subject to:
+C1 : SINRm,u ≥ SINRmin
+, ∀u ∈ U,
+u
+C2 : Rk [n] ≥ Rkmin , ∀k ∈ K, ∀n ∈ N ,
+∥q [n] − q u [n − 1]∥
+C3 : vu [n] = u
+≤ Vumax , ∀u ∈ U
+∆
+C4 : qu [N ] = qu [0], ∀u ∈ U, ∀n ∈ N ,
+C5 : ∥qu [n] − qu′ [n]∥ ≥ dsafe , ∀u ̸= u′ ∈ U, ∀n ∈ N
+∥p [n] − pm [n − 1]∥
+C6 : vm [n] = m
+≤ Vmmax ,
+∆
+C7 : pm [n] ∈ G, ∀m ∈ M, ∀n ∈ N ,
+C8 : pm [N ] = pm (0), ∀m ∈ M, ∀n ∈ N ,
+X
+C9 :
+αu,k [n] ≤ 1, ∀k ∈ K, ∀u ∈ U, ∀n ∈ N ,
+u∈U
+
+C10 :
+
+X
+
+xm,u [n] ≤ 1, ∀m ∈ M, ∀u ∈ U, ∀n ∈ N ,
+
+u∈U
+
+C11 : xm,u [n] ∈ {0, 1}, αu,k [n] ∈ {0, 1}, ∀n ∈ N .
+(11)
+In above optimization problem, consider q = {qu [n], ∀u, n},
+p = {pm [n], ∀m, n}, x = {xm,u [n], ∀m, u, n}, and α =
+
+{αu,k [n], ∀k, u, n} as decision variable under consideration
+of constraints C1 to C11 . Specifically, C1 , and C2 ensure
+a minimum threshold γumin and QoS for both uth UAV
+and k th user, respectively. To ensure sufficient QoS at the
+uth UAV, the backhaul link between the uth UAV and mth
+UGV must satisfy a minimum SNR threshold SINRm,u [n] =
+xm,u [n]Pm [n]10−Lm,u [n]/10
+, where Pm [n] is the transmit power
+σ2
+of the mth UGV. C3 restricts the uth UAV to fly with
+maximum speed of vumax , while forcing it to return to its initial
+position in C4 . Constraint C5 maintains a safe distance dsafe
+separating two UAVs to avoid collision, and C6 ensures that
+each UGV maintains the maximum speed allowable Vmmax .
+Then, C7 forces mth UGV to stay on a predefined path
+modeled with graph G, and maintains road-specific speed
+limits. Similarly, C8 requires mth UGV to return to its initial
+position after task completion. C9 ensures that each user
+may receive service from at most one UAV at time steps n.
+Furthermore, C10 ensure that each mth UGV is associated
+with at most one UAV While C11 enforces binary variables
+αuk [n] and xm,u [n] ∈ {0, 1} (0 = no link; 1 = active link).
+III. P ROPOSED META-A3C A PPROACH
+A. Markov Decision Process (MDP) Reformulation
+We model the joint UAV & UGV positioning and trajectory
+planning as a MDP defined by a tuple (S, A, P, R, γ, H
+), where S is the state space, A is the action space, P is
+the transition probability, R is the reward, γ is the discount
+factor, and H is the time horizon.
+State Space S = {s[n] | n ∈ N }: At the time step
+n, the state s[n] of each UAV and UGV includes position
+q u [n] = [xu [n], yu [n], zu [n]] of uth UAV, location of mth
+UGV pm [n] = [xm [n], ym [n], 0], coordinates of k th user
+pk [n] = [xk [n], yk [n], 0], and SINRu,k [n] consisting of channel information.
+Action Space A: At each time step n, each agent takes action A = {a[n] | n ∈ N } based on state space. This consists
+of continuous movement of UGVs and UAVs in a specific
+direction pm = [pm [1], pm [2], ..., pm [n], .., pm [N ]], q u =
+[q u [1], q u [2], ..., q u [n], .., q u [N ]], ∀n ∈ N , decision variables
+x = {xmu [n], ∀m, u, n} and α = {αuk [n], ∀k, u, n}. State
+Transition Function: We denote P (sn+1 | sn , an ) to represent the probability of moving an agent (i.e., UAV or UGV)
+from state sn to sn+1 after implementing action an .
+Policy π(a | s) = P (a | s): We define the policy function
+π as the decision strategy of mapping each state s ∈ S to a
+probability distribution over the set of possible actions a ∈ A.
+Reward Function: Considering our optimization problem, the
+reward r[n] = R(sn , an ) in one time slot n aims to maximize
+the k user data rate while ensuring QoS is met, as formulated
+below:
+K
+K
+X
+X
+r(sn , an ) =
+Rk [n] − w
+Ξk ,
+(12)
+k=1
+
+k=1
+
+where w is the weight to balance the reward and penalty, Ξk
+is a continuous penalty, where Ξk = 0 if Rk [n] ≥ Rkmin , and
+0 otherwise.
+
+1726
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:50 UTC from IEEE Xplore. Restrictions apply.
+
+

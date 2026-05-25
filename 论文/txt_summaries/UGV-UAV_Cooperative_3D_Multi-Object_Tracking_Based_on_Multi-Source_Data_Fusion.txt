@@ -1,0 +1,483 @@
+UGV-UAV Cooperative 3D Multi-Object Tracking
+Based on Multi-source Data Fusion
+
+2023 IEEE International Conference on Unmanned Systems (ICUS) | 979-8-3503-1630-8/23/$31.00 ©2023 IEEE | DOI: 10.1109/ICUS58632.2023.10318231
+
+Mingjia Zhang
+Hefei Institutes of Physical Science,
+Chinese Academy of Sciences
+Hefei, China
+University of Science and Technology
+of China
+Hefei, China
+Nanjing Polytechnic Institute
+Nanjing, China
+hijia@mail.ustc.edu.cn
+
+Huawei Liang*
+Hefei Institutes of Physical Science,
+Chinese Academy of Sciences
+Hefei, China
+Anhui Engineering Laboratory for
+Intelligent Driving Technology and
+Application
+Hefei, China
+Innovation Research Institute of
+Robotics and Intelligent
+Manufacturing， Chinese Academy of
+Sciences
+Hefei, China
+hwliang@iim.ac.cn
+
+Abstract—Unmanned aerial vehicles (UAVs) and Unmanned
+ground vehicles (UGVs) have complementary sensing
+characteristics, and their cooperative sensing can effectively
+solve the problems of target loss due to view occlusion or
+distance in multi-target tracking tasks. In this paper, we propose
+a track by detection framework based on a multi-source data
+fusion approach. In the detection phase, a modified ImvoxelNet
+network with attention mechanism is proposed to fuse the multiview image data of unmanned vehicles and UAVs to estimate the
+position and size of the target. In the tracking stage, the method
+involves correlation processing of both 2D and 3D detection data.
+It utilizes an interactive multi-mode unscented Kalman filter
+(IMM-UKF) algorithm that incorporates the Minimum-update
+Successive Shortest Path (muSSP) method to enhance the
+accuracy and real-time performance of dynamic target tracking.
+The experimental results demonstrate the effectiveness of the
+proposed approach in significantly improving the performance
+of multi-target tracking tasks.
+Keywords—UGV-UAV, Cooperative Perception, 3D MultiObject Tracking, Multi-source Data Fusion, IMM-UKF
+
+I.
+
+Pengfei Zhou
+Hefei Institutes of Physical Science,
+Chinese Academy of Sciences
+Hefei, China
+Anhui Engineering Laboratory for
+Intelligent Driving Technology and
+Application
+Hefei, China
+Innovation Research Institute of
+Robotics and Intelligent
+Manufacturing， Chinese Academy of
+Sciences
+Hefei, China
+pfzhou@hfcas.ac.cn
+
+Fig. 1. An illustration of multi-target tracking task using the
+UGV-UAV cooperative sensing system in a scenario where
+pedestrians are occluded by vehicles.
+
+extends beyond the current horizon and covering blind spots.
+When compared with V2V and V2X communication methods,
+UAVs possess characteristics of flexibility and deployability,
+making them capable of mounting cameras to acquire lowaltitude, high-resolution image information [2]. This feature
+finds extensive application in the target detection and tracking
+domain. Fig. 1 showcases a multi-objective tracking task
+scenario that employs a UGV-UAV cooperative sensing
+system to track vehicles obscuring pedestrians. To address
+challenges like full occlusion and object misses due to
+temporary occlusion by other objects or being distant from the
+LiDAR sensor, multi-modality MOT methods are utilized to
+preserve the object's ID.
+This paper presents a progressive framework for trackby-detection based on a multi-source data fusion method.
+During the detection phase, we propose an ImvoxelNet
+network featuring an improved attention mechanism to fuse
+multi-view image data from UGV and UAV sources. This
+enables us to perform target detection, as well as positional
+and dimensional estimation of the targets. In the tracking
+stage, we adopt the AB3DMOT tracking method for the
+correlation and fusion processing of 2D and 3D detection data.
+Additionally, we utilize Minimum-update Successive
+Shortest Path method combined with the IMM-UKF
+algorithm to enhance the accuracy and real-time performance
+
+INTRODUCTION
+
+3D multi-object tracking (MOT) constitutes a crucial
+component in various applications, such as autonomous
+driving and assistive robotics [1]. Typically, MOT methods
+adhere to the tracking by detection paradigm, comprising two
+distinct steps: detection and data association. During the
+detection step, potential box predictions of target objects are
+generated for each frame. Subsequently, data association step
+aims to match the predicted boxes of the same target across
+frames, leveraging appearance and motion cues. There have
+been numerous methods proposed in recent years, resulting in
+significant improvements in detection accuracy. However,
+despite these advancements, a single unmanned vehicle still
+faces challenges in efficiently accomplishing target tracking
+tasks, owing to the inherent limitations of the camera's
+perception view and the LiDAR's perception distance.
+Cooperative perception methods offer several significant
+advantages, including providing a global perspective that
+*Corresponding author
+This work was supported by the National Key Research and Development
+Program of China under Grant 2020AAA0108103, Institute of Robotics and
+Intelligent Manufacturing Innovation, Chinese Academy of Sciences under
+Grant C2021002, Natural Science Foundation for Colleges and Universities
+in Jiangsu Province of China (22KJD520003)，and Scientific Research
+Foundation of Nanjing Polytechnic Institute ( NJPI-2021-11).
+
+___________________________________
+979-8-3503-1630-8/23/$31.00 ©2023 IEEE
+
+853
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:28 UTC from IEEE Xplore. Restrictions apply.
+
+of dynamic target tracking. By leveraging multi-stage and
+multi-level data fusion processing, we effectively address the
+issue of frequent target ID switching in occlusion scenarios.
+The subsequent sections in this paper are structured as
+follows: Section II provides a concise review of the latest
+advancements in the field. In Section III, a mathematical
+framework for the cooperative multi-object tracking problem
+is introduced, along with the presentation of the enhanced
+algorithm. Real-world traffic scenarios are utilized to conduct
+various experiments, and the outcomes are outlined in Section
+IV. The paper concludes with Section V, which offers a
+discussion on future research directions.
+II.
+
+an attention mechanism to learn the 3D shape characteristics
+of objects. In this work, we employ the attention mechanism
+to enhance the network's focus on areas of interest, thereby
+reducing the incidence of false negatives and false positives.
+In order to improve the precision of data association,
+modern MOT frameworks often integrate a predictor
+component to predict the trajectory of targets. MOT can be
+classified into two main approaches: filter-based techniques
+and learning-based methods. Filter-based methods estimate
+the object state using a theoretical model, whereas learningbased approaches utilize time-sequence data to perform state
+estimation. Some tracking algorithms, such as references [1112], utilize the classical Kalman filter (KF) for predicting
+track states in subsequent frames, providing improved realtime performance without the need for training. The
+Unscented Kalman filter (UKF) [13], known for its ease of
+implementation and accuracy, outperforms the Kalman filter.
+The IMM-UKF algorithm inherits the IMM algorithm's
+capacity to adapt to the modal modulation of motorized targets
+and the excellent accuracy of the UKF filter. In the literature,
+the IMM algorithm is combined with nonlinear filtering to
+fully utilize model information to weight the inputs and
+outputs of the filters for adaptive filtering.
+The IMM algorithm's performance is influenced by the
+selection of the Markov state transfer matrix, model parameter
+noise, and target motion model. An improved radar and
+infrared sensor cooperative tracking algorithm is proposed for
+use in radar and infrared sensor cooperative tracking systems
+based on IMM-UKF [14]. Additionally, IMM-JPDA-STUKF
+[15] combines strong tracking filter (STF) theory with UKF to
+improve the filtering accuracy and robustness of UKF.
+Furthermore, [16] proposes a robust adaptive UKF (RAUKF)
+to improve state estimation accuracy and robustness with
+uncertain noise covariance. We tackles consecutive frame
+prediction problems by incorporating track uncertainty into
+the cost function design, leading to uncertainty-guided data
+association. The modified IMM-UKF algorithm is designed to
+effectively handle the inherent uncertainty associated with
+vehicle movement while demonstrating commendable realtime performance.
+
+RELATED WORKS
+
+Multi-modal fusion methods for Multi-Object Tracking
+(MOT) tasks in autonomous driving have seen significant
+advancements [3]. Various approaches in this domain
+encompass a wide spectrum, incorporating sophisticated
+cross-modal feature representations, enhanced sensors with
+improved reliability in different modalities, and intricate deep
+learning models and fusion methods. These techniques
+encompass a diverse range of fusion strategies, such as Earlyfusion, Deep-fusion, Late-fusion, and Asymmetry-fusion,
+each designed to address specific challenges and optimize
+multi-modal data integration [4].
+DeepSORT [5] incorporates a deep feature extractor to
+capture discriminative appearance features and applies a
+Kalman filter-based motion model for accurate state
+estimation. However, DeepSORT heavily relies on precise
+object detection, making it vulnerable to errors or inaccuracies
+in the detection stage. AB3DMOT [6] takes a step further and
+integrates 3D object detection and association for tracking
+objects in a three-dimensional space, making it particularly
+well-suited for 3D MOT using point cloud data. Meanwhile,
+DeepFusionMOT [7] aims to enhance MOT performance by
+fusing appearance and motion cues through a deep fusion
+network. It combines appearance features from image-based
+object detectors with motion features from optical flow or
+motion estimation algorithms. A key obstacle encountered by
+current MOT techniques lies in the successful integration of
+LiDAR-camera data, where the absence of depth information
+in camera images poses a challenge. To tackle occlusion
+issues, a novel approach is employed, involving the
+computation of depth information for occluded objects from
+2D detections. By projecting both 2D and 3D detections onto
+the horizontal plane, this method effectively eliminates
+occlusion, revealing relative object locations when viewed
+from the bird's-eye view (BEV). As a result, the LiDARcamera fusion becomes more accurate and robust in handling
+challenging scenarios.
+ImVoxelNet [8] constructs a voxel representation of the
+3D space to accumulate information and make predictions
+from multiple input images. Point painting and MVXNet [9]
+are approaches used to fuse image and LiDAR features for
+predicting 3D bounding boxes. DAIR-V2X introduces a late
+fusion framework specifically designed to tackle the VehicleInfrastructure Cooperative 3D Object Detection problem.
+Despite notable progress in 3D object detection, challenges
+persist, including issues related to blind spots and limited
+long-distance perception. SARPNET [10] presents a novel
+feature encoder that effectively deals with the sparsity and
+inhomogeneity present in point clouds. Moreover, it integrates
+
+III.
+
+METHODS
+
+A. Problem Statement
+UAV RGB Image
+
+Image Feature
+Exaction
+
+Fusion
+
+Voxel Feature
+Exaction
+
+3D Bounding
+Boxes
+
+Data association
+
+Detected Objects
+
+UGV RGB Image
+
+UGV Lidar point
+cloud
+
+Image Translation
+UNET Network
+
+Trajectories
+
+UGV BEV Image
+
+Track
+management
+
+Predict States
+
+Fig. 2. The track by detection framework based on a multi-source data fusion
+approach.
+
+854
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:28 UTC from IEEE Xplore. Restrictions apply.
+
+Illustrated in Figure 2, we introduce an innovative
+architecture for 3D object detection and tracking that utilizes
+fusion-based techniques. Within the context of 3D MOT,
+IMM approach formulates the problem as tracking multiple
+objects in a 3D space over time. Each object is represented by
+a state vector comprising its position, velocity, and other
+relevant attributes. The key assumption of the IMM model is
+that the state dynamics of objects can switch between different
+motion models, each representing a distinct motion pattern or
+behavior. The central idea revolves around maintaining a set
+of Kalman filters, with each corresponding to a specific
+motion model, and then combining their estimates to achieve
+robust tracking outcomes.
+
+X = x, y, , ,  
+
+feature maps with weights to enhance the representation of
+vehicle targets in the feature maps.
+Fig. 3 shows the proposed Attention Mechanism module.
+After input the features, the Spatial Attention (SA) module
+first performs Max pooling and Average pooling based on the
+number of feature channels. These pooled features are then
+combined through a channel-wise union, resulting in a 1dimensional output with one channel, achieved by a
+convolutional layer that downsizes the input feature map. By
+incorporating the channel attention mechanism, the network
+can effectively emphasize important features and improve the
+extraction of relevant information from the convolutional
+feature components, thereby enhancing the representation of
+critical features.
+
+
+
+(1)
+
+ xt +  t cos 
+ y +  sin  
+t
+ t
+
+CV
+
+
+X t +1 =
+
+
+
+
+
+
+
+
+0
+
+Input Feature Map
+
+Global Average
+Pooling
+Max Pooling
+
+ (
+
+)(
+
+n
+~
+~
+~
+Pj = i =1 wij Pi + X i − X i  X i − X i
+
+Average Pooling
+FC
+C
+
+FC
+
+Conv
+
+(2)
+
+
+
+
+
+ xt +  sin ( + t ) −  sin( ) 
+
+
+
+
+
+
+(
+)
+y
+cos
+cos(
+)
+
+
+
++
++
++
+t
+t
+
+
+X tCTRV
+=
+
++1
+ + t
+
+
+
+
+
+
+
+
+
+
+n
+~
+X j = i =1 wij X i
+
+Input Feature Map
+
+)
+
+Sigmoid
+
+Output Feature Map
+
+(a)Spatial Attention Module（SAM）
+
+Sigmoid
+
+Output Feature Map
+
+(b)Channel Attention Module（CAM）
+
+Fig. 3. The Spatial Attention (SA) module and Channel Attention (CA)
+module.
+
+C. 3D MOT
+The outcomes of the detection process are transmitted to
+the 3D multi-target tracking module, where object prediction
+and trajectory generation take place. In autopilot scenarios,
+objects exhibit diverse directions and speeds of movement.
+To achieve more accurate state estimation for the objects, we
+employ the Interacting Multiple Model (IMM) approach to
+combine multiple motion models. Specifically, the Constant
+Velocity (CV) model is utilized to estimate the object's linear
+motion, while the Constant Turn Rate and Velocity (CTRV)
+model handles the rotational motion, considering its
+nonlinear properties. As target occlusion can lead to changes
+in observed target motion patterns, this study incorporates a
+fusion of state estimates from various node filters to
+synthesize a globally consistent estimate of the target state.
+1) Input Interaction and State Prediction
+The IMM-UKF algorithm integrates data from diverse
+sensors while accounting for the uncertainty associated with
+each sensor's measurements. This integration is achieved by
+employing IMM approach, which encompasses various
+motion models capturing the different behaviors and
+dynamics of the targets. The UKF is then utilized to predict
+the state of each target based on the fused data.
+To begin the process, data is collected from multiple
+sensors, such as cameras, lidars, and radars, capturing
+comprehensive information about the targets in the
+environment. To ensure consistency and alignment, all
+measurements are preprocessed and transformed into a
+common coordinate system.Next, initial probabilities are
+assigned to each motion model based on either prior
+knowledge or historical data.
+
+(3)
+(4)
+
+
+
+(5)
+
+Equation (1) is The state vector of a moving target
+contains its pose information and motion information.
+Equation (2) and (3) are the system functions of the CV and
+CTRV motion models. Equation (4) and (5) are state and
+covariance using model prediction probabilities and mixed
+probability representations. These probabilities are updated
+based on the likelihood of the measurements under each
+motion model. By continually updating and combining the
+estimates from different motion models, the IMM model
+demonstrates its capability to handle abrupt changes in motion
+patterns, occlusions, and other challenging scenarios that are
+typical in 3D MOT. As a result, it offers a versatile and
+effective approach for tracking multiple objects in complex
+and dynamic environments.
+B. 3D Object Detection
+In this study, we have introduced the Attention
+Mechanism module based on ImVoxelNet to enhance the
+network's focus on specific targets of interest, thereby
+directing more attention towards particular regions or objects.
+The integration of the Attention mechanism in vehicle multitarget tracking methods allows the utilization of Attention
+
+855
+
+Authorized licensed use limited to: Shanghai Jiaotong University. Downloaded on May 25,2026 at 05:49:28 UTC from IEEE Xplore. Restrictions apply.
+
+
