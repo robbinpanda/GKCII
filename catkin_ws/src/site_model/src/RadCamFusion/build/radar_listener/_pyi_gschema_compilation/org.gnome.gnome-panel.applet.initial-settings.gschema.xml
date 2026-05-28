@@ -1,7 +1,0 @@
-<schemalist>
-  <schema id="org.gnome.gnome-panel.applet.initial-settings">
-    <key name="settings" type="a{sv}">
-      <default>{}</default>
-    </key>
-  </schema>
-</schemalist>

@@ -1,2 +1,0 @@
-set(msgs_MESSAGE_FILES "/home/ecs-user/catkin_ws/src/msgs/msg/ListPointCloud.msg;/home/ecs-user/catkin_ws/src/msgs/msg/MsgCamera.msg;/home/ecs-user/catkin_ws/src/msgs/msg/MsgRadar.msg;/home/ecs-user/catkin_ws/src/msgs/msg/MsgRadarObject.msg;/home/ecs-user/catkin_ws/src/msgs/msg/MsgRadCam.msg;/home/ecs-user/catkin_ws/src/msgs/msg/MsgLidCamObject.msg;/home/ecs-user/catkin_ws/src/msgs/msg/MsgLidCam.msg")
-set(msgs_SERVICE_FILES "")

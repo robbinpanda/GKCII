@@ -1,5 +1,0 @@
-[org.gnome.desktop.wm.preferences:GNOME-Flashback]
-button-layout='appmenu:minimize,maximize,close'
-
-[org.gnome.gnome-panel.general:GNOME-Flashback]
-default-layout='gnome-flashback'

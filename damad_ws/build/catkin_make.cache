@@ -1,2 +1,0 @@
-camera_pkg:control_pkg:g29_force_feedback
--DCATKIN_DEVEL_PREFIX=/home/ecs-user/damad_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ecs-user/damad_ws/install -G Unix Makefiles

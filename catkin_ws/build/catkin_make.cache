@@ -1,2 +1,0 @@
-ARS_gazebo_plugin/radar_plugin:msgs:per_msgs:pkg:point_cloud:site_model:velodyne/velodyne_description:velodyne/velodyne_gazebo_plugins:velodyne/velodyne_simulator
--DCATKIN_WHITELIST_PACKAGES= -DCATKIN_DEVEL_PREFIX=/home/ecs-user/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ecs-user/catkin_ws/install -G Unix Makefiles

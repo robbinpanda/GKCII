@@ -1,0 +1,59 @@
+# Build products
+**/build/
+**/devel/
+**/install/
+**/log/
+**/.catkin_tools/
+**/.catkin_workspace
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/Makefile
+
+# Python / ROS generated files
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.pytest_cache/
+
+# Node / local tool cache
+.opencode/node_modules/
+**/node_modules/
+
+# Gazebo local runtime/cache files
+ros1_gazebo_classic_reference/gazebo_home_snapshot/
+**/gazebo_home_snapshot/client-*/
+**/gazebo_home_snapshot/server-*/
+**/gazebo_home_snapshot/*.log
+**/gazebo_home_snapshot/gui.ini
+**/gazebo_home_snapshot/models/model.tar.gz*
+**/gazebo_home_snapshot/models/gazebo_models-master/
+
+# Windows download metadata
+**/*Zone.Identifier
+**/*Zone.Identifier
+
+# Large ML checkpoints and generated datasets
+**/*.pth
+**/*.pt
+**/*.onnx
+**/OpenPCDet/output/
+**/output/
+**/runs/
+
+# ROS bags and experiment outputs
+**/*.bag
+**/*.db3
+**/results/
+
+
+# Compiled/native artifacts from legacy workspaces
+**/dist/
+**/*.so
+**/*.o
+**/*.a
+**/*.log
+
+# Legacy generated evaluation data
+**/src/agent/eval/
+**/src/dispatch/rosbag/
