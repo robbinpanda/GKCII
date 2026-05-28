@@ -10,6 +10,7 @@
 | `docs/px4_ros2_gazebo_ubuntu24_plan.pdf` | 上述方案的 PDF 版本 |
 | `target_paper/` | 复现目标论文 |
 | `tools/pdf_header.tex` | Markdown 转 PDF 时使用的 LaTeX 头文件 |
+| `tools/md_to_pdf_notes.md` | Markdown 转 PDF 的命令笔记 |
 
 ## 推荐实施顺序
 
