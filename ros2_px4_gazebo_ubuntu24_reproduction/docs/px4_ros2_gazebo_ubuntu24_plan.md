@@ -75,49 +75,61 @@ HEADLESS=1 make px4_sitl gz_x500
 
 ### 3.1 安装基础工具
 
+这一节只安装 Ubuntu 官方源里稳定可见的基础工具。`colcon`、`rosdep`、`vcstool` 等 ROS 开发工具放到安装 ROS 2 apt 源之后再装，不在这里装。
+
 ```bash
 sudo apt update
 sudo apt install -y \
   git curl wget lsb-release gnupg software-properties-common \
   build-essential cmake ninja-build python3-pip python3-venv \
-  python3-colcon-common-extensions python3-rosdep \
-  python3-vcstool python3-argcomplete
+  python3-argcomplete
 ```
 
-初始化 rosdep：
+如果这里仍然报找不到包，先确认命令中的 `-` 是英文半角减号，不要从 PDF 复制命令。
+
+### 3.2 安装 ROS 2 Jazzy
+
+Ubuntu 24.04 对应 ROS 2 Jazzy。先启用 universe 源：
+
+```bash
+sudo add-apt-repository universe
+sudo apt update
+```
+
+安装 ROS 2 apt 源。优先尝试 apt 包方式：
+
+```bash
+sudo apt install -y ros2-apt-source
+sudo apt update
+```
+
+如果提示找不到 `ros2-apt-source`，使用官方 `.deb` 方式安装：
+
+```bash
+export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')
+
+curl -L -o /tmp/ros2-apt-source.deb \
+  "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb"
+
+sudo apt install -y /tmp/ros2-apt-source.deb
+sudo apt update
+```
+
+安装 ROS 2 桌面版和开发工具：
+
+```bash
+sudo apt update
+sudo apt install -y ros-jazzy-desktop ros-dev-tools
+```
+
+此时再初始化 rosdep：
 
 ```bash
 sudo rosdep init
 rosdep update
 ```
 
-如果提示已经初始化，跳过 `sudo rosdep init`。
-
-### 3.2 安装 ROS 2 Jazzy
-
-Ubuntu 24.04 对应 ROS 2 Jazzy。
-
-```bash
-sudo apt install -y software-properties-common
-sudo add-apt-repository universe
-sudo apt update
-sudo apt install -y curl
-```
-
-安装 ROS 2 apt 源：
-
-```bash
-sudo apt install -y ros2-apt-source
-```
-
-如果系统没有 `ros2-apt-source`，使用官方安装页中的最新版 `ros2-apt-source_*.deb` 方式安装。
-
-安装桌面版和开发工具：
-
-```bash
-sudo apt update
-sudo apt install -y ros-jazzy-desktop ros-dev-tools
-```
+如果提示已经初始化，跳过 `sudo rosdep init`，直接执行 `rosdep update`。
 
 配置环境：
 
@@ -126,7 +138,15 @@ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 source /opt/ros/jazzy/setup.bash
 ```
 
-验证：
+验证开发工具：
+
+```bash
+which colcon
+which rosdep
+which vcs
+```
+
+验证 ROS 2 通信：
 
 ```bash
 ros2 run demo_nodes_cpp talker
