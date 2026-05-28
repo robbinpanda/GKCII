@@ -240,8 +240,8 @@ MicroXRCEAgent udp4 -p 8888
 ### 3.7 创建 ROS 2 工作空间
 
 ```bash
-mkdir -p ~/uav_ugv_ros2_ws/src
-cd ~/uav_ugv_ros2_ws/src
+mkdir -p /home/robbinpanda/GKCII/uav_ugv_ros2_ws/src
+cd /home/robbinpanda/GKCII/uav_ugv_ros2_ws/src
 git clone https://github.com/PX4/px4_msgs.git
 git clone https://github.com/PX4/px4_ros_com.git
 ```
@@ -251,7 +251,7 @@ git clone https://github.com/PX4/px4_ros_com.git
 编译：
 
 ```bash
-cd ~/uav_ugv_ros2_ws
+cd /home/robbinpanda/GKCII/uav_ugv_ros2_ws
 source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --symlink-install
@@ -279,7 +279,7 @@ make px4_sitl gz_x500
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/uav_ugv_ros2_ws/install/setup.bash
+source /home/robbinpanda/GKCII/uav_ugv_ros2_ws/install/setup.bash
 ros2 topic list | grep fmu
 ```
 
@@ -296,7 +296,7 @@ ros2 topic list | grep fmu
 ### 4.2 跑 PX4 ROS 2 Offboard 示例
 
 ```bash
-cd ~/uav_ugv_ros2_ws
+cd /home/robbinpanda/GKCII/uav_ugv_ros2_ws
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 run px4_ros_com offboard_control
@@ -326,10 +326,10 @@ ros2 run px4_ros_com offboard_control
 
 ### 5.1 新工作空间建议结构
 
-在 `~/uav_ugv_ros2_ws/src` 下新增一个包：
+在 `/home/robbinpanda/GKCII/uav_ugv_ros2_ws/src` 下新增一个包：
 
 ```bash
-cd ~/uav_ugv_ros2_ws/src
+cd /home/robbinpanda/GKCII/uav_ugv_ros2_ws/src
 ros2 pkg create uav_ugv_repro --build-type ament_python \
   --dependencies rclpy geometry_msgs nav_msgs std_msgs sensor_msgs px4_msgs tf_transformations
 ```
@@ -394,7 +394,7 @@ uav_ugv_repro/
 最终希望做到：
 
 ```bash
-cd ~/uav_ugv_ros2_ws
+cd /home/robbinpanda/GKCII/uav_ugv_ros2_ws
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 launch uav_ugv_repro uav_ugv_experiment.launch.py
@@ -638,7 +638,7 @@ time, uav_x, uav_y, uav_z, ugv_x, ugv_y, ugv_yaw, waypoint_id, obstacle_left, ob
 保存：
 
 ```text
-~/uav_ugv_ros2_ws/results/run_001.csv
+/home/robbinpanda/GKCII/uav_ugv_ros2_ws/results/run_001.csv
 ```
 
 实验图：
