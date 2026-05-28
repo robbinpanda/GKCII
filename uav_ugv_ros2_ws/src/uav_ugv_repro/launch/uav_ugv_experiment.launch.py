@@ -1,0 +1,46 @@
+"""Launch the UAV/UGV reproduction experiment."""
+
+from __future__ import annotations
+
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def generate_launch_description() -> LaunchDescription:
+    package_share = get_package_share_directory('uav_ugv_repro')
+    config = os.path.join(package_share, 'config', 'experiment.yaml')
+    px4_dir = os.path.expanduser('~/PX4-Autopilot')
+
+    start_agent = LaunchConfiguration('start_agent')
+    start_px4 = LaunchConfiguration('start_px4')
+
+    return LaunchDescription([
+        DeclareLaunchArgument('start_agent', default_value='true', description='Start Micro XRCE-DDS Agent'),
+        DeclareLaunchArgument('start_px4', default_value='true', description='Start PX4 SITL from this launch file'),
+        ExecuteProcess(
+            cmd=['MicroXRCEAgent', 'udp4', '-p', '8888'],
+            name='micro_xrce_dds_agent',
+            output='screen',
+            condition=IfCondition(start_agent),
+        ),
+        ExecuteProcess(
+            cmd=['make', 'px4_sitl', 'gz_x500'],
+            cwd=px4_dir,
+            name='px4_sitl_gz_x500',
+            output='screen',
+            condition=IfCondition(start_px4),
+        ),
+        Node(package='uav_ugv_repro', executable='ugv_state_publisher', name='ugv_state_publisher', parameters=[config], output='screen'),
+        Node(package='uav_ugv_repro', executable='mission_server', name='mission_server', parameters=[config], output='screen'),
+        Node(package='uav_ugv_repro', executable='px4_uav_leader', name='px4_uav_leader', parameters=[config], output='screen'),
+        Node(package='uav_ugv_repro', executable='gazebo_obstacle_detector', name='gazebo_obstacle_detector', parameters=[config], output='screen'),
+        Node(package='uav_ugv_repro', executable='grid_obstacle_planner', name='grid_obstacle_planner', parameters=[config], output='screen'),
+        Node(package='uav_ugv_repro', executable='ugv_follower_controller', name='ugv_follower_controller', parameters=[config], output='screen'),
+        Node(package='uav_ugv_repro', executable='trajectory_logger', name='trajectory_logger', parameters=[config], output='screen'),
+    ])

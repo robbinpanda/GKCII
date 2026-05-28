@@ -60,3 +60,11 @@ ros1_gazebo_classic_reference/gazebo_home_snapshot/
 
 # Local assistant/tool cache
 .opencode/
+
+# ROS 2 reproduction workspace generated/dependency content
+uav_ugv_ros2_ws/build/
+uav_ugv_ros2_ws/install/
+uav_ugv_ros2_ws/log/
+uav_ugv_ros2_ws/results/
+uav_ugv_ros2_ws/src/px4_msgs/
+uav_ugv_ros2_ws/src/px4_ros_com/
