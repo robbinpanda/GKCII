@@ -310,6 +310,32 @@ ros2 run px4_ros_com offboard_control
 
 注意：PX4 Offboard 控制要求持续发送 `OffboardControlMode` 等消息。官方文档提醒，如果低于约 2 Hz，PX4 会退出 Offboard。实际建议用 20 Hz。
 
+如果 `ros2 run px4_ros_com offboard_control` 已经启动，但 UAV 没有起飞，先看 PX4 终端是否出现类似：
+
+```text
+Preflight Fail: system power unavailable
+Preflight Fail: No connection to the GCS
+Arming denied: Resolve system health failures first
+```
+
+这说明 ROS 2 和 PX4 通信未必有问题，而是 PX4 预检拒绝解锁。确认这是 SITL 仿真环境后，可以在运行 `make px4_sitl gz_x500` 的那个 PX4 终端里，直接在 `pxh>` 提示符后输入：
+
+```bash
+param set CBRK_SUPPLY_CHK 894281
+param set NAV_DLL_ACT 0
+param save
+```
+
+然后重新运行 Offboard 示例：
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source /home/robbinpanda/GKCII/uav_ugv_ros2_ws/install/setup.bash
+ros2 run px4_ros_com offboard_control
+```
+
+`CBRK_SUPPLY_CHK` 用于在仿真中绕过电源检测，`NAV_DLL_ACT` 用于避免没有 QGroundControl/GCS 连接时阻止解锁。该处理只用于 SITL 仿真，不用于真机。
+
 ## 5. “跑通 catkin_ws 同样效果”的 ROS 2 方案
 
 这里的“同样效果”不是原样运行 `catkin_ws/*.sh`，而是在 ROS 2 中实现相同实验能力：
@@ -753,6 +779,21 @@ UGV 能前进，`/ugv/odom` 有输出。
 
 - 先不用 ray 传感器，用障碍物真值检测。
 - 论文复现重点是算法，不是传感器插件。
+
+### 风险 5：Offboard 示例启动但 UAV 不起飞
+
+现象：
+
+- `ros2 run px4_ros_com offboard_control` 能运行。
+- PX4 终端出现 `Arming denied`。
+- 日志包含 `system power unavailable` 或 `No connection to the GCS`。
+
+处理：
+
+- 确认 `MicroXRCEAgent` 和 `make px4_sitl gz_x500` 都在运行。
+- 在 PX4 终端的 `pxh>` 中执行 `commander check` 查看具体预检失败项。
+- SITL 仿真中可临时设置 `CBRK_SUPPLY_CHK=894281` 和 `NAV_DLL_ACT=0` 后重新跑 Offboard 示例。
+- 如果希望保持默认安全检查，可以启动 QGroundControl，让 PX4 收到 GCS heartbeat。
 
 ## 10. 最推荐的实际执行顺序
 
